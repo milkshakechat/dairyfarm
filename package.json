@@ -4,29 +4,40 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "clean": "rimraf build",
+    "type-check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx ts-node --project tsconfig.json -r tsconfig-paths/register ./src/index.ts",
-    "build": "npm run generate && tsc --build",
+    "dev": "NODE_ENV=development && npx ts-node --project tsconfig.json -r tsconfig-paths/register ./src/index.ts",
+    "build": "NODE_ENV=production && npm run clean && npm run generate && tsc && tsc-alias",
     "generate": "graphql-codegen",
-    "start": "node build/index.js",
-    "deploy": "npm install && npm run build && gcloud run deploy superlore-sockets --memory 1024Mi --project=superlore-demo --update-env-vars NODE_ENV=staging"
+    "start": "NODE_ENV=production && nodemon  -r tsconfig-paths/register build/index.js",
+    "deploy:staging": "npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-dev-faf77 --update-env-vars NODE_ENV=staging"
+  },
+  "_moduleAliases": {
+    "@": "build/src"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.21.5",
+    "@babel/preset-env": "^7.22.4",
+    "@babel/preset-typescript": "^7.21.5",
     "@graphql-codegen/cli": "^4.0.1",
     "@graphql-codegen/typescript": "^4.0.0",
     "@graphql-codegen/typescript-resolvers": "^4.0.0",
+    "@graphql-yoga/plugin-disable-introspection": "^0.8.1",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/fluent-ffmpeg": "^2.1.21",
+    "@types/module-alias": "^2.0.1",
     "@types/node": "^18.15.11",
     "@types/uuid": "^9.0.1",
     "@types/ws": "^8.5.4",
     "@types/yazl": "^2.4.2",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
+    "babel-plugin-module-resolver": "^5.0.0",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard-with-typescript": "^34.0.1",
@@ -36,7 +47,9 @@
     "eslint-plugin-react": "^7.32.2",
     "nodemon": "^2.0.22",
     "prettier": "^2.8.7",
+    "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.6",
     "tsconfig-paths": "^3.14.2",
     "typescript": "^5.0.4"
   },
@@ -56,6 +69,7 @@
     "graphql": "^16.6.0",
     "graphql-ws": "^5.13.1",
     "graphql-yoga": "^3.9.1",
+    "module-alias": "^2.2.3",
     "socket.io": "^4.6.1",
     "ws": "^8.11.0"
   }

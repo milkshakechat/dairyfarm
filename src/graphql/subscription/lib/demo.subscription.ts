@@ -3,7 +3,7 @@ import { sleep } from "@/utils/utils";
 export const demoSubscription = {
   subscribe: async function* () {
     for (const msg of ["Hi", "Bonjour", "Hola", "Ciao", "Zdravo"]) {
-      await sleep(2000);
+      await sleep(1000);
       yield { message: msg };
     }
   },

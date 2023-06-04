@@ -27,9 +27,9 @@ RUN apt-get update
 RUN apt-get install -y ffmpeg
 
 # Expose the application port
-EXPOSE 8888
+EXPOSE 8080
 
 # Start the application
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
 # CMD ["node", "build/index.js"]
 # [END dockerfile_npm_node]

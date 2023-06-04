@@ -5,4 +5,7 @@ export const demoQuery = (
   args: QueryDemoQueryArgs,
   _context: any,
   _info: any
-) => `Greetings! You said ${args.input}`;
+) => {
+  console.log(`Resolver for demoQuery`);
+  return `Greetings! You said ${args.input}`;
+};
