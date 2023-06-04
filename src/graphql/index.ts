@@ -6,6 +6,7 @@ import {
   QueryGreetingsArgs,
   Resolvers,
 } from "@/graphql/types/resolvers-types";
+import { sleep } from "@/utils/utils";
 
 const typeDefs = readFileSync("src/graphql/schema.graphql", "utf8");
 
@@ -32,8 +33,9 @@ const resolvers: Resolvers = {
   Subscription: {
     announcements: {
       subscribe: async function* () {
-        for (const hi of ["Hi", "Bonjour", "Hola", "Ciao", "Zdravo"]) {
-          yield { message: hi };
+        for (const msg of ["Hi", "Bonjour", "Hola", "Ciao", "Zdravo"]) {
+          await sleep(2000);
+          yield { message: msg };
         }
       },
       resolve: (payload: any) => {
