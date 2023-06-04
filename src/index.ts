@@ -3,12 +3,17 @@ dotenv.config();
 
 import { createServer } from "http";
 import { createYoga } from "graphql-yoga";
+import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
 
-const SERVER_DOMAIN = process.env.SERVER_DOMAIN || "http://localhost";
-const SOCKETS_PORT = process.env.SOCKETS_PORT || 8888;
+const SOCKETS_PORT = process.env.SOCKETS_PORT || 8080;
+
+const yogaPlugins = [];
+if (process.env.NODE_ENV !== "development") {
+  yogaPlugins.push(useDisableIntrospection());
+}
 
 const yoga = createYoga({
   schema,
@@ -16,6 +21,7 @@ const yoga = createYoga({
     // Use WebSockets in GraphiQL
     subscriptionsProtocol: "WS",
   },
+  plugins: yogaPlugins,
 });
 
 // Get NodeJS Server from Yoga
@@ -33,6 +39,7 @@ useServer(
     execute: (args: any) => args.rootValue.execute(args),
     subscribe: (args: any) => args.rootValue.subscribe(args),
     onSubscribe: async (ctx, msg) => {
+      console.log(`Got a new subscription...`);
       const { schema, execute, subscribe, contextFactory, parse, validate } =
         yoga.getEnveloped({
           ...ctx,
@@ -62,5 +69,5 @@ useServer(
 );
 
 server.listen(SOCKETS_PORT, () => {
-  console.log(`Listening on ${SERVER_DOMAIN}:${SOCKETS_PORT}/graphql`);
+  console.log(`Listening on PORT ${SOCKETS_PORT}/graphql`);
 });
