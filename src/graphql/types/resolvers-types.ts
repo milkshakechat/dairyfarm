@@ -37,9 +37,16 @@ export type MutationDemoMutationArgs = {
   title: Scalars['String']['input'];
 };
 
+export type Ping = {
+  __typename?: 'Ping';
+  timestamp: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  demoPing: Ping;
   demoQuery: Scalars['String']['output'];
+  ping: Ping;
 };
 
 
@@ -128,6 +135,7 @@ export type ResolversTypes = {
   DemoSubscriptionEvent: ResolverTypeWrapper<DemoSubscriptionEvent>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
+  Ping: ResolverTypeWrapper<Ping>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
@@ -140,6 +148,7 @@ export type ResolversParentTypes = {
   DemoSubscriptionEvent: DemoSubscriptionEvent;
   ID: Scalars['ID']['output'];
   Mutation: {};
+  Ping: Ping;
   Query: {};
   String: Scalars['String']['output'];
   Subscription: {};
@@ -160,8 +169,15 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   demoMutation?: Resolver<ResolversTypes['DemoMutatedItem'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'title'>>;
 };
 
+export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
+  timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
+  ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
 };
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
@@ -172,6 +188,7 @@ export type Resolvers<ContextType = any> = {
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Ping?: PingResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
 };
