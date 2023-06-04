@@ -5,7 +5,7 @@ import { createServer } from "http";
 import { createYoga } from "graphql-yoga";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
-import { schema } from "@/services/graphql";
+import { schema } from "@/graphql";
 
 const SERVER_DOMAIN = process.env.SERVER_DOMAIN || "http://localhost";
 const SOCKETS_PORT = process.env.SOCKETS_PORT || 8888;

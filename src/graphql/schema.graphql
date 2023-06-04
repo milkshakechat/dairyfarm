@@ -1,0 +1,21 @@
+
+type Story {
+  id: ID!
+  title: String!
+}
+
+type Annoucement {
+  message: String!
+}
+ 
+type Query {
+  greetings(input: String!): String!
+}
+
+type Mutation {
+  createStory(title: String!): Story!
+}
+
+type Subscription {
+  announcements: Annoucement!
+}
