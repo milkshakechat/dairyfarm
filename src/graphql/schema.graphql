@@ -1,21 +1,21 @@
 
-type Story {
+type DemoMutatedItem {
   id: ID!
   title: String!
 }
 
-type Annoucement {
+type DemoSubscriptionEvent {
   message: String!
 }
  
 type Query {
-  greetings(input: String!): String!
+  demoQuery(input: String!): String!
 }
 
 type Mutation {
-  createStory(title: String!): Story!
+  demoMutation(title: String!): DemoMutatedItem!
 }
 
 type Subscription {
-  announcements: Annoucement!
+  demoSubscription: DemoSubscriptionEvent!
 }

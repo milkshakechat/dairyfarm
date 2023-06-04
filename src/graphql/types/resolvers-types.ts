@@ -16,40 +16,40 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
-export type Annoucement = {
-  __typename?: 'Annoucement';
+export type DemoMutatedItem = {
+  __typename?: 'DemoMutatedItem';
+  id: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type DemoSubscriptionEvent = {
+  __typename?: 'DemoSubscriptionEvent';
   message: Scalars['String']['output'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createStory: Story;
+  demoMutation: DemoMutatedItem;
 };
 
 
-export type MutationCreateStoryArgs = {
+export type MutationDemoMutationArgs = {
   title: Scalars['String']['input'];
 };
 
 export type Query = {
   __typename?: 'Query';
-  greetings: Scalars['String']['output'];
+  demoQuery: Scalars['String']['output'];
 };
 
 
-export type QueryGreetingsArgs = {
+export type QueryDemoQueryArgs = {
   input: Scalars['String']['input'];
-};
-
-export type Story = {
-  __typename?: 'Story';
-  id: Scalars['ID']['output'];
-  title: Scalars['String']['output'];
 };
 
 export type Subscription = {
   __typename?: 'Subscription';
-  announcements: Annoucement;
+  demoSubscription: DemoSubscriptionEvent;
 };
 
 
@@ -123,56 +123,56 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Annoucement: ResolverTypeWrapper<Annoucement>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
+  DemoSubscriptionEvent: ResolverTypeWrapper<DemoSubscriptionEvent>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
-  Story: ResolverTypeWrapper<Story>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Annoucement: Annoucement;
   Boolean: Scalars['Boolean']['output'];
+  DemoMutatedItem: DemoMutatedItem;
+  DemoSubscriptionEvent: DemoSubscriptionEvent;
   ID: Scalars['ID']['output'];
   Mutation: {};
   Query: {};
-  Story: Story;
   String: Scalars['String']['output'];
   Subscription: {};
 };
 
-export type AnnoucementResolvers<ContextType = any, ParentType extends ResolversParentTypes['Annoucement'] = ResolversParentTypes['Annoucement']> = {
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createStory?: Resolver<ResolversTypes['Story'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'title'>>;
-};
-
-export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  greetings?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryGreetingsArgs, 'input'>>;
-};
-
-export type StoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Story'] = ResolversParentTypes['Story']> = {
+export type DemoMutatedItemResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoMutatedItem'] = ResolversParentTypes['DemoMutatedItem']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DemoSubscriptionEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoSubscriptionEvent'] = ResolversParentTypes['DemoSubscriptionEvent']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  demoMutation?: Resolver<ResolversTypes['DemoMutatedItem'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'title'>>;
+};
+
+export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  demoQuery?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
+};
+
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
-  announcements?: SubscriptionResolver<ResolversTypes['Annoucement'], "announcements", ParentType, ContextType>;
+  demoSubscription?: SubscriptionResolver<ResolversTypes['DemoSubscriptionEvent'], "demoSubscription", ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
-  Annoucement?: AnnoucementResolvers<ContextType>;
+  DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
+  DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  Story?: StoryResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
 };
 
