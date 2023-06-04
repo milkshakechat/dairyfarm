@@ -1,0 +1,8 @@
+
+type Ping {
+  timestamp: String!
+}
+
+type Query {
+  ping: Ping!
+}

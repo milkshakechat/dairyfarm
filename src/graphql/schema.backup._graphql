@@ -1,0 +1,21 @@
+
+type DemoMutatedItem {
+  id: ID!
+  title: String!
+}
+
+type DemoSubscriptionEvent {
+  message: String!
+}
+ 
+type Query {
+  demoQuery(input: String!): String!
+}
+
+type Mutation {
+  demoMutation(title: String!): DemoMutatedItem!
+}
+
+type Subscription {
+  demoSubscription: DemoSubscriptionEvent!
+}
