@@ -7,7 +7,6 @@ export const demoQuery = async (
   _context: any,
   _info: any
 ) => {
-  console.log(`Resolver for demoQuery`);
   const { userID } = await authGuard({ _context, enforceAuth: true });
   return `Greetings! You said ${args.input}. Your userID is ${userID}`;
 };
