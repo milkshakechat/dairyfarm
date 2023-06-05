@@ -1,4 +1,3 @@
-import { GraphQLSchema, GraphQLObjectType, GraphQLString } from "graphql";
 import { readFileSync, readdirSync } from "node:fs";
 import { createSchema } from "graphql-yoga";
 import { Resolvers } from "@/graphql/types/resolvers-types";
