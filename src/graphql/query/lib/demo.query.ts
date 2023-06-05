@@ -1,11 +1,13 @@
+import { authGuard } from "@/graphql/authGuard";
 import { QueryDemoQueryArgs } from "@/graphql/types/resolvers-types";
 
-export const demoQuery = (
+export const demoQuery = async (
   _parent: any,
   args: QueryDemoQueryArgs,
   _context: any,
   _info: any
 ) => {
   console.log(`Resolver for demoQuery`);
-  return `Greetings! You said ${args.input}`;
+  const { userID } = await authGuard({ _context, enforceAuth: true });
+  return `Greetings! You said ${args.input}. Your userID is ${userID}`;
 };

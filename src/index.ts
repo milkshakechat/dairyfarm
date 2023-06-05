@@ -2,11 +2,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createServer } from "http";
-import { createYoga } from "graphql-yoga";
+import { createYoga, Plugin } from "graphql-yoga";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
+import { initializeApp } from "firebase-admin/app";
+
+// load firebase app credentials using secretmanager
+// https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
+const firebaseApp = initializeApp();
 
 const SOCKETS_PORT = process.env.SOCKETS_PORT || 8080;
 
