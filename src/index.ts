@@ -8,10 +8,7 @@ import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
 import { initializeApp } from "firebase-admin/app";
-
-// load firebase app credentials using secretmanager
-// https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
-const firebaseApp = initializeApp();
+import { getFirebaseConfig } from "@/services/secrets";
 
 const SOCKETS_PORT = process.env.SOCKETS_PORT || 8080;
 
@@ -44,7 +41,9 @@ useServer(
     execute: (args: any) => args.rootValue.execute(args),
     subscribe: (args: any) => args.rootValue.subscribe(args),
     onSubscribe: async (ctx, msg) => {
-      console.log(`Got a new subscription...`);
+      console.log(
+        `A new GraphQL operation received on subscription channel...`
+      );
       const { schema, execute, subscribe, contextFactory, parse, validate } =
         yoga.getEnveloped({
           ...ctx,
@@ -72,6 +71,15 @@ useServer(
   },
   wsServer
 );
+
+const initFirebase = async () => {
+  console.log(`Init firebase...`);
+  const firebaseConfig = await getFirebaseConfig();
+  // load firebase app credentials using secretmanager
+  // https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
+  initializeApp(firebaseConfig);
+};
+initFirebase();
 
 server.listen(SOCKETS_PORT, () => {
   console.log(`Listening on PORT ${SOCKETS_PORT}/graphql`);

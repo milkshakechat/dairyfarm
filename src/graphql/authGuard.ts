@@ -1,6 +1,7 @@
 import { UserID } from "@milkshakechat/helpers";
 import { GraphQLError } from "graphql";
 import { getAuth } from "firebase-admin/auth";
+import { getTokenFromBearer } from "@/utils/utils";
 
 export const authGuard = async ({
   _context,
@@ -9,8 +10,6 @@ export const authGuard = async ({
   _context: any;
   enforceAuth: boolean;
 }) => {
-  console.log(`--- context ---`);
-  console.log(_context.connectionParams);
   const status: {
     userID: UserID | null;
     idToken: string | null;
@@ -26,13 +25,16 @@ export const authGuard = async ({
     return status;
   }
   try {
-    const decodedToken = await getAuth().verifyIdToken(authorization);
+    const idToken = getTokenFromBearer(authorization);
+    if (!idToken) {
+      throw new GraphQLError(`No user auth token found in Bearer Auth`);
+    }
+    const decodedToken = await getAuth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
-    console.log(`Decoded a uid = ${uid}`);
     return {
       ...status,
       userID: uid,
-      idToken: authorization as string,
+      idToken: idToken as string,
       isAuth: true,
     };
   } catch (e) {
