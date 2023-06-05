@@ -9,3 +9,7 @@ export function getTokenFromBearer(authBearStrig?: string) {
   }
   return null;
 }
+
+export function sayHello() {
+  return "Hello";
+}

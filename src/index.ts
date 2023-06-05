@@ -8,7 +8,7 @@ import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
 import { initializeApp } from "firebase-admin/app";
-import { getFirebaseConfig } from "@/services/secrets";
+import { getFirebaseConfig } from "@/utils/secrets";
 
 const SOCKETS_PORT = process.env.SOCKETS_PORT || 8080;
 

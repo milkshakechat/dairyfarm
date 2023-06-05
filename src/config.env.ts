@@ -7,6 +7,14 @@ const devConfig = {
       secretId: "firebase-init",
       versionId: "latest",
     },
+    SENDBIRD_API: {
+      secretId: "sendbird-api",
+      versionId: "latest",
+    },
+  },
+  SENDBIRD: {
+    SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
+    API_URL: "https://api-D24F8D62-B601-4978-8DFB-F17DB6CD741F.sendbird.com",
   },
   FIREBASE: {
     apiKey: "AIzaSyAqVL1P4PsE40Bd-Mu8CnqwczpC-hSTaz0",
@@ -27,6 +35,14 @@ const stagingConfig = {
       secretId: "firebase-init",
       versionId: "latest",
     },
+    SENDBIRD_API: {
+      secretId: "sendbird-api",
+      versionId: "latest",
+    },
+  },
+  SENDBIRD: {
+    SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
+    API_URL: "https://api-D24F8D62-B601-4978-8DFB-F17DB6CD741F.sendbird.com",
   },
   FIREBASE: {
     apiKey: "AIzaSyAqVL1P4PsE40Bd-Mu8CnqwczpC-hSTaz0",
@@ -47,6 +63,14 @@ const prodConfig = {
       secretId: "firebase-init",
       versionId: "latest",
     },
+    SENDBIRD_API: {
+      secretId: "sendbird-api",
+      versionId: "latest",
+    },
+  },
+  SENDBIRD: {
+    SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
+    API_URL: "https://api-D24F8D62-B601-4978-8DFB-F17DB6CD741F.sendbird.com",
   },
   FIREBASE: {
     apiKey: "AIzaSyAqVL1P4PsE40Bd-Mu8CnqwczpC-hSTaz0",
