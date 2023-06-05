@@ -57,3 +57,12 @@ export const getFirebaseConfig = async () => {
   });
   return JSON.parse(firebaseConfig) as FirebaseConfig;
 };
+
+export const getSendbirdSecret = async () => {
+  const sendbirdSecret = await accessSecretVersion({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.SENDBIRD_API.secretId,
+    versionId: config.SECRETS.SENDBIRD_API.versionId,
+  });
+  return sendbirdSecret;
+};
