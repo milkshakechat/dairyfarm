@@ -6,3 +6,5 @@ type Ping {
 type Query {
   ping: Ping!
 }
+
+scalar UserID
