@@ -1,0 +1,15 @@
+type MyProfile {
+  username: String!
+  email: String!
+  paidChat: Boolean!
+  userID: UserID!
+  bio: String!
+}
+
+type Query {
+  getMyProfile: MyProfile!
+}
+
+type Mutation {
+  upgradeChatPlan: MyProfile!
+}

@@ -92,3 +92,75 @@ export const issueSessonToken = async ({ userID }: { userID: UserID }) => {
     console.log(e);
   }
 };
+
+interface CreateGroupChatProps {
+  participants: UserID[];
+  isEphemeral?: boolean;
+}
+export const createGroupChannel = async ({
+  participants,
+  isEphemeral = false,
+}: CreateGroupChatProps) => {
+  console.log(`createGroupChannel`);
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.post(
+      `${config.SENDBIRD.API_URL}/v3/group_channels`,
+      {
+        user_ids: participants,
+        is_distinct: true,
+        is_public: false,
+        is_ephemeral: isEphemeral,
+        invitation_status: participants.reduce<Record<UserID, string>>(
+          (acc, curr) => {
+            return {
+              ...acc,
+              [curr]: "joined",
+            };
+          },
+          {}
+        ),
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// interface CreateGroupChannelInviteProps {
+//   userID: UserID;
+//   channelUrl: string;
+// }
+// export const acceptGroupChannelInvite = async ({
+//   userID,
+//   channelUrl,
+// }: CreateGroupChannelInviteProps) => {
+//   console.log(`acceptGroupChannelInvite`);
+//   const secretKey = await SendBirdService.getSendbirdSecret();
+//   try {
+//     const response = await axios.post(
+//       `${config.SENDBIRD.API_URL}/v3/group_channels/${channelUrl}/accept`,
+//       {
+//         user_id: userID,
+//       },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           "Api-Token": secretKey,
+//         },
+//       }
+//     );
+//     console.log(response.data);
+//     return response.data;
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
