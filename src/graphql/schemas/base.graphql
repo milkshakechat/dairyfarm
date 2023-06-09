@@ -7,4 +7,26 @@ type Query {
   ping: Ping!
 }
 
+type ResponseError {
+  error: Status!
+}
+
+type Status {
+  code: StatusCode!
+  message: String!
+}
+
+enum StatusCode {
+  Success
+  NotImplemented
+  BadRequest
+  NotFound
+  ServerError
+  InvalidOperation
+  Forbidden
+  Unauthorized
+}
+
 scalar UserID
+scalar GroupChatID
+

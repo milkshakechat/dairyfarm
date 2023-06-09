@@ -1,0 +1,43 @@
+
+# type GroupChat {
+#   id: GroupChatID!
+#   sendBirdUrl: String!
+# }
+
+# type Query {
+#   demoQuery(input: String!): String!
+#   demoPing: Ping!
+# }
+
+# --- createGroupChat
+# input CreateGroupChatInput {
+#   userIDs: [UserID!]!
+# }
+# type CreateGroupChatResponseSuccess {
+#   groupChat: GroupChat!
+# }
+# union CreateGroupChatResponse =
+#     CreateGroupChatResponseSuccess
+#   | ResponseError
+
+
+# type Mutation {
+  # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
+  # sendFriendRequest
+  # joinGroupChat
+  # leaveGroupChat
+  # respondFriendRequest
+  # modifyFriendship
+# }
+
+
+# --- template
+# input TemplateInput {
+#   userID: UserID!
+# }
+# type TemplateResponseSuccess {
+#   statusCode: String!
+# }
+# union TemplateResponse =
+#     SendFriendRequestResponseSuccess
+#   | ResponseError

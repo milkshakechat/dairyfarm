@@ -13,8 +13,21 @@ type Query {
   demoPing: Ping!
 }
 
+
+# --- template
+# input TemplateInput {
+#   userID: UserID!
+# }
+# type TemplateResponseSuccess {
+#   statusCode: String!
+# }
+# union TemplateResponse =
+#     SendFriendRequestResponseSuccess
+#   | ResponseError
+
 type Mutation {
   demoMutation(title: String!): DemoMutatedItem!
+  # templateMutation(input: TemplateInput!): TemplateResponse!
 }
 
 type Subscription {
