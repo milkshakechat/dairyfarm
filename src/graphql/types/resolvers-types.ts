@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -14,6 +14,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  GroupChatID: { input: any; output: any; }
+  UserID: { input: any; output: any; }
 };
 
 export type DemoMutatedItem = {
@@ -53,6 +55,28 @@ export type Query = {
 export type QueryDemoQueryArgs = {
   input: Scalars['String']['input'];
 };
+
+export type ResponseError = {
+  __typename?: 'ResponseError';
+  error: Status;
+};
+
+export type Status = {
+  __typename?: 'Status';
+  code: StatusCode;
+  message: Scalars['String']['output'];
+};
+
+export enum StatusCode {
+  BadRequest = 'BadRequest',
+  Forbidden = 'Forbidden',
+  InvalidOperation = 'InvalidOperation',
+  NotFound = 'NotFound',
+  NotImplemented = 'NotImplemented',
+  ServerError = 'ServerError',
+  Success = 'Success',
+  Unauthorized = 'Unauthorized'
+}
 
 export type Subscription = {
   __typename?: 'Subscription';
@@ -133,12 +157,17 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
   DemoSubscriptionEvent: ResolverTypeWrapper<DemoSubscriptionEvent>;
+  GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Ping: ResolverTypeWrapper<Ping>;
   Query: ResolverTypeWrapper<{}>;
+  ResponseError: ResolverTypeWrapper<ResponseError>;
+  Status: ResolverTypeWrapper<Status>;
+  StatusCode: StatusCode;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  UserID: ResolverTypeWrapper<Scalars['UserID']['output']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -146,12 +175,16 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   DemoMutatedItem: DemoMutatedItem;
   DemoSubscriptionEvent: DemoSubscriptionEvent;
+  GroupChatID: Scalars['GroupChatID']['output'];
   ID: Scalars['ID']['output'];
   Mutation: {};
   Ping: Ping;
   Query: {};
+  ResponseError: ResponseError;
+  Status: Status;
   String: Scalars['String']['output'];
   Subscription: {};
+  UserID: Scalars['UserID']['output'];
 };
 
 export type DemoMutatedItemResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoMutatedItem'] = ResolversParentTypes['DemoMutatedItem']> = {
@@ -164,6 +197,10 @@ export type DemoSubscriptionEventResolvers<ContextType = any, ParentType extends
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface GroupChatIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['GroupChatID'], any> {
+  name: 'GroupChatID';
+}
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   demoMutation?: Resolver<ResolversTypes['DemoMutatedItem'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'title'>>;
@@ -180,16 +217,35 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
 };
 
+export type ResponseErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ResponseError'] = ResolversParentTypes['ResponseError']> = {
+  error?: Resolver<ResolversTypes['Status'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type StatusResolvers<ContextType = any, ParentType extends ResolversParentTypes['Status'] = ResolversParentTypes['Status']> = {
+  code?: Resolver<ResolversTypes['StatusCode'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   demoSubscription?: SubscriptionResolver<ResolversTypes['DemoSubscriptionEvent'], "demoSubscription", ParentType, ContextType>;
 };
 
+export interface UserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UserID'], any> {
+  name: 'UserID';
+}
+
 export type Resolvers<ContextType = any> = {
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
+  GroupChatID?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  ResponseError?: ResponseErrorResolvers<ContextType>;
+  Status?: StatusResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  UserID?: GraphQLScalarType;
 };
 

@@ -1,4 +1,4 @@
-const devConfig = {
+const devConfig: ConfigEnv = {
   GCLOUD: {
     projectId: "milkshake-dev-faf77",
   },
@@ -26,7 +26,7 @@ const devConfig = {
     measurementId: "G-N0YXCSQJ89",
   },
 };
-const stagingConfig = {
+const stagingConfig: ConfigEnv = {
   GCLOUD: {
     projectId: "milkshake-dev-faf77",
   },
@@ -54,7 +54,7 @@ const stagingConfig = {
     measurementId: "G-N0YXCSQJ89",
   },
 };
-const prodConfig = {
+const prodConfig: ConfigEnv = {
   GCLOUD: {
     projectId: "milkshake-dev-faf77",
   },
@@ -82,6 +82,33 @@ const prodConfig = {
     measurementId: "G-N0YXCSQJ89",
   },
 };
+
+interface SecretConfig {
+  secretId: string;
+  versionId: string;
+}
+interface ConfigEnv {
+  GCLOUD: {
+    projectId: string;
+  };
+  SECRETS: {
+    FIREBASE_CONFIG: SecretConfig;
+    SENDBIRD_API: SecretConfig;
+  };
+  SENDBIRD: {
+    SENDBIRD_APP_ID: string;
+    API_URL: string;
+  };
+  FIREBASE: {
+    apiKey: string;
+    authDomain: string;
+    projectId: string;
+    storageBucket: string;
+    messagingSenderId: string;
+    appId: string;
+    measurementId: string;
+  };
+}
 
 export default (() => {
   // console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);

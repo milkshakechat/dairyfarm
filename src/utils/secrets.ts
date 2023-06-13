@@ -55,6 +55,7 @@ export const getFirebaseConfig = async () => {
     secretId: config.SECRETS.FIREBASE_CONFIG.secretId,
     versionId: config.SECRETS.FIREBASE_CONFIG.versionId,
   });
+  // return firebaseConfig as unknown as FirebaseConfig;
   return JSON.parse(firebaseConfig) as FirebaseConfig;
 };
 

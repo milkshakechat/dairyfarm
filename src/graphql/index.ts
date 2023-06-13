@@ -1,9 +1,9 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { createSchema } from "graphql-yoga";
 import { Resolvers } from "@/graphql/types/resolvers-types";
-import QueryResolvers from "@/graphql/query";
-import MutationResolvers from "@/graphql/mutation";
-import SubscriptionResolvers from "@/graphql/subscription";
+import * as QueryResolvers from "@/graphql/queries";
+import * as MutationResolvers from "@/graphql/mutations";
+import * as SubscriptionResolvers from "@/graphql/subscriptions";
 
 // const typeDefs = readFileSync("src/graphql/schema.graphql", "utf8");
 // Define the directory where the .graphql files are
