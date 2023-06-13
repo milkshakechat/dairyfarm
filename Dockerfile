@@ -1,6 +1,6 @@
 # [START dockerfile_npm_node]
 # Use the official Node.js base image
-FROM node:latest
+FROM node:18
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -21,10 +21,6 @@ COPY . ./
 
 # Run custom commands
 RUN npm run build
-
-# Install ffmpeg
-RUN apt-get update
-RUN apt-get install -y ffmpeg
 
 # Expose the application port
 EXPOSE 8080

@@ -8,10 +8,10 @@
     "type-check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "NODE_ENV=development && npx ts-node --project tsconfig.json -r tsconfig-paths/register ./src/index.ts",
-    "build": "NODE_ENV=production && npm run clean && npm run generate && tsc && tsc-alias",
+    "build": "NODE_ENV=development && npm run clean && npm run generate && tsc && tsc-alias",
     "generate": "graphql-codegen",
-    "start": "NODE_ENV=production && nodemon  -r tsconfig-paths/register build/index.js",
-    "deploy:staging": "npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-dev-faf77 --update-env-vars NODE_ENV=staging"
+    "start": "NODE_ENV=development && nodemon  -r tsconfig-paths/register build/index.js",
+    "deploy:staging": "NODE_ENV=development && npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-dev-faf77 --update-env-vars NODE_ENV=development --region=us-west3"
   },
   "_moduleAliases": {
     "@": "build/src"

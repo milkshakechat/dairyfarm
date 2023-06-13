@@ -10,7 +10,7 @@ import { schema } from "@/graphql";
 import { initializeApp } from "firebase-admin/app";
 import { getFirebaseConfig } from "@/utils/secrets";
 
-const SOCKETS_PORT = process.env.SOCKETS_PORT || 8080;
+const SOCKETS_PORT = process.env.PORT || 8080;
 
 const yogaPlugins = [];
 if (process.env.NODE_ENV !== "development") {
@@ -73,7 +73,6 @@ useServer(
 );
 
 const initFirebase = async () => {
-  console.log(`Init firebase...`);
   const firebaseConfig = await getFirebaseConfig();
   // load firebase app credentials using secretmanager
   // https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
