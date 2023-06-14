@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createSchema } from "graphql-yoga";
 import { Resolvers } from "@/graphql/types/resolvers-types";
 import * as QueryResolvers from "@/graphql/queries";
+import * as QueryResponses from "@/graphql/queries/responses";
 import * as MutationResolvers from "@/graphql/mutations";
 import * as SubscriptionResolvers from "@/graphql/subscriptions";
 
@@ -21,6 +22,7 @@ const resolvers: Resolvers = {
   Query: QueryResolvers,
   Mutation: MutationResolvers,
   Subscription: SubscriptionResolvers,
+  ...Object.assign({}, ...Object.values(QueryResponses)),
 };
 
 export const schema = createSchema({ typeDefs, resolvers });

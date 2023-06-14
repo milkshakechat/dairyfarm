@@ -7,8 +7,7 @@ import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspect
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
-import { initializeApp } from "firebase-admin/app";
-import { getFirebaseConfig } from "@/utils/secrets";
+import { initFirebase } from "@/services/firebase";
 
 const SOCKETS_PORT = process.env.PORT || 8080;
 
@@ -72,12 +71,6 @@ useServer(
   wsServer
 );
 
-const initFirebase = async () => {
-  const firebaseConfig = await getFirebaseConfig();
-  // load firebase app credentials using secretmanager
-  // https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
-  initializeApp(firebaseConfig);
-};
 initFirebase();
 
 server.listen(SOCKETS_PORT, () => {

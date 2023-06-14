@@ -8,9 +8,31 @@ type DemoSubscriptionEvent {
   message: String!
 }
 
+
+# --- demoQuery
+input DemoQueryInput {
+  name: String!
+}
+type DemoQueryResponseSuccess {
+  message: String!
+}
+union DemoQueryResponse =
+    DemoQueryResponseSuccess
+  | ResponseError
+
+
 type Query {
-  demoQuery(input: String!): String!
+  demoQuery(input: DemoQueryInput!): DemoQueryResponse!
   demoPing: Ping!
+}
+
+type Mutation {
+  demoMutation(title: String!): DemoMutatedItem!
+  # templateMutation(input: TemplateInput!): TemplateResponse!
+}
+
+type Subscription {
+  demoSubscription: DemoSubscriptionEvent!
 }
 
 
@@ -24,12 +46,3 @@ type Query {
 # union TemplateResponse =
 #     SendFriendRequestResponseSuccess
 #   | ResponseError
-
-type Mutation {
-  demoMutation(title: String!): DemoMutatedItem!
-  # templateMutation(input: TemplateInput!): TemplateResponse!
-}
-
-type Subscription {
-  demoSubscription: DemoSubscriptionEvent!
-}

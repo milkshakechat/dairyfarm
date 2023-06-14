@@ -24,8 +24,26 @@ export type DemoMutatedItem = {
   title: Scalars['String']['output'];
 };
 
+export type DemoQueryInput = {
+  name: Scalars['String']['input'];
+};
+
+export type DemoQueryResponse = DemoQueryResponseSuccess | ResponseError;
+
+export type DemoQueryResponseSuccess = {
+  __typename?: 'DemoQueryResponseSuccess';
+  message: Scalars['String']['output'];
+};
+
 export type DemoSubscriptionEvent = {
   __typename?: 'DemoSubscriptionEvent';
+  message: Scalars['String']['output'];
+};
+
+export type GetMyProfileResponse = GetMyProfileResponseSuccess | ResponseError;
+
+export type GetMyProfileResponseSuccess = {
+  __typename?: 'GetMyProfileResponseSuccess';
   message: Scalars['String']['output'];
 };
 
@@ -47,13 +65,14 @@ export type Ping = {
 export type Query = {
   __typename?: 'Query';
   demoPing: Ping;
-  demoQuery: Scalars['String']['output'];
+  demoQuery: DemoQueryResponse;
+  getMyProfile: GetMyProfileResponse;
   ping: Ping;
 };
 
 
 export type QueryDemoQueryArgs = {
-  input: Scalars['String']['input'];
+  input: DemoQueryInput;
 };
 
 export type ResponseError = {
@@ -150,13 +169,23 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
+  GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
+};
 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
+  DemoQueryInput: DemoQueryInput;
+  DemoQueryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DemoQueryResponse']>;
+  DemoQueryResponseSuccess: ResolverTypeWrapper<DemoQueryResponseSuccess>;
   DemoSubscriptionEvent: ResolverTypeWrapper<DemoSubscriptionEvent>;
+  GetMyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMyProfileResponse']>;
+  GetMyProfileResponseSuccess: ResolverTypeWrapper<GetMyProfileResponseSuccess>;
   GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
@@ -174,7 +203,12 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   DemoMutatedItem: DemoMutatedItem;
+  DemoQueryInput: DemoQueryInput;
+  DemoQueryResponse: ResolversUnionTypes<ResolversParentTypes>['DemoQueryResponse'];
+  DemoQueryResponseSuccess: DemoQueryResponseSuccess;
   DemoSubscriptionEvent: DemoSubscriptionEvent;
+  GetMyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['GetMyProfileResponse'];
+  GetMyProfileResponseSuccess: GetMyProfileResponseSuccess;
   GroupChatID: Scalars['GroupChatID']['output'];
   ID: Scalars['ID']['output'];
   Mutation: {};
@@ -193,7 +227,25 @@ export type DemoMutatedItemResolvers<ContextType = any, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DemoQueryResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoQueryResponse'] = ResolversParentTypes['DemoQueryResponse']> = {
+  __resolveType: TypeResolveFn<'DemoQueryResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type DemoQueryResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoQueryResponseSuccess'] = ResolversParentTypes['DemoQueryResponseSuccess']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DemoSubscriptionEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoSubscriptionEvent'] = ResolversParentTypes['DemoSubscriptionEvent']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GetMyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetMyProfileResponse'] = ResolversParentTypes['GetMyProfileResponse']> = {
+  __resolveType: TypeResolveFn<'GetMyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type GetMyProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetMyProfileResponseSuccess'] = ResolversParentTypes['GetMyProfileResponseSuccess']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -213,7 +265,8 @@ export type PingResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
-  demoQuery?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
+  demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
+  getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
 };
 
@@ -238,7 +291,11 @@ export interface UserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 
 export type Resolvers<ContextType = any> = {
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
+  DemoQueryResponse?: DemoQueryResponseResolvers<ContextType>;
+  DemoQueryResponseSuccess?: DemoQueryResponseSuccessResolvers<ContextType>;
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
+  GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
+  GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;

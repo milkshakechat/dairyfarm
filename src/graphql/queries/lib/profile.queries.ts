@@ -1,31 +1,28 @@
 import { authGuard } from "@/graphql/authGuard";
-import {
-  DemoQueryResponse,
-  QueryDemoQueryArgs,
-} from "@/graphql/types/resolvers-types";
+import { GetMyProfileResponse } from "@/graphql/types/resolvers-types";
 import { GraphQLResolveInfo } from "graphql";
 
-export const demoQuery = async (
+export const getMyProfile = async (
   _parent: any,
-  args: QueryDemoQueryArgs,
+  args: any,
   _context: any,
   _info: any
 ) => {
-  const { userID } = await authGuard({ _context, enforceAuth: true });
+  // const { userID } = await authGuard({ _context, enforceAuth: true });
   return {
-    message: `Greetings! You said ${args.input.name}. Your userID is ${userID}`,
+    message: `Greetings! You said ${args.input}. Your userID is ${"userID"}`,
   };
 };
 
 export const responses = {
-  DemoQueryResponse: {
+  GetMyProfileResponse: {
     __resolveType(
-      obj: DemoQueryResponse,
+      obj: GetMyProfileResponse,
       context: any,
       info: GraphQLResolveInfo
     ) {
       if ("message" in obj) {
-        return "DemoQueryResponseSuccess";
+        return "GetMyProfileResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";
