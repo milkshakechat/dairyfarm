@@ -1,25 +1,17 @@
 
-# type GroupChat {
-#   id: GroupChatID!
-#   sendBirdUrl: String!
-# }
 
-# type Query {
-#   demoQuery(input: String!): String!
-#   demoPing: Ping!
-# }
+# --- getMyProfile
+type GetMyProfileResponseSuccess {
+  message: String!
+}
+union GetMyProfileResponse =
+    GetMyProfileResponseSuccess
+  | ResponseError
 
-# --- createGroupChat
-# input CreateGroupChatInput {
-#   userIDs: [UserID!]!
-# }
-# type CreateGroupChatResponseSuccess {
-#   groupChat: GroupChat!
-# }
-# union CreateGroupChatResponse =
-#     CreateGroupChatResponseSuccess
-#   | ResponseError
 
+type Query {
+  getMyProfile: GetMyProfileResponse!
+}
 
 # type Mutation {
   # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
