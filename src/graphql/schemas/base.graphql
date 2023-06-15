@@ -29,4 +29,5 @@ enum StatusCode {
 
 scalar UserID
 scalar GroupChatID
-
+scalar SendBirdInternalUserID
+scalar DateString

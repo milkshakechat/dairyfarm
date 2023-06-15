@@ -14,7 +14,9 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  DateString: { input: any; output: any; }
   GroupChatID: { input: any; output: any; }
+  SendBirdInternalUserID: { input: any; output: any; }
   UserID: { input: any; output: any; }
 };
 
@@ -44,7 +46,7 @@ export type GetMyProfileResponse = GetMyProfileResponseSuccess | ResponseError;
 
 export type GetMyProfileResponseSuccess = {
   __typename?: 'GetMyProfileResponseSuccess';
-  message: Scalars['String']['output'];
+  user: User;
 };
 
 export type Mutation = {
@@ -100,6 +102,20 @@ export enum StatusCode {
 export type Subscription = {
   __typename?: 'Subscription';
   demoSubscription: DemoSubscriptionEvent;
+};
+
+export type User = {
+  __typename?: 'User';
+  bio: Scalars['String']['output'];
+  createdAt: Scalars['DateString']['output'];
+  disabled: Scalars['Boolean']['output'];
+  displayName: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['UserID']['output'];
+  isCreator: Scalars['Boolean']['output'];
+  isPaidChat: Scalars['Boolean']['output'];
+  phone?: Maybe<Scalars['String']['output']>;
+  username: Scalars['String']['output'];
 };
 
 
@@ -179,6 +195,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  DateString: ResolverTypeWrapper<Scalars['DateString']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
   DemoQueryInput: DemoQueryInput;
   DemoQueryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DemoQueryResponse']>;
@@ -192,16 +209,19 @@ export type ResolversTypes = {
   Ping: ResolverTypeWrapper<Ping>;
   Query: ResolverTypeWrapper<{}>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
+  SendBirdInternalUserID: ResolverTypeWrapper<Scalars['SendBirdInternalUserID']['output']>;
   Status: ResolverTypeWrapper<Status>;
   StatusCode: StatusCode;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  User: ResolverTypeWrapper<User>;
   UserID: ResolverTypeWrapper<Scalars['UserID']['output']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
+  DateString: Scalars['DateString']['output'];
   DemoMutatedItem: DemoMutatedItem;
   DemoQueryInput: DemoQueryInput;
   DemoQueryResponse: ResolversUnionTypes<ResolversParentTypes>['DemoQueryResponse'];
@@ -215,11 +235,17 @@ export type ResolversParentTypes = {
   Ping: Ping;
   Query: {};
   ResponseError: ResponseError;
+  SendBirdInternalUserID: Scalars['SendBirdInternalUserID']['output'];
   Status: Status;
   String: Scalars['String']['output'];
   Subscription: {};
+  User: User;
   UserID: Scalars['UserID']['output'];
 };
+
+export interface DateStringScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateString'], any> {
+  name: 'DateString';
+}
 
 export type DemoMutatedItemResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoMutatedItem'] = ResolversParentTypes['DemoMutatedItem']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -246,7 +272,7 @@ export type GetMyProfileResponseResolvers<ContextType = any, ParentType extends 
 };
 
 export type GetMyProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetMyProfileResponseSuccess'] = ResolversParentTypes['GetMyProfileResponseSuccess']> = {
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -275,6 +301,10 @@ export type ResponseErrorResolvers<ContextType = any, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export interface SendBirdInternalUserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['SendBirdInternalUserID'], any> {
+  name: 'SendBirdInternalUserID';
+}
+
 export type StatusResolvers<ContextType = any, ParentType extends ResolversParentTypes['Status'] = ResolversParentTypes['Status']> = {
   code?: Resolver<ResolversTypes['StatusCode'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -285,11 +315,26 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   demoSubscription?: SubscriptionResolver<ResolversTypes['DemoSubscriptionEvent'], "demoSubscription", ParentType, ContextType>;
 };
 
+export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
+  disabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  isCreator?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isPaidChat?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface UserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['UserID'], any> {
   name: 'UserID';
 }
 
 export type Resolvers<ContextType = any> = {
+  DateString?: GraphQLScalarType;
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
   DemoQueryResponse?: DemoQueryResponseResolvers<ContextType>;
   DemoQueryResponseSuccess?: DemoQueryResponseSuccessResolvers<ContextType>;
@@ -301,8 +346,10 @@ export type Resolvers<ContextType = any> = {
   Ping?: PingResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
+  SendBirdInternalUserID?: GraphQLScalarType;
   Status?: StatusResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
   UserID?: GraphQLScalarType;
 };
 

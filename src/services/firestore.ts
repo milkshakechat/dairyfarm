@@ -24,6 +24,30 @@ export const createFirestoreDoc = async <SchemaType extends FirestoreDocument>({
   return objSchema;
 };
 
+interface TGetFirestoreProps<SchemaID extends string> {
+  id: SchemaID;
+  collection: FirestoreCollection;
+}
+export const getFirestoreDoc = async <SchemaID extends string, SchemaType>({
+  id,
+  collection,
+}: TGetFirestoreProps<SchemaID>): Promise<SchemaType> => {
+  const ref = firestore
+    .collection(collection)
+    .doc(id) as DocumentReference<SchemaType>;
+
+  const snapshot = await ref.get();
+
+  if (!snapshot.exists) {
+    throw Error("No document found");
+  }
+  const data = snapshot.data();
+  if (!data) {
+    throw Error("No data found");
+  }
+  return data;
+};
+
 // export const firestoreCreation = async (
 //   userID: UserID
 // ): Promise<"___Schema"> => {
