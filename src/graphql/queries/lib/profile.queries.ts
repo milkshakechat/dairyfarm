@@ -1,4 +1,4 @@
-import { authGuard } from "@/graphql/authGuard";
+import { authGuardSockets } from "@/graphql/authGuard";
 import { GetMyProfileResponse } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
 import {
@@ -14,7 +14,7 @@ export const getMyProfile = async (
   _context: any,
   _info: any
 ) => {
-  const { userID } = await authGuard({ _context, enforceAuth: true });
+  const { userID } = await authGuardSockets({ _context, enforceAuth: true });
   if (!userID) {
     throw new Error("No userID found");
   }
