@@ -26,8 +26,20 @@ type Query {
   demoPing: Ping!
 }
 
+
+# --- demoMutation
+input DemoMutationInput {
+  name: String!
+}
+type DemoMutationResponseSuccess {
+  item: DemoMutatedItem!
+}
+union DemoMutationResponse =
+    DemoMutationResponseSuccess
+  | ResponseError
+
 type Mutation {
-  demoMutation(title: String!): DemoMutatedItem!
+  demoMutation(input: DemoMutationInput!): DemoMutationResponse!
   # templateMutation(input: TemplateInput!): TemplateResponse!
 }
 

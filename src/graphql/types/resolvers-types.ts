@@ -26,6 +26,17 @@ export type DemoMutatedItem = {
   title: Scalars['String']['output'];
 };
 
+export type DemoMutationInput = {
+  name: Scalars['String']['input'];
+};
+
+export type DemoMutationResponse = DemoMutationResponseSuccess | ResponseError;
+
+export type DemoMutationResponseSuccess = {
+  __typename?: 'DemoMutationResponseSuccess';
+  item: DemoMutatedItem;
+};
+
 export type DemoQueryInput = {
   name: Scalars['String']['input'];
 };
@@ -51,12 +62,12 @@ export type GetMyProfileResponseSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  demoMutation: DemoMutatedItem;
+  demoMutation: DemoMutationResponse;
 };
 
 
 export type MutationDemoMutationArgs = {
-  title: Scalars['String']['input'];
+  input: DemoMutationInput;
 };
 
 export type Ping = {
@@ -187,6 +198,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
 };
@@ -197,6 +209,9 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   DateString: ResolverTypeWrapper<Scalars['DateString']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
+  DemoMutationInput: DemoMutationInput;
+  DemoMutationResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DemoMutationResponse']>;
+  DemoMutationResponseSuccess: ResolverTypeWrapper<DemoMutationResponseSuccess>;
   DemoQueryInput: DemoQueryInput;
   DemoQueryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DemoQueryResponse']>;
   DemoQueryResponseSuccess: ResolverTypeWrapper<DemoQueryResponseSuccess>;
@@ -223,6 +238,9 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   DateString: Scalars['DateString']['output'];
   DemoMutatedItem: DemoMutatedItem;
+  DemoMutationInput: DemoMutationInput;
+  DemoMutationResponse: ResolversUnionTypes<ResolversParentTypes>['DemoMutationResponse'];
+  DemoMutationResponseSuccess: DemoMutationResponseSuccess;
   DemoQueryInput: DemoQueryInput;
   DemoQueryResponse: ResolversUnionTypes<ResolversParentTypes>['DemoQueryResponse'];
   DemoQueryResponseSuccess: DemoQueryResponseSuccess;
@@ -250,6 +268,15 @@ export interface DateStringScalarConfig extends GraphQLScalarTypeConfig<Resolver
 export type DemoMutatedItemResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoMutatedItem'] = ResolversParentTypes['DemoMutatedItem']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DemoMutationResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoMutationResponse'] = ResolversParentTypes['DemoMutationResponse']> = {
+  __resolveType: TypeResolveFn<'DemoMutationResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type DemoMutationResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoMutationResponseSuccess'] = ResolversParentTypes['DemoMutationResponseSuccess']> = {
+  item?: Resolver<ResolversTypes['DemoMutatedItem'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -281,7 +308,7 @@ export interface GroupChatIdScalarConfig extends GraphQLScalarTypeConfig<Resolve
 }
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  demoMutation?: Resolver<ResolversTypes['DemoMutatedItem'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'title'>>;
+  demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
 };
 
 export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
@@ -336,6 +363,8 @@ export interface UserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 export type Resolvers<ContextType = any> = {
   DateString?: GraphQLScalarType;
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
+  DemoMutationResponse?: DemoMutationResponseResolvers<ContextType>;
+  DemoMutationResponseSuccess?: DemoMutationResponseSuccessResolvers<ContextType>;
   DemoQueryResponse?: DemoQueryResponseResolvers<ContextType>;
   DemoQueryResponseSuccess?: DemoQueryResponseSuccessResolvers<ContextType>;
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;

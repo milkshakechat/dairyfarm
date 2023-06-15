@@ -34,6 +34,19 @@ const wsServer = new WebSocketServer({
   path: yoga.graphqlEndpoint,
 });
 
+// Variable to hold the number of active connections
+let activeConnections = 0;
+
+wsServer.on("connection", function connection(ws) {
+  activeConnections++; // increment the active connections
+  console.log("Number of active connections: " + activeConnections);
+
+  ws.on("close", function close() {
+    activeConnections--; // decrement the active connections
+    console.log("Number of active connections: " + activeConnections);
+  });
+});
+
 // Integrate through Yoga's Envelop instance
 useServer(
   {

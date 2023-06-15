@@ -4,6 +4,7 @@ import { Resolvers } from "@/graphql/types/resolvers-types";
 import * as QueryResolvers from "@/graphql/queries";
 import * as QueryResponses from "@/graphql/queries/responses";
 import * as MutationResolvers from "@/graphql/mutations";
+import * as MutationResponses from "@/graphql/mutations/responses";
 import * as SubscriptionResolvers from "@/graphql/subscriptions";
 
 // const typeDefs = readFileSync("src/graphql/schema.graphql", "utf8");
@@ -23,6 +24,7 @@ const resolvers: Resolvers = {
   Mutation: MutationResolvers,
   Subscription: SubscriptionResolvers,
   ...Object.assign({}, ...Object.values(QueryResponses)),
+  ...Object.assign({}, ...Object.values(MutationResponses)),
 };
 
 export const schema = createSchema({ typeDefs, resolvers });

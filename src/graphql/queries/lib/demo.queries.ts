@@ -1,4 +1,4 @@
-import { authGuard } from "@/graphql/authGuard";
+import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   DemoQueryResponse,
   QueryDemoQueryArgs,
@@ -11,7 +11,7 @@ export const demoQuery = async (
   _context: any,
   _info: any
 ) => {
-  const { userID } = await authGuard({ _context, enforceAuth: true });
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   return {
     message: `Greetings! You said ${args.input.name}. Your userID is ${userID}`,
   };

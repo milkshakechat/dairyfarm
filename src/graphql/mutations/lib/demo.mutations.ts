@@ -1,4 +1,8 @@
-import { MutationDemoMutationArgs } from "@/graphql/types/resolvers-types";
+import {
+  DemoMutationResponse,
+  MutationDemoMutationArgs,
+} from "@/graphql/types/resolvers-types";
+import { GraphQLResolveInfo } from "graphql";
 
 export const demoMutation = (
   _parent: any,
@@ -7,7 +11,27 @@ export const demoMutation = (
   _info: any
 ) => {
   return {
-    id: "id",
-    title: args.title,
+    item: {
+      id: "id",
+      title: args.input.name,
+    },
   };
+};
+
+export const responses = {
+  DemoMutationResponse: {
+    __resolveType(
+      obj: DemoMutationResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("item" in obj) {
+        return "DemoMutationResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
 };
