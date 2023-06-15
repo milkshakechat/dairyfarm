@@ -33,7 +33,7 @@ export const authGuard = async ({
     const uid = decodedToken.uid;
     return {
       ...status,
-      userID: uid,
+      userID: uid as UserID,
       idToken: idToken as string,
       isAuth: true,
     };

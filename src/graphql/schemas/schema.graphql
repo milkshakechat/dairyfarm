@@ -1,8 +1,20 @@
 
+type User {
+  id: UserID!
+  email: String!
+  username: String!
+  phone: String
+  displayName: String!
+  bio: String!
+  disabled: Boolean!
+  isPaidChat: Boolean!
+  isCreator: Boolean!
+  createdAt: DateString!
+}
 
 # --- getMyProfile
 type GetMyProfileResponseSuccess {
-  message: String!
+  user: User!
 }
 union GetMyProfileResponse =
     GetMyProfileResponseSuccess
