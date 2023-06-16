@@ -16,6 +16,7 @@ export type Scalars = {
   Float: { input: number; output: number; }
   DateString: { input: any; output: any; }
   GroupChatID: { input: any; output: any; }
+  HexColorCode: { input: any; output: any; }
   SendBirdInternalUserID: { input: any; output: any; }
   UserID: { input: any; output: any; }
 };
@@ -71,11 +72,23 @@ export type GetMyProfileResponseSuccess = {
   user: User;
 };
 
+export enum LanguageEnum {
+  Arabic = 'arabic',
+  Chinese = 'chinese',
+  English = 'english',
+  Spanish = 'spanish',
+  Thai = 'thai',
+  Vietnamese = 'vietnamese'
+}
+
 export type ModifyProfileInput = {
   avatar?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
   displayName?: InputMaybe<Scalars['String']['input']>;
+  language?: InputMaybe<LanguageEnum>;
   link?: InputMaybe<Scalars['String']['input']>;
+  privacyMode?: InputMaybe<PrivacyModeEnum>;
+  themeColor?: InputMaybe<Scalars['HexColorCode']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -106,6 +119,12 @@ export type Ping = {
   __typename?: 'Ping';
   timestamp: Scalars['String']['output'];
 };
+
+export enum PrivacyModeEnum {
+  Hidden = 'hidden',
+  Private = 'private',
+  Public = 'public'
+}
 
 export type Query = {
   __typename?: 'Query';
@@ -164,8 +183,11 @@ export type User = {
   id: Scalars['UserID']['output'];
   isCreator: Scalars['Boolean']['output'];
   isPaidChat: Scalars['Boolean']['output'];
+  language: LanguageEnum;
   link: Scalars['String']['output'];
   phone?: Maybe<Scalars['String']['output']>;
+  privacyMode: PrivacyModeEnum;
+  themeColor: Scalars['HexColorCode']['output'];
   username: Scalars['String']['output'];
 };
 
@@ -264,12 +286,15 @@ export type ResolversTypes = {
   GetMyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMyProfileResponse']>;
   GetMyProfileResponseSuccess: ResolverTypeWrapper<GetMyProfileResponseSuccess>;
   GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
+  HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  LanguageEnum: LanguageEnum;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyProfileResponse']>;
   ModifyProfileResponseSuccess: ResolverTypeWrapper<ModifyProfileResponseSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   Ping: ResolverTypeWrapper<Ping>;
+  PrivacyModeEnum: PrivacyModeEnum;
   Query: ResolverTypeWrapper<{}>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
   SendBirdInternalUserID: ResolverTypeWrapper<Scalars['SendBirdInternalUserID']['output']>;
@@ -299,6 +324,7 @@ export type ResolversParentTypes = {
   GetMyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['GetMyProfileResponse'];
   GetMyProfileResponseSuccess: GetMyProfileResponseSuccess;
   GroupChatID: Scalars['GroupChatID']['output'];
+  HexColorCode: Scalars['HexColorCode']['output'];
   ID: Scalars['ID']['output'];
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyProfileResponse'];
@@ -370,6 +396,10 @@ export interface GroupChatIdScalarConfig extends GraphQLScalarTypeConfig<Resolve
   name: 'GroupChatID';
 }
 
+export interface HexColorCodeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['HexColorCode'], any> {
+  name: 'HexColorCode';
+}
+
 export type ModifyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyProfileResponse'] = ResolversParentTypes['ModifyProfileResponse']> = {
   __resolveType: TypeResolveFn<'ModifyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -426,8 +456,11 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
   isCreator?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isPaidChat?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  language?: Resolver<ResolversTypes['LanguageEnum'], ParentType, ContextType>;
   link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  privacyMode?: Resolver<ResolversTypes['PrivacyModeEnum'], ParentType, ContextType>;
+  themeColor?: Resolver<ResolversTypes['HexColorCode'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -449,6 +482,7 @@ export type Resolvers<ContextType = any> = {
   GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
+  HexColorCode?: GraphQLScalarType;
   ModifyProfileResponse?: ModifyProfileResponseResolvers<ContextType>;
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
