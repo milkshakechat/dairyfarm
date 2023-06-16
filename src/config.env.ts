@@ -25,6 +25,9 @@ const devConfig: ConfigEnv = {
     appId: "1:642004369083:web:74b7c685be091ce6b4f39e",
     measurementId: "G-N0YXCSQJ89",
   },
+  GRAPHQL: {
+    CORS_ORIGINS: "*",
+  },
 };
 const stagingConfig: ConfigEnv = {
   GCLOUD: {
@@ -52,6 +55,12 @@ const stagingConfig: ConfigEnv = {
     messagingSenderId: "642004369083",
     appId: "1:642004369083:web:74b7c685be091ce6b4f39e",
     measurementId: "G-N0YXCSQJ89",
+  },
+  GRAPHQL: {
+    CORS_ORIGINS: [
+      "https://milkshake-dev-faf77.firebaseapp.com/",
+      "https://milkshake-dev-faf77.web.app/",
+    ],
   },
 };
 const prodConfig: ConfigEnv = {
@@ -81,6 +90,9 @@ const prodConfig: ConfigEnv = {
     appId: "1:642004369083:web:74b7c685be091ce6b4f39e",
     measurementId: "G-N0YXCSQJ89",
   },
+  GRAPHQL: {
+    CORS_ORIGINS: ["https://milkshake.chat"],
+  },
 };
 
 interface SecretConfig {
@@ -107,6 +119,9 @@ interface ConfigEnv {
     messagingSenderId: string;
     appId: string;
     measurementId: string;
+  };
+  GRAPHQL: {
+    CORS_ORIGINS: string | string[];
   };
 }
 
