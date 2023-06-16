@@ -1,4 +1,19 @@
 
+enum PrivacyModeEnum {
+  public
+  private
+  hidden
+}
+
+enum LanguageEnum {
+  english
+  spanish
+  chinese
+  arabic
+  thai
+  vietnamese
+}
+
 type User {
   id: UserID!
   email: String!
@@ -12,6 +27,9 @@ type User {
   isPaidChat: Boolean!
   isCreator: Boolean!
   createdAt: DateString!
+  privacyMode: PrivacyModeEnum!
+  themeColor: HexColorCode!
+  language: LanguageEnum!
 }
 
 # --- getMyProfile
@@ -39,13 +57,16 @@ type Query {
   checkUsernameAvailable(input: CheckUsernameAvailableInput!): CheckUsernameAvailableResponse!
 }
 
-# --- checkUsernameAvailable
+# --- modifyProfile
 input ModifyProfileInput {
   displayName: String
   username: String
   bio: String
   avatar: String
   link: String
+  privacyMode: PrivacyModeEnum
+  themeColor: HexColorCode
+  language: LanguageEnum
 }
 type ModifyProfileResponseSuccess {
   user: User!
