@@ -59,7 +59,7 @@
   "dependencies": {
     "@google-cloud/secret-manager": "^4.2.2",
     "@google-cloud/storage": "^6.9.5",
-    "@milkshakechat/helpers": "^1.0.12",
+    "@milkshakechat/helpers": "^1.0.15",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
