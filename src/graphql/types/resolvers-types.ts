@@ -71,14 +71,35 @@ export type GetMyProfileResponseSuccess = {
   user: User;
 };
 
+export type ModifyProfileInput = {
+  avatar?: InputMaybe<Scalars['String']['input']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  link?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ModifyProfileResponse = ModifyProfileResponseSuccess | ResponseError;
+
+export type ModifyProfileResponseSuccess = {
+  __typename?: 'ModifyProfileResponseSuccess';
+  user: User;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   demoMutation: DemoMutationResponse;
+  modifyProfile: ModifyProfileResponse;
 };
 
 
 export type MutationDemoMutationArgs = {
   input: DemoMutationInput;
+};
+
+
+export type MutationModifyProfileArgs = {
+  input: ModifyProfileInput;
 };
 
 export type Ping = {
@@ -221,6 +242,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
+  ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
 };
 
 
@@ -243,6 +265,9 @@ export type ResolversTypes = {
   GetMyProfileResponseSuccess: ResolverTypeWrapper<GetMyProfileResponseSuccess>;
   GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  ModifyProfileInput: ModifyProfileInput;
+  ModifyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyProfileResponse']>;
+  ModifyProfileResponseSuccess: ResolverTypeWrapper<ModifyProfileResponseSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   Ping: ResolverTypeWrapper<Ping>;
   Query: ResolverTypeWrapper<{}>;
@@ -275,6 +300,9 @@ export type ResolversParentTypes = {
   GetMyProfileResponseSuccess: GetMyProfileResponseSuccess;
   GroupChatID: Scalars['GroupChatID']['output'];
   ID: Scalars['ID']['output'];
+  ModifyProfileInput: ModifyProfileInput;
+  ModifyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyProfileResponse'];
+  ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
   Mutation: {};
   Ping: Ping;
   Query: {};
@@ -342,8 +370,18 @@ export interface GroupChatIdScalarConfig extends GraphQLScalarTypeConfig<Resolve
   name: 'GroupChatID';
 }
 
+export type ModifyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyProfileResponse'] = ResolversParentTypes['ModifyProfileResponse']> = {
+  __resolveType: TypeResolveFn<'ModifyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type ModifyProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyProfileResponseSuccess'] = ResolversParentTypes['ModifyProfileResponseSuccess']> = {
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
+  modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
 };
 
 export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
@@ -411,6 +449,8 @@ export type Resolvers<ContextType = any> = {
   GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
+  ModifyProfileResponse?: ModifyProfileResponseResolvers<ContextType>;
+  ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
