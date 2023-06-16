@@ -20,6 +20,17 @@ export type Scalars = {
   UserID: { input: any; output: any; }
 };
 
+export type CheckUsernameAvailableInput = {
+  username: Scalars['String']['input'];
+};
+
+export type CheckUsernameAvailableResponse = CheckUsernameAvailableResponseSuccess | ResponseError;
+
+export type CheckUsernameAvailableResponseSuccess = {
+  __typename?: 'CheckUsernameAvailableResponseSuccess';
+  isAvailable: Scalars['Boolean']['output'];
+};
+
 export type DemoMutatedItem = {
   __typename?: 'DemoMutatedItem';
   id: Scalars['ID']['output'];
@@ -77,10 +88,16 @@ export type Ping = {
 
 export type Query = {
   __typename?: 'Query';
+  checkUsernameAvailable: CheckUsernameAvailableResponse;
   demoPing: Ping;
   demoQuery: DemoQueryResponse;
   getMyProfile: GetMyProfileResponse;
   ping: Ping;
+};
+
+
+export type QueryCheckUsernameAvailableArgs = {
+  input: CheckUsernameAvailableInput;
 };
 
 
@@ -117,6 +134,7 @@ export type Subscription = {
 
 export type User = {
   __typename?: 'User';
+  avatar: Scalars['String']['output'];
   bio: Scalars['String']['output'];
   createdAt: Scalars['DateString']['output'];
   disabled: Scalars['Boolean']['output'];
@@ -125,6 +143,7 @@ export type User = {
   id: Scalars['UserID']['output'];
   isCreator: Scalars['Boolean']['output'];
   isPaidChat: Scalars['Boolean']['output'];
+  link: Scalars['String']['output'];
   phone?: Maybe<Scalars['String']['output']>;
   username: Scalars['String']['output'];
 };
@@ -198,6 +217,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
@@ -207,6 +227,9 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CheckUsernameAvailableInput: CheckUsernameAvailableInput;
+  CheckUsernameAvailableResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckUsernameAvailableResponse']>;
+  CheckUsernameAvailableResponseSuccess: ResolverTypeWrapper<CheckUsernameAvailableResponseSuccess>;
   DateString: ResolverTypeWrapper<Scalars['DateString']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
   DemoMutationInput: DemoMutationInput;
@@ -236,6 +259,9 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
+  CheckUsernameAvailableInput: CheckUsernameAvailableInput;
+  CheckUsernameAvailableResponse: ResolversUnionTypes<ResolversParentTypes>['CheckUsernameAvailableResponse'];
+  CheckUsernameAvailableResponseSuccess: CheckUsernameAvailableResponseSuccess;
   DateString: Scalars['DateString']['output'];
   DemoMutatedItem: DemoMutatedItem;
   DemoMutationInput: DemoMutationInput;
@@ -259,6 +285,15 @@ export type ResolversParentTypes = {
   Subscription: {};
   User: User;
   UserID: Scalars['UserID']['output'];
+};
+
+export type CheckUsernameAvailableResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckUsernameAvailableResponse'] = ResolversParentTypes['CheckUsernameAvailableResponse']> = {
+  __resolveType: TypeResolveFn<'CheckUsernameAvailableResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type CheckUsernameAvailableResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckUsernameAvailableResponseSuccess'] = ResolversParentTypes['CheckUsernameAvailableResponseSuccess']> = {
+  isAvailable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export interface DateStringScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateString'], any> {
@@ -317,6 +352,7 @@ export type PingResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  checkUsernameAvailable?: Resolver<ResolversTypes['CheckUsernameAvailableResponse'], ParentType, ContextType, RequireFields<QueryCheckUsernameAvailableArgs, 'input'>>;
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
@@ -343,6 +379,7 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
   disabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -351,6 +388,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
   isCreator?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isPaidChat?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -361,6 +399,8 @@ export interface UserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 }
 
 export type Resolvers<ContextType = any> = {
+  CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
+  CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
   DateString?: GraphQLScalarType;
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
   DemoMutationResponse?: DemoMutationResponseResolvers<ContextType>;

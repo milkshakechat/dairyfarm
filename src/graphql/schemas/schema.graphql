@@ -6,6 +6,8 @@ type User {
   phone: String
   displayName: String!
   bio: String!
+  avatar: String!
+  link: String!
   disabled: Boolean!
   isPaidChat: Boolean!
   isCreator: Boolean!
@@ -20,9 +22,20 @@ union GetMyProfileResponse =
     GetMyProfileResponseSuccess
   | ResponseError
 
+# --- checkUsernameAvailable
+input CheckUsernameAvailableInput {
+  username: String!
+}
+type CheckUsernameAvailableResponseSuccess {
+  isAvailable: Boolean!
+}
+union CheckUsernameAvailableResponse =
+    CheckUsernameAvailableResponseSuccess
+  | ResponseError
 
 type Query {
   getMyProfile: GetMyProfileResponse!
+  checkUsernameAvailable(input: CheckUsernameAvailableInput!): CheckUsernameAvailableResponse!
 }
 
 # type Mutation {

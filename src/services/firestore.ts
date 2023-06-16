@@ -2,6 +2,7 @@ import { firestore } from "@/services/firebase";
 import { FirestoreCollection } from "@milkshakechat/helpers";
 import { DocumentReference, Query } from "firebase-admin/firestore";
 
+// creation
 interface FirestoreDocument {
   id: string;
 }
@@ -24,6 +25,7 @@ export const createFirestoreDoc = async <SchemaType extends FirestoreDocument>({
   return objSchema;
 };
 
+// get
 interface TGetFirestoreProps<SchemaID extends string> {
   id: SchemaID;
   collection: FirestoreCollection;
@@ -46,6 +48,35 @@ export const getFirestoreDoc = async <SchemaID extends string, SchemaType>({
     throw Error("No data found");
   }
   return data;
+};
+
+// list
+interface TListFirestoreDocsProps {
+  where: {
+    field: string;
+    operator: FirebaseFirestore.WhereFilterOp;
+    value: string;
+  };
+  collection: FirestoreCollection;
+}
+export const listFirestoreDocs = async <SchemaType>({
+  where,
+  collection,
+}: TListFirestoreDocsProps): Promise<SchemaType[]> => {
+  const ref = firestore
+    .collection(collection)
+    .where(where.field, where.operator, where.value) as Query<SchemaType>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map((doc) => {
+      const data = doc.data();
+      return data;
+    });
+  }
 };
 
 // export const firestoreCreation = async (
