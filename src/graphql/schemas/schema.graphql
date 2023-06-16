@@ -6,6 +6,8 @@ type User {
   phone: String
   displayName: String!
   bio: String!
+  avatar: String!
+  link: String!
   disabled: Boolean!
   isPaidChat: Boolean!
   isCreator: Boolean!
@@ -20,19 +22,43 @@ union GetMyProfileResponse =
     GetMyProfileResponseSuccess
   | ResponseError
 
+# --- checkUsernameAvailable
+input CheckUsernameAvailableInput {
+  username: String!
+}
+type CheckUsernameAvailableResponseSuccess {
+  isAvailable: Boolean!
+}
+union CheckUsernameAvailableResponse =
+    CheckUsernameAvailableResponseSuccess
+  | ResponseError
 
+# --- Queries
 type Query {
   getMyProfile: GetMyProfileResponse!
+  checkUsernameAvailable(input: CheckUsernameAvailableInput!): CheckUsernameAvailableResponse!
 }
 
-# type Mutation {
+# --- checkUsernameAvailable
+input ModifyProfileInput {
+  displayName: String
+  username: String
+  bio: String
+  avatar: String
+  link: String
+}
+type ModifyProfileResponseSuccess {
+  user: User!
+}
+union ModifyProfileResponse =
+    ModifyProfileResponseSuccess
+  | ResponseError
+
+# --- Mutations
+type Mutation {
+  modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
-  # sendFriendRequest
-  # joinGroupChat
-  # leaveGroupChat
-  # respondFriendRequest
-  # modifyFriendship
-# }
+}
 
 
 # --- template

@@ -1,7 +1,9 @@
 import { firestore } from "@/services/firebase";
 import { FirestoreCollection } from "@milkshakechat/helpers";
 import { DocumentReference, Query } from "firebase-admin/firestore";
+import { UpdateData } from "@firebase/firestore-types";
 
+// creation
 interface FirestoreDocument {
   id: string;
 }
@@ -24,6 +26,7 @@ export const createFirestoreDoc = async <SchemaType extends FirestoreDocument>({
   return objSchema;
 };
 
+// get
 interface TGetFirestoreProps<SchemaID extends string> {
   id: SchemaID;
   collection: FirestoreCollection;
@@ -46,6 +49,82 @@ export const getFirestoreDoc = async <SchemaID extends string, SchemaType>({
     throw Error("No data found");
   }
   return data;
+};
+
+// list
+interface TListFirestoreDocsProps {
+  where: {
+    field: string;
+    operator: FirebaseFirestore.WhereFilterOp;
+    value: string;
+  };
+  collection: FirestoreCollection;
+}
+export const listFirestoreDocs = async <SchemaType>({
+  where,
+  collection,
+}: TListFirestoreDocsProps): Promise<SchemaType[]> => {
+  const ref = firestore
+    .collection(collection)
+    .where(where.field, where.operator, where.value) as Query<SchemaType>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map((doc) => {
+      const data = doc.data();
+      return data;
+    });
+  }
+};
+
+// update
+interface TUpdateFirestoreDocProps<SchemaID extends string, SchemaType> {
+  id: SchemaID;
+  payload: Partial<SchemaType>;
+  collection: FirestoreCollection;
+}
+export const updateFirestoreDoc = async <SchemaID extends string, SchemaType>({
+  id,
+  payload,
+  collection,
+}: TUpdateFirestoreDocProps<SchemaID, SchemaType>): Promise<SchemaType> => {
+  if (Object.keys(payload).length === 0) {
+    throw new Error("No data provided");
+  }
+  const ref = firestore
+    .collection(collection)
+    .doc(id) as DocumentReference<SchemaType>;
+  const snapshot = await ref.get();
+  if (!snapshot.exists) {
+    throw Error(`No document found with id ${id} in ${collection}`);
+  }
+  const existingObj = snapshot.data();
+
+  if (!existingObj) {
+    throw Error(
+      `Nothing to update, no record found with id ${id} in ${collection}`
+    );
+  }
+
+  const updatePayload: Partial<SchemaType> = {};
+  // repeat
+  Object.keys(payload).forEach((key) => {
+    const typedKey = key as keyof SchemaType;
+    if (payload[typedKey] != undefined) {
+      updatePayload[typedKey] = payload[typedKey];
+    }
+  });
+  // until done
+  // @ts-ignore
+  await ref.update(updatePayload as UpdateData<SchemaType>);
+  const updatedObj = (await ref.get()).data();
+  if (!updatedObj) {
+    throw Error(`Could not find updated record with id ${id} in ${collection}`);
+  }
+  return updatedObj;
 };
 
 // export const firestoreCreation = async (
