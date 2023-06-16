@@ -1,6 +1,11 @@
 import { firestore } from "@/services/firebase";
 import { FirestoreCollection } from "@milkshakechat/helpers";
-import { DocumentReference, Query } from "firebase-admin/firestore";
+import {
+  DocumentReference,
+  Query,
+  QueryDocumentSnapshot,
+  WhereFilterOp,
+} from "firebase-admin/firestore";
 import { UpdateData } from "@firebase/firestore-types";
 
 // creation
@@ -55,7 +60,7 @@ export const getFirestoreDoc = async <SchemaID extends string, SchemaType>({
 interface TListFirestoreDocsProps {
   where: {
     field: string;
-    operator: FirebaseFirestore.WhereFilterOp;
+    operator: WhereFilterOp;
     value: string;
   };
   collection: FirestoreCollection;
@@ -73,10 +78,12 @@ export const listFirestoreDocs = async <SchemaType>({
   if (collectionItems.empty) {
     return [];
   } else {
-    return collectionItems.docs.map((doc) => {
-      const data = doc.data();
-      return data;
-    });
+    return collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<SchemaType>) => {
+        const data = doc.data();
+        return data;
+      }
+    );
   }
 };
 

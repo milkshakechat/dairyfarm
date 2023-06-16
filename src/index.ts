@@ -8,6 +8,7 @@ import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
 import { initFirebase } from "@/services/firebase";
+import config from "@/config.env";
 
 const SOCKETS_PORT = process.env.PORT || 8080;
 
@@ -23,6 +24,10 @@ const yoga = createYoga({
     subscriptionsProtocol: "WS",
   },
   plugins: yogaPlugins,
+  cors: {
+    origin: config.GRAPHQL.CORS_ORIGINS,
+    methods: ["GET", "POST", "OPTIONS"],
+  },
 });
 
 // Get NodeJS Server from Yoga
