@@ -7,25 +7,40 @@ import {
   WhereFilterOp,
 } from "firebase-admin/firestore";
 import { UpdateData } from "@firebase/firestore-types";
+import * as admin from "firebase-admin";
+
+export const createFirestoreTimestamp = (date?: Date) => {
+  const targetDate = date || new Date();
+  const timestamp = admin.firestore.Timestamp.fromDate(targetDate);
+  return timestamp;
+};
 
 // creation
 interface FirestoreDocument {
   id: string;
 }
-interface TCreateFirestoreProps<SchemaType extends FirestoreDocument> {
-  data: Omit<SchemaType, "id">;
+interface TCreateFirestoreProps<
+  SchemaID extends string,
+  SchemaType extends FirestoreDocument
+> {
+  id: SchemaID;
+  data: SchemaType;
   collection: FirestoreCollection;
 }
-export const createFirestoreDoc = async <SchemaType extends FirestoreDocument>({
+export const createFirestoreDoc = async <
+  SchemaID extends string,
+  SchemaType extends FirestoreDocument
+>({
+  id,
   data,
   collection,
-}: TCreateFirestoreProps<SchemaType>): Promise<SchemaType> => {
+}: TCreateFirestoreProps<SchemaID, SchemaType>): Promise<SchemaType> => {
   const ref = firestore
     .collection(collection)
-    .doc() as DocumentReference<SchemaType>;
+    .doc(id) as DocumentReference<SchemaType>;
   const objSchema: SchemaType = {
-    id: ref.id,
     ...data,
+    id,
   } as SchemaType;
   await ref.set(objSchema);
   return objSchema;

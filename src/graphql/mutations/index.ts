@@ -1,5 +1,8 @@
 export { demoMutation } from "@/graphql/mutations/lib/demo.mutations";
-export { modifyProfile } from "@/graphql/mutations/lib/profile.mutations";
+export {
+  modifyProfile,
+  updatePushToken,
+} from "@/graphql/mutations/lib/profile.mutations";
 // export {
 //   createGroupChat,
 //   sendFriendRequest,

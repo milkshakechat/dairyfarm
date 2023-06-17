@@ -17,6 +17,7 @@ export type Scalars = {
   DateString: { input: any; output: any; }
   GroupChatID: { input: any; output: any; }
   HexColorCode: { input: any; output: any; }
+  PushToken: { input: any; output: any; }
   SendBirdInternalUserID: { input: any; output: any; }
   UserID: { input: any; output: any; }
 };
@@ -105,6 +106,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   demoMutation: DemoMutationResponse;
   modifyProfile: ModifyProfileResponse;
+  updatePushToken: UpdatePushTokenResponse;
 };
 
 
@@ -115,6 +117,11 @@ export type MutationDemoMutationArgs = {
 
 export type MutationModifyProfileArgs = {
   input: ModifyProfileInput;
+};
+
+
+export type MutationUpdatePushTokenArgs = {
+  input: UpdatePushTokenInput;
 };
 
 export type Ping = {
@@ -172,6 +179,19 @@ export enum StatusCode {
 export type Subscription = {
   __typename?: 'Subscription';
   demoSubscription: DemoSubscriptionEvent;
+};
+
+export type UpdatePushTokenInput = {
+  active: Scalars['Boolean']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  token: Scalars['PushToken']['input'];
+};
+
+export type UpdatePushTokenResponse = ResponseError | UpdatePushTokenResponseSuccess;
+
+export type UpdatePushTokenResponseSuccess = {
+  __typename?: 'UpdatePushTokenResponseSuccess';
+  status: Scalars['String']['output'];
 };
 
 export type User = {
@@ -267,6 +287,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
+  UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
 };
 
 
@@ -297,6 +318,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Ping: ResolverTypeWrapper<Ping>;
   PrivacyModeEnum: PrivacyModeEnum;
+  PushToken: ResolverTypeWrapper<Scalars['PushToken']['output']>;
   Query: ResolverTypeWrapper<{}>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
   SendBirdInternalUserID: ResolverTypeWrapper<Scalars['SendBirdInternalUserID']['output']>;
@@ -304,6 +326,9 @@ export type ResolversTypes = {
   StatusCode: StatusCode;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  UpdatePushTokenInput: UpdatePushTokenInput;
+  UpdatePushTokenResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdatePushTokenResponse']>;
+  UpdatePushTokenResponseSuccess: ResolverTypeWrapper<UpdatePushTokenResponseSuccess>;
   User: ResolverTypeWrapper<User>;
   UserID: ResolverTypeWrapper<Scalars['UserID']['output']>;
 };
@@ -333,12 +358,16 @@ export type ResolversParentTypes = {
   ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
   Mutation: {};
   Ping: Ping;
+  PushToken: Scalars['PushToken']['output'];
   Query: {};
   ResponseError: ResponseError;
   SendBirdInternalUserID: Scalars['SendBirdInternalUserID']['output'];
   Status: Status;
   String: Scalars['String']['output'];
   Subscription: {};
+  UpdatePushTokenInput: UpdatePushTokenInput;
+  UpdatePushTokenResponse: ResolversUnionTypes<ResolversParentTypes>['UpdatePushTokenResponse'];
+  UpdatePushTokenResponseSuccess: UpdatePushTokenResponseSuccess;
   User: User;
   UserID: Scalars['UserID']['output'];
 };
@@ -414,12 +443,17 @@ export type ModifyProfileResponseSuccessResolvers<ContextType = any, ParentType 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
+  updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
 };
 
 export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface PushTokenScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['PushToken'], any> {
+  name: 'PushToken';
+}
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   checkUsernameAvailable?: Resolver<ResolversTypes['CheckUsernameAvailableResponse'], ParentType, ContextType, RequireFields<QueryCheckUsernameAvailableArgs, 'input'>>;
@@ -446,6 +480,15 @@ export type StatusResolvers<ContextType = any, ParentType extends ResolversParen
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   demoSubscription?: SubscriptionResolver<ResolversTypes['DemoSubscriptionEvent'], "demoSubscription", ParentType, ContextType>;
+};
+
+export type UpdatePushTokenResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdatePushTokenResponse'] = ResolversParentTypes['UpdatePushTokenResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'UpdatePushTokenResponseSuccess', ParentType, ContextType>;
+};
+
+export type UpdatePushTokenResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdatePushTokenResponseSuccess'] = ResolversParentTypes['UpdatePushTokenResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -489,11 +532,14 @@ export type Resolvers<ContextType = any> = {
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
+  PushToken?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
   SendBirdInternalUserID?: GraphQLScalarType;
   Status?: StatusResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  UpdatePushTokenResponse?: UpdatePushTokenResponseResolvers<ContextType>;
+  UpdatePushTokenResponseSuccess?: UpdatePushTokenResponseSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserID?: GraphQLScalarType;
 };

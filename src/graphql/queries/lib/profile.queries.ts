@@ -29,7 +29,7 @@ export const getMyProfile = async (
       id: userID,
       collection: FirestoreCollection.USERS,
     });
-    console.log(user);
+
     return {
       user: {
         ...user,

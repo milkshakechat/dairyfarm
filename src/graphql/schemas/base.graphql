@@ -32,3 +32,4 @@ scalar GroupChatID
 scalar SendBirdInternalUserID
 scalar DateString
 scalar HexColorCode
+scalar PushToken
