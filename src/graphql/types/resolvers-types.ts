@@ -76,6 +76,8 @@ export enum LanguageEnum {
   Arabic = 'arabic',
   Chinese = 'chinese',
   English = 'english',
+  Japanese = 'japanese',
+  Korean = 'korean',
   Spanish = 'spanish',
   Thai = 'thai',
   Vietnamese = 'vietnamese'

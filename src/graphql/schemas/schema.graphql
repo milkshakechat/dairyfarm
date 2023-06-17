@@ -12,6 +12,8 @@ enum LanguageEnum {
   arabic
   thai
   vietnamese
+  japanese
+  korean
 }
 
 type User {
