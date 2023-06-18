@@ -1,5 +1,6 @@
 import {
   FirestoreCollection,
+  PushMessageRecieptID,
   PushPlatformType,
   PushTokenID,
   PushToken_Firestore,
@@ -52,7 +53,7 @@ export const saveOrUpdatePushToken = async ({
     return `Successfully updated push token ${token} for user ${userID} to lastActive ${now.toDate()}`;
   } else {
     // create a new token for firebase
-    await createFirestoreDoc({
+    await createFirestoreDoc<PushTokenID, PushToken_Firestore>({
       id: token,
       data: {
         id: token,
@@ -108,6 +109,7 @@ export interface PushNotificationPackage extends PushNotificationShape {
 export const sendPushNotification = async (
   notification: PushNotificationPackage
 ) => {
+  console.log(`Sending push...`);
   try {
     const key = await getFCMServerKey();
     const res = await axios.post(
@@ -122,7 +124,6 @@ export const sendPushNotification = async (
     );
     if (res.data.failure) {
       console.log(`Got a failed push notification response`);
-      console.log(res.data);
       const shouldDeactivateToken =
         res.data.results.some(
           (result: any) => result.error === "NotRegistered"
@@ -134,14 +135,20 @@ export const sendPushNotification = async (
         await deactivatePushToken({
           token: notification.to,
         });
-        return null;
+        return [];
       }
     }
     if (res.data.success) {
+      console.log(`Successful push notification response`);
+      const message_ids: PushMessageRecieptID[] = res.data.results
+        .map((result: any) => result.message_id)
+        .filter((mid: string | undefined) => mid) as PushMessageRecieptID[];
+      return message_ids;
     }
-    return null;
+    return [];
   } catch (e) {
     console.log(e);
+    return [];
   }
 };
 
@@ -175,7 +182,7 @@ export const sendPushNotificationToUserDevices = async ({
 }: SendPushNotificationToUserDevicesProps) => {
   const targets = await listActivePushTargets(userID);
   console.log(`Got ${targets.length} push targets for user ${userID}`);
-  await Promise.all(
+  const reciepts = await Promise.all(
     targets.map((target) => {
       const fullPackage = {
         to: target.id,
@@ -192,4 +199,6 @@ export const sendPushNotificationToUserDevices = async ({
       return sendPushNotification(fullPackage);
     })
   );
+  let pushReciepts = reciepts.flat();
+  return pushReciepts;
 };

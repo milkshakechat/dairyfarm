@@ -10,21 +10,10 @@ import { PushTokenID, UserID } from "@milkshakechat/helpers";
 
 const run = async () => {
   console.log(`push-notification-test.ts ....`);
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    console.log(
-      `Using service account file: ${process.env.GOOGLE_APPLICATION_CREDENTIALS}`
-    );
-  } else {
-    console.log("Using default application credentials.");
-  }
   await initFirebase();
   await sendPushNotificationToUserDevices({
     userID: "ZqpXtiCDOyXFIEmb2N49ft5RuNi1" as UserID,
     notification: {
-      // notification: {
-      //   title: "Hello World",
-      //   body: "Lorem ipsum solar descartes",
-      // },
       data: {
         title: "Hello World",
         body: "Lorem ipsum solar descartes",
