@@ -28,7 +28,7 @@ const run = async () => {
       data: {
         title: "Hello World",
         body: "Lorem ipsum solar descartes",
-        tag: "/app/profile/style",
+        route: "/app/profile/style",
       },
     },
   });
