@@ -1,5 +1,5 @@
 import { firestore } from "@/services/firebase";
-import { FirestoreCollection } from "@milkshakechat/helpers";
+import { FirestoreCollection, User_Firestore } from "@milkshakechat/helpers";
 import {
   DocumentReference,
   Query,
@@ -71,37 +71,6 @@ export const getFirestoreDoc = async <SchemaID extends string, SchemaType>({
   return data;
 };
 
-// list
-interface TListFirestoreDocsProps {
-  where: {
-    field: string;
-    operator: WhereFilterOp;
-    value: string;
-  };
-  collection: FirestoreCollection;
-}
-export const listFirestoreDocs = async <SchemaType>({
-  where,
-  collection,
-}: TListFirestoreDocsProps): Promise<SchemaType[]> => {
-  const ref = firestore
-    .collection(collection)
-    .where(where.field, where.operator, where.value) as Query<SchemaType>;
-
-  const collectionItems = await ref.get();
-
-  if (collectionItems.empty) {
-    return [];
-  } else {
-    return collectionItems.docs.map(
-      (doc: QueryDocumentSnapshot<SchemaType>) => {
-        const data = doc.data();
-        return data;
-      }
-    );
-  }
-};
-
 // update
 interface TUpdateFirestoreDocProps<SchemaID extends string, SchemaType> {
   id: SchemaID;
@@ -147,6 +116,57 @@ export const updateFirestoreDoc = async <SchemaID extends string, SchemaType>({
     throw Error(`Could not find updated record with id ${id} in ${collection}`);
   }
   return updatedObj;
+};
+
+// list
+interface TListFirestoreDocsProps {
+  where: {
+    field: string;
+    operator: WhereFilterOp;
+    value: string;
+  };
+  collection: FirestoreCollection;
+}
+export const listFirestoreDocs = async <SchemaType>({
+  where,
+  collection,
+}: TListFirestoreDocsProps): Promise<SchemaType[]> => {
+  const ref = firestore
+    .collection(collection)
+    .where(where.field, where.operator, where.value) as Query<SchemaType>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<SchemaType>) => {
+        const data = doc.data();
+        return data;
+      }
+    );
+  }
+};
+// list
+export const demoListFirestore = async (): Promise<User_Firestore[]> => {
+  const ref = firestore
+    .collection(FirestoreCollection.USERS)
+    .where("fieldName", "==", "value")
+    .where("fieldName", "==", "value") as Query<User_Firestore>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<User_Firestore>) => {
+        const data = doc.data();
+        return data;
+      }
+    );
+  }
 };
 
 // export const firestoreCreation = async (

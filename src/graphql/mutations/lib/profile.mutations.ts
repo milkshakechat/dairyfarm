@@ -7,10 +7,7 @@ import {
   UpdatePushTokenResponse,
 } from "@/graphql/types/resolvers-types";
 import { updateFirestoreDoc } from "@/services/firestore";
-import {
-  deactivatePushToken,
-  saveOrUpdatePushToken,
-} from "@/services/push-notifications";
+import { deactivatePushToken, saveOrUpdatePushToken } from "@/services/push";
 import { FirestoreCollection } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 

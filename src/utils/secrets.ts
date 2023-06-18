@@ -67,3 +67,12 @@ export const getSendbirdSecret = async () => {
   });
   return sendbirdSecret;
 };
+
+export const getFCMServerKey = async () => {
+  const fcmServerKey = await accessSecretVersion({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.FCM_SERVER_KEY.secretId,
+    versionId: config.SECRETS.FCM_SERVER_KEY.versionId,
+  });
+  return fcmServerKey;
+};
