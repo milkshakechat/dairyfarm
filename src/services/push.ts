@@ -1,5 +1,6 @@
 import {
   FirestoreCollection,
+  PushMessageRecieptID,
   PushPlatformType,
   PushTokenID,
   PushToken_Firestore,
@@ -52,7 +53,7 @@ export const saveOrUpdatePushToken = async ({
     return `Successfully updated push token ${token} for user ${userID} to lastActive ${now.toDate()}`;
   } else {
     // create a new token for firebase
-    await createFirestoreDoc({
+    await createFirestoreDoc<PushTokenID, PushToken_Firestore>({
       id: token,
       data: {
         id: token,
@@ -93,18 +94,12 @@ const DEFAULT_PUSH_NOTIFICATION_IMAGE =
   "https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
 export type ValidClientAppRoute = string;
 export interface PushNotificationShape {
-  // notification: {
-  //   title: string;
-  //   body: string;
-  //   image?: string;
-  //   icon?: string; // icon="https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
-  // };
   data: {
     title: string;
     body: string;
     image?: string;
     icon?: string; // icon="https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
-    tag: ValidClientAppRoute; // eg: "/app/chats/123"";
+    route: ValidClientAppRoute; // eg: "/app/chats/123"";
   };
 }
 export interface PushNotificationPackage extends PushNotificationShape {
@@ -114,6 +109,7 @@ export interface PushNotificationPackage extends PushNotificationShape {
 export const sendPushNotification = async (
   notification: PushNotificationPackage
 ) => {
+  console.log(`Sending push...`);
   try {
     const key = await getFCMServerKey();
     const res = await axios.post(
@@ -128,7 +124,6 @@ export const sendPushNotification = async (
     );
     if (res.data.failure) {
       console.log(`Got a failed push notification response`);
-      console.log(res.data);
       const shouldDeactivateToken =
         res.data.results.some(
           (result: any) => result.error === "NotRegistered"
@@ -140,10 +135,20 @@ export const sendPushNotification = async (
         await deactivatePushToken({
           token: notification.to,
         });
+        return [];
       }
     }
+    if (res.data.success) {
+      console.log(`Successful push notification response`);
+      const message_ids: PushMessageRecieptID[] = res.data.results
+        .map((result: any) => result.message_id)
+        .filter((mid: string | undefined) => mid) as PushMessageRecieptID[];
+      return message_ids;
+    }
+    return [];
   } catch (e) {
     console.log(e);
+    return [];
   }
 };
 
@@ -177,7 +182,7 @@ export const sendPushNotificationToUserDevices = async ({
 }: SendPushNotificationToUserDevicesProps) => {
   const targets = await listActivePushTargets(userID);
   console.log(`Got ${targets.length} push targets for user ${userID}`);
-  await Promise.all(
+  const reciepts = await Promise.all(
     targets.map((target) => {
       const fullPackage = {
         to: target.id,
@@ -185,20 +190,15 @@ export const sendPushNotificationToUserDevices = async ({
         data: {
           ...notification.data,
           icon: notification.data.icon || DEFAULT_PUSH_NOTIFICATION_IMAGE,
+          tag: notification.data.route,
         },
-        // notification: {
-        //   ...notification.notification,
-        //   icon:
-        //     notification.notification.icon || DEFAULT_PUSH_NOTIFICATION_IMAGE,
-        // },
       };
       if (notification.data.image) {
         fullPackage.data.image = notification.data.image;
       }
-      // if (notification.notification.image) {
-      //   fullPackage.notification.image = notification.notification.image;
-      // }
       return sendPushNotification(fullPackage);
     })
   );
+  let pushReciepts = reciepts.flat();
+  return pushReciepts;
 };
