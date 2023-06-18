@@ -77,9 +77,23 @@ union ModifyProfileResponse =
     ModifyProfileResponseSuccess
   | ResponseError
 
+# --- update push token
+input UpdatePushTokenInput {
+  token: PushToken!
+  active: Boolean!
+  title: String
+}
+type UpdatePushTokenResponseSuccess {
+  status: String!
+}
+union UpdatePushTokenResponse =
+    UpdatePushTokenResponseSuccess
+  | ResponseError
+
 # --- Mutations
 type Mutation {
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
+  updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
   # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
 }
 

@@ -3,6 +3,7 @@ import {
   DemoQueryResponse,
   QueryDemoQueryArgs,
 } from "@/graphql/types/resolvers-types";
+import { sendPushNotification } from "@/services/push";
 import { GraphQLResolveInfo } from "graphql";
 
 export const demoQuery = async (
@@ -12,6 +13,7 @@ export const demoQuery = async (
   _info: any
 ) => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  console.log(`sending push notification...`);
   return {
     message: `Greetings! You said ${args.input.name}. Your userID is ${userID}`,
   };

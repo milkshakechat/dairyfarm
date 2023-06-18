@@ -1,5 +1,5 @@
 import { firestore } from "@/services/firebase";
-import { FirestoreCollection } from "@milkshakechat/helpers";
+import { FirestoreCollection, User_Firestore } from "@milkshakechat/helpers";
 import {
   DocumentReference,
   Query,
@@ -7,25 +7,40 @@ import {
   WhereFilterOp,
 } from "firebase-admin/firestore";
 import { UpdateData } from "@firebase/firestore-types";
+import * as admin from "firebase-admin";
+
+export const createFirestoreTimestamp = (date?: Date) => {
+  const targetDate = date || new Date();
+  const timestamp = admin.firestore.Timestamp.fromDate(targetDate);
+  return timestamp;
+};
 
 // creation
 interface FirestoreDocument {
   id: string;
 }
-interface TCreateFirestoreProps<SchemaType extends FirestoreDocument> {
-  data: Omit<SchemaType, "id">;
+interface TCreateFirestoreProps<
+  SchemaID extends string,
+  SchemaType extends FirestoreDocument
+> {
+  id: SchemaID;
+  data: SchemaType;
   collection: FirestoreCollection;
 }
-export const createFirestoreDoc = async <SchemaType extends FirestoreDocument>({
+export const createFirestoreDoc = async <
+  SchemaID extends string,
+  SchemaType extends FirestoreDocument
+>({
+  id,
   data,
   collection,
-}: TCreateFirestoreProps<SchemaType>): Promise<SchemaType> => {
+}: TCreateFirestoreProps<SchemaID, SchemaType>): Promise<SchemaType> => {
   const ref = firestore
     .collection(collection)
-    .doc() as DocumentReference<SchemaType>;
+    .doc(id) as DocumentReference<SchemaType>;
   const objSchema: SchemaType = {
-    id: ref.id,
     ...data,
+    id,
   } as SchemaType;
   await ref.set(objSchema);
   return objSchema;
@@ -54,37 +69,6 @@ export const getFirestoreDoc = async <SchemaID extends string, SchemaType>({
     throw Error("No data found");
   }
   return data;
-};
-
-// list
-interface TListFirestoreDocsProps {
-  where: {
-    field: string;
-    operator: WhereFilterOp;
-    value: string;
-  };
-  collection: FirestoreCollection;
-}
-export const listFirestoreDocs = async <SchemaType>({
-  where,
-  collection,
-}: TListFirestoreDocsProps): Promise<SchemaType[]> => {
-  const ref = firestore
-    .collection(collection)
-    .where(where.field, where.operator, where.value) as Query<SchemaType>;
-
-  const collectionItems = await ref.get();
-
-  if (collectionItems.empty) {
-    return [];
-  } else {
-    return collectionItems.docs.map(
-      (doc: QueryDocumentSnapshot<SchemaType>) => {
-        const data = doc.data();
-        return data;
-      }
-    );
-  }
 };
 
 // update
@@ -132,6 +116,57 @@ export const updateFirestoreDoc = async <SchemaID extends string, SchemaType>({
     throw Error(`Could not find updated record with id ${id} in ${collection}`);
   }
   return updatedObj;
+};
+
+// list
+interface TListFirestoreDocsProps {
+  where: {
+    field: string;
+    operator: WhereFilterOp;
+    value: string;
+  };
+  collection: FirestoreCollection;
+}
+export const listFirestoreDocs = async <SchemaType>({
+  where,
+  collection,
+}: TListFirestoreDocsProps): Promise<SchemaType[]> => {
+  const ref = firestore
+    .collection(collection)
+    .where(where.field, where.operator, where.value) as Query<SchemaType>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<SchemaType>) => {
+        const data = doc.data();
+        return data;
+      }
+    );
+  }
+};
+// list
+export const demoListFirestore = async (): Promise<User_Firestore[]> => {
+  const ref = firestore
+    .collection(FirestoreCollection.USERS)
+    .where("fieldName", "==", "value")
+    .where("fieldName", "==", "value") as Query<User_Firestore>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<User_Firestore>) => {
+        const data = doc.data();
+        return data;
+      }
+    );
+  }
 };
 
 // export const firestoreCreation = async (

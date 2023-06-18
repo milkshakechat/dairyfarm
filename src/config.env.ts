@@ -11,6 +11,10 @@ const devConfig: ConfigEnv = {
       secretId: "sendbird-api",
       versionId: "latest",
     },
+    FCM_SERVER_KEY: {
+      secretId: "fcm-server-key",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -40,6 +44,10 @@ const stagingConfig: ConfigEnv = {
     },
     SENDBIRD_API: {
       secretId: "sendbird-api",
+      versionId: "latest",
+    },
+    FCM_SERVER_KEY: {
+      secretId: "fcm-server-key",
       versionId: "latest",
     },
   },
@@ -76,6 +84,10 @@ const prodConfig: ConfigEnv = {
       secretId: "sendbird-api",
       versionId: "latest",
     },
+    FCM_SERVER_KEY: {
+      secretId: "fcm-server-key",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -106,6 +118,7 @@ interface ConfigEnv {
   SECRETS: {
     FIREBASE_CONFIG: SecretConfig;
     SENDBIRD_API: SecretConfig;
+    FCM_SERVER_KEY: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;
