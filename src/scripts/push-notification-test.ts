@@ -19,14 +19,16 @@ const run = async () => {
   }
   await initFirebase();
   await sendPushNotificationToUserDevices({
-    userID: "dntU1JwlpvgR4QSJVaezdlgbEdg2" as UserID,
+    userID: "ZqpXtiCDOyXFIEmb2N49ft5RuNi1" as UserID,
     notification: {
-      notification: {
+      // notification: {
+      //   title: "Hello World",
+      //   body: "Lorem ipsum solar descartes",
+      // },
+      data: {
         title: "Hello World",
         body: "Lorem ipsum solar descartes",
-      },
-      data: {
-        goToRoute: "/app/profile/style",
+        tag: "/app/profile/style",
       },
     },
   });

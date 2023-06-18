@@ -93,13 +93,18 @@ const DEFAULT_PUSH_NOTIFICATION_IMAGE =
   "https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
 export type ValidClientAppRoute = string;
 export interface PushNotificationShape {
-  notification: {
+  // notification: {
+  //   title: string;
+  //   body: string;
+  //   image?: string;
+  //   icon?: string; // icon="https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
+  // };
+  data: {
     title: string;
     body: string;
-    image?: string; // image="https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
-  };
-  data: {
-    goToRoute: ValidClientAppRoute; // eg: "/app/chats/123"";
+    image?: string;
+    icon?: string; // icon="https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
+    tag: ValidClientAppRoute; // eg: "/app/chats/123"";
   };
 }
 export interface PushNotificationPackage extends PushNotificationShape {
@@ -174,15 +179,26 @@ export const sendPushNotificationToUserDevices = async ({
   console.log(`Got ${targets.length} push targets for user ${userID}`);
   await Promise.all(
     targets.map((target) => {
-      return sendPushNotification({
+      const fullPackage = {
         to: target.id,
         ...notification,
-        notification: {
-          ...notification.notification,
-          image:
-            notification.notification.image || DEFAULT_PUSH_NOTIFICATION_IMAGE,
+        data: {
+          ...notification.data,
+          icon: notification.data.icon || DEFAULT_PUSH_NOTIFICATION_IMAGE,
         },
-      });
+        // notification: {
+        //   ...notification.notification,
+        //   icon:
+        //     notification.notification.icon || DEFAULT_PUSH_NOTIFICATION_IMAGE,
+        // },
+      };
+      if (notification.data.image) {
+        fullPackage.data.image = notification.data.image;
+      }
+      // if (notification.notification.image) {
+      //   fullPackage.notification.image = notification.notification.image;
+      // }
+      return sendPushNotification(fullPackage);
     })
   );
 };
