@@ -1,6 +1,8 @@
 import {
+  FriendshipAction,
   SendFriendRequestInput,
   ViewPublicProfileResponseSuccess,
+  FriendshipStatus as FriendshipStatusEnum,
 } from "@/graphql/types/resolvers-types";
 import {
   FirestoreCollection,
@@ -33,6 +35,30 @@ export const checkUserPrivacy = async (
   return user.privacyMode;
 };
 
+const checkExistingFriendship = async ({
+  to,
+  from,
+}: {
+  to: UserID;
+  from: UserID;
+}) => {
+  const ref = firestore
+    .collection(FirestoreCollection.FRIENDSHIPS)
+    .where("friendID", "==", to)
+    .where("primaryUserID", "==", from) as Query<Friendship_Firestore>;
+  const collectionItems = await ref.get();
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<Friendship_Firestore>) => {
+        const data = doc.data();
+        return data;
+      }
+    );
+  }
+};
+
 interface NextFriendshipStatus {
   sitRep: {
     forward: FriendshipStatus;
@@ -50,29 +76,7 @@ export const sendFriendRequestFirestore = async ({
   request,
 }: SendFriendRequestFirestoreProps): Promise<NextFriendshipStatus> => {
   const { recipientID: to } = request;
-  const checkExistingFriendship = async ({
-    to,
-    from,
-  }: {
-    to: UserID;
-    from: UserID;
-  }) => {
-    const ref = firestore
-      .collection(FirestoreCollection.FRIENDSHIPS)
-      .where("friendID", "==", to)
-      .where("primaryUserID", "==", from) as Query<Friendship_Firestore>;
-    const collectionItems = await ref.get();
-    if (collectionItems.empty) {
-      return [];
-    } else {
-      return collectionItems.docs.map(
-        (doc: QueryDocumentSnapshot<Friendship_Firestore>) => {
-          const data = doc.data();
-          return data;
-        }
-      );
-    }
-  };
+
   const [forwardRelation, reverseRelation] = await Promise.all([
     checkExistingFriendship({
       to,
@@ -86,7 +90,7 @@ export const sendFriendRequestFirestore = async ({
   const forward = forwardRelation[0];
   const reverse = reverseRelation[0];
   // if an existing relationship is found
-  if (forward && forward) {
+  if (forward && reverse) {
     // if recipient blocked you --> reject
     if (reverse.status === FriendshipStatus.BLOCKED) {
       const comment = `You have been blocked by ${to}`;
@@ -384,4 +388,183 @@ export const getPublicProfile = async (
     publicProfile.avatar = matchedUser.avatar;
   }
   return publicProfile;
+};
+
+interface ManageFriendshipFirestoreProps {
+  userID: UserID;
+  friendID: UserID;
+  action: FriendshipAction;
+}
+export const manageFriendshipFirestore = async ({
+  userID,
+  friendID,
+  action,
+}: ManageFriendshipFirestoreProps) => {
+  const [forwardRelation, reverseRelation] = await Promise.all([
+    checkExistingFriendship({
+      to: friendID,
+      from: userID,
+    }),
+    checkExistingFriendship({
+      from: friendID,
+      to: userID,
+    }),
+  ]);
+  const forward = forwardRelation[0];
+  const reverse = reverseRelation[0];
+  // if an existing relationship is found
+  if (!forward || !reverse) {
+    throw Error(`Could not find existing friendship`);
+  }
+  // update the friendship
+  switch (action) {
+    case FriendshipAction.Block: {
+      const [_forward, _reverse] = await Promise.all([
+        updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+          id: forward.id,
+          payload: {
+            status: FriendshipStatus.BLOCKED,
+            initiatedBy: userID,
+          },
+          collection: FirestoreCollection.FRIENDSHIPS,
+        }),
+        updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+          id: reverse.id,
+          payload: {
+            status: FriendshipStatus.NONE,
+          },
+          collection: FirestoreCollection.FRIENDSHIPS,
+        }),
+      ]);
+      return FriendshipStatusEnum.Blocked;
+    }
+    case FriendshipAction.Unblock: {
+      const [_forward] = await Promise.all([
+        updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+          id: forward.id,
+          payload: {
+            status: FriendshipStatus.NONE,
+          },
+          collection: FirestoreCollection.FRIENDSHIPS,
+        }),
+      ]);
+      return FriendshipStatusEnum.None;
+    }
+    case FriendshipAction.AcceptRequest: {
+      if (
+        forward.status === FriendshipStatus.GOT_REQUEST &&
+        reverse.status === FriendshipStatus.SENT_REQUEST
+      ) {
+        const [_forward, _reverse] = await Promise.all([
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: forward.id,
+            payload: {
+              status: FriendshipStatus.ACCEPTED,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: reverse.id,
+            payload: {
+              status: FriendshipStatus.ACCEPTED,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+        ]);
+        return FriendshipStatusEnum.Accepted;
+      } else {
+        throw Error(
+          `Could not find existing friend request between ${FriendshipStatus.GOT_REQUEST} you=${userID} and ${FriendshipStatus.SENT_REQUEST} friend=${friendID}`
+        );
+      }
+    }
+    case FriendshipAction.DeclineRequest: {
+      if (
+        forward.status === FriendshipStatus.GOT_REQUEST &&
+        reverse.status === FriendshipStatus.SENT_REQUEST
+      ) {
+        const [_forward, _reverse] = await Promise.all([
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: forward.id,
+            payload: {
+              status: FriendshipStatus.NONE,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: reverse.id,
+            payload: {
+              status: FriendshipStatus.DECLINED,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+        ]);
+        return FriendshipStatusEnum.Declined;
+      } else {
+        throw Error(
+          `Could not find existing friend request between ${FriendshipStatus.GOT_REQUEST} you=${userID} and ${FriendshipStatus.SENT_REQUEST} friend=${friendID}`
+        );
+      }
+    }
+    case FriendshipAction.CancelRequest: {
+      if (
+        forward.status === FriendshipStatus.SENT_REQUEST &&
+        reverse.status === FriendshipStatus.GOT_REQUEST
+      ) {
+        const [_forward, _reverse] = await Promise.all([
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: forward.id,
+            payload: {
+              status: FriendshipStatus.NONE,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: reverse.id,
+            payload: {
+              status: FriendshipStatus.NONE,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+        ]);
+        return FriendshipStatusEnum.None;
+      } else {
+        throw Error(
+          `Could not find existing friend request between ${FriendshipStatus.SENT_REQUEST} you=${userID} and ${FriendshipStatus.GOT_REQUEST} friend=${friendID}`
+        );
+      }
+    }
+    case FriendshipAction.RemoveFriend: {
+      if (
+        forward.status === FriendshipStatus.ACCEPTED &&
+        reverse.status === FriendshipStatus.ACCEPTED
+      ) {
+        const [_forward, _reverse] = await Promise.all([
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: forward.id,
+            payload: {
+              status: FriendshipStatus.NONE,
+              initiatedBy: userID,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+          updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+            id: reverse.id,
+            payload: {
+              status: FriendshipStatus.NONE,
+            },
+            collection: FirestoreCollection.FRIENDSHIPS,
+          }),
+        ]);
+        return FriendshipStatusEnum.None;
+      } else {
+        throw Error(
+          `Could not find existing friendship between ${FriendshipStatus.ACCEPTED} you=${userID} and ${FriendshipStatus.ACCEPTED} friend=${friendID}`
+        );
+      }
+    }
+    default: {
+      throw Error(`Invalid action ${action}`);
+    }
+  }
 };

@@ -148,11 +148,33 @@ union SendFriendRequestResponse =
     SendFriendRequestResponseSuccess
   | ResponseError
 
+
+# --- handle friendship
+enum FriendshipAction {
+  ACCEPT_REQUEST
+  DECLINE_REQUEST
+  CANCEL_REQUEST
+  BLOCK
+  UNBLOCK
+  REMOVE_FRIEND
+}
+input ManageFriendshipInput {
+  friendID: UserID!
+  action: FriendshipAction!
+}
+type ManageFriendshipResponseSuccess {
+  status: FriendshipStatus!
+}
+union ManageFriendshipResponse =
+    ManageFriendshipResponseSuccess
+  | ResponseError
+
 # --- Mutations
 type Mutation {
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
   sendFriendRequest(input: SendFriendRequestInput!): SendFriendRequestResponse!
+  manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!
   # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
 }
 

@@ -1,10 +1,15 @@
 import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   FriendshipStatus,
+  ManageFriendshipResponse,
+  MutationManageFriendshipArgs,
   MutationSendFriendRequestArgs,
   SendFriendRequestResponse,
 } from "../../types/resolvers-types";
-import { sendFriendRequestFirestore } from "@/services/friends";
+import {
+  manageFriendshipFirestore,
+  sendFriendRequestFirestore,
+} from "@/services/friends";
 import { GraphQLResolveInfo } from "graphql";
 export const createGroupChat = (
   _parent: any,
@@ -40,6 +45,25 @@ export const sendFriendRequest = async (
   };
 };
 
+export const manageFriendship = async (
+  _parent: any,
+  args: MutationManageFriendshipArgs,
+  _context: any,
+  _info: any
+): Promise<ManageFriendshipResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw new Error("Your UserID not found");
+  }
+  const status = await manageFriendshipFirestore({
+    ...args.input,
+    userID: userID,
+  });
+  return {
+    status,
+  };
+};
+
 export const responses = {
   SendFriendRequestResponse: {
     __resolveType(
@@ -51,6 +75,21 @@ export const responses = {
       console.log(obj);
       if ("status" in obj) {
         return "SendFriendRequestResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  ManageFriendshipResponse: {
+    __resolveType(
+      obj: ManageFriendshipResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "ManageFriendshipResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

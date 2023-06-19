@@ -68,7 +68,6 @@ export const listContacts = async (
   if (!userID) {
     throw new Error("No userID found");
   }
-  console.log(`userID = ${userID}`);
   // get friendships
   const friendships = await listFirestoreDocs<Friendship_Firestore>({
     where: {
@@ -78,17 +77,13 @@ export const listContacts = async (
     },
     collection: FirestoreCollection.FRIENDSHIPS,
   });
-  console.log(`${friendships.length} friendships found ---`);
   const contacts = await Promise.all(
     friendships.map(async (fr) => {
-      console.log(`-------`);
-      console.log(fr);
       try {
         const user = await getFirestoreDoc<UserID, User_Firestore>({
           id: fr.friendID,
           collection: FirestoreCollection.USERS,
         });
-        console.log(user);
         return {
           friendID: fr.friendID,
           username: user.username,
