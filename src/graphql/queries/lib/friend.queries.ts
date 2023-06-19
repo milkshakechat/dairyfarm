@@ -16,9 +16,10 @@ export const viewPublicProfile = async (
   _context: any,
   _info: any
 ) => {
-  console.log(`viewPublicProfile...`);
-  const publicProfile = await getPublicProfile(input.username as Username);
-  console.log(`publicProfile`, publicProfile);
+  const publicProfile = await getPublicProfile({
+    username: input.username as Username,
+    userID: input.userID,
+  });
   return publicProfile;
 };
 
