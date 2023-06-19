@@ -293,7 +293,8 @@ export type User = {
 };
 
 export type ViewPublicProfileInput = {
-  username: Scalars['String']['input'];
+  userID?: InputMaybe<Scalars['UserID']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ViewPublicProfileResponse = ResponseError | ViewPublicProfileResponseSuccess;
@@ -301,6 +302,7 @@ export type ViewPublicProfileResponse = ResponseError | ViewPublicProfileRespons
 export type ViewPublicProfileResponseSuccess = {
   __typename?: 'ViewPublicProfileResponseSuccess';
   avatar?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
   id: Scalars['UserID']['output'];
   username: Scalars['String']['output'];
 };
@@ -683,6 +685,7 @@ export type ViewPublicProfileResponseResolvers<ContextType = any, ParentType ext
 
 export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ViewPublicProfileResponseSuccess'] = ResolversParentTypes['ViewPublicProfileResponseSuccess']> = {
   avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

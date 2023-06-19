@@ -365,29 +365,63 @@ export const sendFriendRequestFirestore = async ({
   };
 };
 
-export const getPublicProfile = async (
-  username: Username
-): Promise<ViewPublicProfileResponseSuccess> => {
-  const matchingUsers = await listFirestoreDocs<User_Firestore>({
-    where: {
-      field: "username",
-      operator: "==",
-      value: username,
-    },
-    collection: FirestoreCollection.USERS,
-  });
-  const matchedUser = matchingUsers[0];
-  if (!matchedUser) {
-    throw Error(`Could not find user with username ${username}`);
+export const getPublicProfile = async ({
+  username,
+  userID,
+}: {
+  username?: Username;
+  userID?: UserID;
+}): Promise<ViewPublicProfileResponseSuccess> => {
+  if (userID) {
+    try {
+      const user = await getFirestoreDoc<UserID, User_Firestore>({
+        id: userID,
+        collection: FirestoreCollection.USERS,
+      });
+      const publicProfile: ViewPublicProfileResponseSuccess = {
+        id: user.id,
+        username: user.username,
+      };
+      if (user.avatar) {
+        publicProfile.avatar = user.avatar;
+      }
+      if (user.displayName) {
+        publicProfile.displayName = user.displayName;
+      }
+      return publicProfile;
+    } catch (e) {
+      console.log(e);
+      console.log(`Will keep trying, with username next`);
+    }
   }
-  const publicProfile: ViewPublicProfileResponseSuccess = {
-    id: matchedUser.id,
-    username: matchedUser.username,
-  };
-  if (matchedUser.avatar) {
-    publicProfile.avatar = matchedUser.avatar;
+  if (username) {
+    const matchingUsers = await listFirestoreDocs<User_Firestore>({
+      where: {
+        field: "username",
+        operator: "==",
+        value: username,
+      },
+      collection: FirestoreCollection.USERS,
+    });
+    const matchedUser = matchingUsers[0];
+    if (!matchedUser) {
+      throw Error(`Could not find user with username ${username}`);
+    }
+    const publicProfile: ViewPublicProfileResponseSuccess = {
+      id: matchedUser.id,
+      username: matchedUser.username,
+    };
+    if (matchedUser.avatar) {
+      publicProfile.avatar = matchedUser.avatar;
+    }
+    if (matchedUser.displayName) {
+      publicProfile.displayName = matchedUser.displayName;
+    }
+    return publicProfile;
   }
-  return publicProfile;
+  throw Error(
+    `Must provide either username or userID. You gave username=${username} and userID=${userID}`
+  );
 };
 
 interface ManageFriendshipFirestoreProps {

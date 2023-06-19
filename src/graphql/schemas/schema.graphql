@@ -56,12 +56,14 @@ union CheckUsernameAvailableResponse =
 
 # --- viewPublicProfile
 input ViewPublicProfileInput {
-  username: String!
+  username: String
+  userID: UserID
 }
 type ViewPublicProfileResponseSuccess {
   id: UserID!
   username: String!
   avatar: String
+  displayName: String
 }
 union ViewPublicProfileResponse =
     ViewPublicProfileResponseSuccess
