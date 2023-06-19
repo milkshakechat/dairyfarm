@@ -35,8 +35,8 @@ export const checkUserPrivacy = async (
 
 interface NextFriendshipStatus {
   sitRep: {
-    to: FriendshipStatus;
-    from: FriendshipStatus;
+    forward: FriendshipStatus;
+    reverse: FriendshipStatus;
   };
   message: string;
   status: FriendshipStatus;
@@ -93,8 +93,8 @@ export const sendFriendRequestFirestore = async ({
       console.log(comment);
       return {
         sitRep: {
-          to: forward.status,
-          from: reverse.status,
+          forward: forward.status,
+          reverse: reverse.status,
         },
         message: comment,
         status: FriendshipStatus.BLOCKED,
@@ -109,7 +109,7 @@ export const sendFriendRequestFirestore = async ({
       >({
         id: forward.id,
         payload: {
-          status: FriendshipStatus.REQUESTED,
+          status: FriendshipStatus.SENT_REQUEST,
           initiatedBy: from,
           requestNonce: forward.requestNonce + 1,
         },
@@ -123,7 +123,7 @@ export const sendFriendRequestFirestore = async ({
       >({
         id: reverse.id,
         payload: {
-          status: FriendshipStatus.REQUESTED,
+          status: FriendshipStatus.GOT_REQUEST,
           initiatedBy: from,
           requestNonce: forward.requestNonce + 1,
         },
@@ -134,11 +134,11 @@ export const sendFriendRequestFirestore = async ({
       console.log(comment);
       return {
         sitRep: {
-          to: _forward.status,
-          from: _reverse.status,
+          forward: _forward.status,
+          reverse: _reverse.status,
         },
         message: comment,
-        status: FriendshipStatus.REQUESTED,
+        status: FriendshipStatus.SENT_REQUEST,
       };
     }
     // if has prior friendship but now NONE --> re-send request
@@ -150,7 +150,7 @@ export const sendFriendRequestFirestore = async ({
       >({
         id: forward.id,
         payload: {
-          status: FriendshipStatus.REQUESTED,
+          status: FriendshipStatus.SENT_REQUEST,
           initiatedBy: from,
           requestNonce: forward.requestNonce + 1,
         },
@@ -164,7 +164,7 @@ export const sendFriendRequestFirestore = async ({
       >({
         id: reverse.id,
         payload: {
-          status: FriendshipStatus.REQUESTED,
+          status: FriendshipStatus.GOT_REQUEST,
           initiatedBy: from,
           requestNonce: forward.requestNonce + 1,
         },
@@ -175,11 +175,11 @@ export const sendFriendRequestFirestore = async ({
       console.log(comment);
       return {
         sitRep: {
-          to: _forward.status,
-          from: _reverse.status,
+          forward: _forward.status,
+          reverse: _reverse.status,
         },
         message: comment,
-        status: FriendshipStatus.REQUESTED,
+        status: FriendshipStatus.SENT_REQUEST,
       };
     }
     // if already friends
@@ -191,8 +191,8 @@ export const sendFriendRequestFirestore = async ({
       console.log(comment);
       return {
         sitRep: {
-          to: forward.status,
-          from: reverse.status,
+          forward: forward.status,
+          reverse: reverse.status,
         },
         message: comment,
         status: FriendshipStatus.ACCEPTED,
@@ -200,9 +200,9 @@ export const sendFriendRequestFirestore = async ({
     }
     // if existing request from you -> update requestNonce
     if (
-      (forward.status === FriendshipStatus.REQUESTED &&
-        reverse.status === FriendshipStatus.REQUESTED) ||
-      reverse.status === FriendshipStatus.DECLINED
+      reverse.status === FriendshipStatus.GOT_REQUEST ||
+      reverse.status === FriendshipStatus.DECLINED ||
+      reverse.status === FriendshipStatus.NONE
     ) {
       const comment =
         reverse.status === FriendshipStatus.DECLINED
@@ -216,7 +216,7 @@ export const sendFriendRequestFirestore = async ({
       >({
         id: forward.id,
         payload: {
-          status: FriendshipStatus.REQUESTED,
+          status: FriendshipStatus.SENT_REQUEST,
           initiatedBy: from,
           requestNonce: forward.requestNonce + 1,
         },
@@ -230,7 +230,7 @@ export const sendFriendRequestFirestore = async ({
       >({
         id: reverse.id,
         payload: {
-          status: FriendshipStatus.REQUESTED,
+          status: FriendshipStatus.GOT_REQUEST,
           initiatedBy: from,
           requestNonce: forward.requestNonce + 1,
         },
@@ -238,30 +238,22 @@ export const sendFriendRequestFirestore = async ({
       });
       return {
         sitRep: {
-          to: _forward.status,
-          from: _reverse.status,
+          forward: _forward.status,
+          reverse: _reverse.status,
         },
         message: comment,
-        status: FriendshipStatus.REQUESTED,
+        status: FriendshipStatus.SENT_REQUEST,
       };
     }
     // if existing request from recipient -> auto accept
     // because you are sending them a friend request when they already sent you one, it can be assumed as an acceptance
     // assume you havent blocked them (handled above)
-    if (reverse.status === FriendshipStatus.REQUESTED) {
+    if (
+      forward.status === FriendshipStatus.GOT_REQUEST ||
+      reverse.status === FriendshipStatus.SENT_REQUEST
+    ) {
       const comment = `You accepted an existing friend request from ${to}`;
       console.log(comment);
-      // update the existing friend request from their POV (reverse)
-      const _reverse = await updateFirestoreDoc<
-        FriendshipID,
-        Friendship_Firestore
-      >({
-        id: reverse.id,
-        payload: {
-          status: FriendshipStatus.ACCEPTED,
-        },
-        collection: FirestoreCollection.FRIENDSHIPS,
-      });
       // accept their friend request from your POV (forward)
       const _forward = await updateFirestoreDoc<
         FriendshipID,
@@ -273,10 +265,21 @@ export const sendFriendRequestFirestore = async ({
         },
         collection: FirestoreCollection.FRIENDSHIPS,
       });
+      // update the existing friend request from their POV (reverse)
+      const _reverse = await updateFirestoreDoc<
+        FriendshipID,
+        Friendship_Firestore
+      >({
+        id: reverse.id,
+        payload: {
+          status: FriendshipStatus.ACCEPTED,
+        },
+        collection: FirestoreCollection.FRIENDSHIPS,
+      });
       return {
         sitRep: {
-          to: _forward.status,
-          from: _reverse.status,
+          forward: _forward.status,
+          reverse: _reverse.status,
         },
         message: comment,
         status: FriendshipStatus.ACCEPTED,
@@ -299,6 +302,13 @@ export const sendFriendRequestFirestore = async ({
     note?: string;
     utmAttribution?: string;
   }) => {
+    /**
+     * When a friend request is made, two friendship documents are created:
+     * - You (initiator) status = WAITING (you are waiting on this friend to accept)
+     * - Them (recipient) status = REQUEST (they see a request from you)
+     *
+     * The logic of WAITING vs REQUEST is based on the perspective of the primaryUserID looking at the other person in the friendship
+     */
     const friendshipID = uuidv4() as FriendshipID;
     const friendRequest: Friendship_Firestore = {
       id: friendshipID,
@@ -309,7 +319,10 @@ export const sendFriendRequestFirestore = async ({
       initiatedBy: initiatedBy,
       utmAttribution: utmAttribution || "",
       createdAt: createFirestoreTimestamp(),
-      status: FriendshipStatus.REQUESTED,
+      status:
+        primaryUserID === initiatedBy
+          ? FriendshipStatus.SENT_REQUEST
+          : FriendshipStatus.GOT_REQUEST,
       requestNonce: 1,
     };
     console.log(`friendRequest`, friendRequest);
@@ -340,11 +353,11 @@ export const sendFriendRequestFirestore = async ({
   ]);
   return {
     sitRep: {
-      to: _forward.status,
-      from: _reverse.status,
+      forward: _forward.status,
+      reverse: _reverse.status,
     },
     message: comment,
-    status: FriendshipStatus.REQUESTED,
+    status: FriendshipStatus.SENT_REQUEST,
   };
 };
 

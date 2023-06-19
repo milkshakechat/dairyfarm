@@ -33,6 +33,15 @@ export type CheckUsernameAvailableResponseSuccess = {
   isAvailable: Scalars['Boolean']['output'];
 };
 
+export type Contact = {
+  __typename?: 'Contact';
+  avatar?: Maybe<Scalars['String']['output']>;
+  displayName: Scalars['String']['output'];
+  friendID: Scalars['UserID']['output'];
+  status?: Maybe<FriendshipStatus>;
+  username?: Maybe<Scalars['String']['output']>;
+};
+
 export type DemoMutatedItem = {
   __typename?: 'DemoMutatedItem';
   id: Scalars['ID']['output'];
@@ -70,8 +79,9 @@ export enum FriendshipStatus {
   Accepted = 'ACCEPTED',
   Blocked = 'BLOCKED',
   Declined = 'DECLINED',
+  GotRequest = 'GOT_REQUEST',
   None = 'NONE',
-  Requested = 'REQUESTED'
+  SentRequest = 'SENT_REQUEST'
 }
 
 export type GetMyProfileResponse = GetMyProfileResponseSuccess | ResponseError;
@@ -91,6 +101,14 @@ export enum LanguageEnum {
   Thai = 'thai',
   Vietnamese = 'vietnamese'
 }
+
+export type ListContactsResponse = ListContactsResponseSuccess | ResponseError;
+
+export type ListContactsResponseSuccess = {
+  __typename?: 'ListContactsResponseSuccess';
+  contacts: Array<Contact>;
+  globalDirectory: Array<Contact>;
+};
 
 export type ModifyProfileInput = {
   avatar?: InputMaybe<Scalars['String']['input']>;
@@ -155,6 +173,7 @@ export type Query = {
   demoPing: Ping;
   demoQuery: DemoQueryResponse;
   getMyProfile: GetMyProfileResponse;
+  listContacts: ListContactsResponse;
   ping: Ping;
   viewPublicProfile: ViewPublicProfileResponse;
 };
@@ -332,6 +351,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
+  ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
@@ -345,6 +365,7 @@ export type ResolversTypes = {
   CheckUsernameAvailableInput: CheckUsernameAvailableInput;
   CheckUsernameAvailableResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckUsernameAvailableResponse']>;
   CheckUsernameAvailableResponseSuccess: ResolverTypeWrapper<CheckUsernameAvailableResponseSuccess>;
+  Contact: ResolverTypeWrapper<Contact>;
   DateString: ResolverTypeWrapper<Scalars['DateString']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
   DemoMutationInput: DemoMutationInput;
@@ -361,6 +382,8 @@ export type ResolversTypes = {
   HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   LanguageEnum: LanguageEnum;
+  ListContactsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListContactsResponse']>;
+  ListContactsResponseSuccess: ResolverTypeWrapper<ListContactsResponseSuccess>;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyProfileResponse']>;
   ModifyProfileResponseSuccess: ResolverTypeWrapper<ModifyProfileResponseSuccess>;
@@ -394,6 +417,7 @@ export type ResolversParentTypes = {
   CheckUsernameAvailableInput: CheckUsernameAvailableInput;
   CheckUsernameAvailableResponse: ResolversUnionTypes<ResolversParentTypes>['CheckUsernameAvailableResponse'];
   CheckUsernameAvailableResponseSuccess: CheckUsernameAvailableResponseSuccess;
+  Contact: Contact;
   DateString: Scalars['DateString']['output'];
   DemoMutatedItem: DemoMutatedItem;
   DemoMutationInput: DemoMutationInput;
@@ -408,6 +432,8 @@ export type ResolversParentTypes = {
   GroupChatID: Scalars['GroupChatID']['output'];
   HexColorCode: Scalars['HexColorCode']['output'];
   ID: Scalars['ID']['output'];
+  ListContactsResponse: ResolversUnionTypes<ResolversParentTypes>['ListContactsResponse'];
+  ListContactsResponseSuccess: ListContactsResponseSuccess;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyProfileResponse'];
   ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
@@ -439,6 +465,15 @@ export type CheckUsernameAvailableResponseResolvers<ContextType = any, ParentTyp
 
 export type CheckUsernameAvailableResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckUsernameAvailableResponseSuccess'] = ResolversParentTypes['CheckUsernameAvailableResponseSuccess']> = {
   isAvailable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ContactResolvers<ContextType = any, ParentType extends ResolversParentTypes['Contact'] = ResolversParentTypes['Contact']> = {
+  avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  friendID?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['FriendshipStatus']>, ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -492,6 +527,16 @@ export interface HexColorCodeScalarConfig extends GraphQLScalarTypeConfig<Resolv
   name: 'HexColorCode';
 }
 
+export type ListContactsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListContactsResponse'] = ResolversParentTypes['ListContactsResponse']> = {
+  __resolveType: TypeResolveFn<'ListContactsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type ListContactsResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListContactsResponseSuccess'] = ResolversParentTypes['ListContactsResponseSuccess']> = {
+  contacts?: Resolver<Array<ResolversTypes['Contact']>, ParentType, ContextType>;
+  globalDirectory?: Resolver<Array<ResolversTypes['Contact']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ModifyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyProfileResponse'] = ResolversParentTypes['ModifyProfileResponse']> = {
   __resolveType: TypeResolveFn<'ModifyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -522,6 +567,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
+  listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
 };
@@ -600,6 +646,7 @@ export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentT
 export type Resolvers<ContextType = any> = {
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
+  Contact?: ContactResolvers<ContextType>;
   DateString?: GraphQLScalarType;
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
   DemoMutationResponse?: DemoMutationResponseResolvers<ContextType>;
@@ -611,6 +658,8 @@ export type Resolvers<ContextType = any> = {
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
   HexColorCode?: GraphQLScalarType;
+  ListContactsResponse?: ListContactsResponseResolvers<ContextType>;
+  ListContactsResponseSuccess?: ListContactsResponseSuccessResolvers<ContextType>;
   ModifyProfileResponse?: ModifyProfileResponseResolvers<ContextType>;
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;

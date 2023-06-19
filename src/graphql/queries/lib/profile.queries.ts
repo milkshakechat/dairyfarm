@@ -4,15 +4,17 @@ import {
   GetMyProfileResponse,
   QueryCheckUsernameAvailableArgs,
 } from "@/graphql/types/resolvers-types";
-import { getFirestoreDoc } from "@/services/firestore";
+import { getFirestoreDoc, listFirestoreDocs } from "@/services/firestore";
 import { checkIfUsernameAvailable } from "@/utils/username";
 import {
   FirestoreCollection,
+  Friendship_Firestore,
   UserID,
   User_Firestore,
   checkIfUsernameIsAllowed,
 } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
+import { ListContactsResponse } from "../../types/resolvers-types";
 
 export const getMyProfile = async (
   _parent: any,
@@ -56,6 +58,76 @@ export const checkUsernameAvailable = async (
   };
 };
 
+export const listContacts = async (
+  _parent: any,
+  args: any,
+  _context: any,
+  _info: any
+) => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw new Error("No userID found");
+  }
+  console.log(`userID = ${userID}`);
+  // get friendships
+  const friendships = await listFirestoreDocs<Friendship_Firestore>({
+    where: {
+      field: "primaryUserID",
+      operator: "==",
+      value: userID,
+    },
+    collection: FirestoreCollection.FRIENDSHIPS,
+  });
+  console.log(`${friendships.length} friendships found ---`);
+  const contacts = await Promise.all(
+    friendships.map(async (fr) => {
+      console.log(`-------`);
+      console.log(fr);
+      try {
+        const user = await getFirestoreDoc<UserID, User_Firestore>({
+          id: fr.friendID,
+          collection: FirestoreCollection.USERS,
+        });
+        console.log(user);
+        return {
+          friendID: fr.friendID,
+          username: user.username,
+          displayName: fr.friendNickname || user.displayName,
+          avatar: user.avatar,
+          status: fr.status,
+        };
+      } catch (e) {
+        return {
+          friendID: fr.friendID,
+          username: fr.friendID,
+          displayName: fr.friendNickname || fr.friendID,
+          status: fr.status,
+        };
+      }
+    })
+  );
+  const allUsers = await listFirestoreDocs<User_Firestore>({
+    where: {
+      field: "disabled",
+      operator: "==",
+      value: false,
+    },
+    collection: FirestoreCollection.USERS,
+  });
+  const globalDirectory = allUsers.map((u) => {
+    return {
+      friendID: u.id,
+      username: u.username,
+      displayName: u.displayName,
+      avatar: u.avatar,
+    };
+  });
+  return {
+    contacts,
+    globalDirectory,
+  };
+};
+
 export const responses = {
   GetMyProfileResponse: {
     __resolveType(
@@ -80,6 +152,21 @@ export const responses = {
     ) {
       if ("isAvailable" in obj) {
         return "CheckUsernameAvailableResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  ListContactsResponse: {
+    __resolveType(
+      obj: ListContactsResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("contacts" in obj) {
+        return "ListContactsResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

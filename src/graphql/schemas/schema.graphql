@@ -67,6 +67,24 @@ union ViewPublicProfileResponse =
     ViewPublicProfileResponseSuccess
   | ResponseError
 
+
+# --- listContacts
+type Contact {
+  friendID: UserID!
+  username: String
+  displayName: String!
+  avatar: String
+  status: FriendshipStatus
+}
+type ListContactsResponseSuccess {
+  contacts: [Contact!]!
+  # globalDirectory is only for development
+  globalDirectory: [Contact!]!
+}
+union ListContactsResponse =
+    ListContactsResponseSuccess
+  | ResponseError
+
 # --- Queries
 type Query {
   getMyProfile: GetMyProfileResponse!
@@ -74,6 +92,7 @@ type Query {
   viewPublicProfile(
     input: ViewPublicProfileInput!
   ): ViewPublicProfileResponse!
+  listContacts: ListContactsResponse!
 }
 
 # --- modifyProfile
@@ -110,7 +129,8 @@ union UpdatePushTokenResponse =
 
 # --- send friend request
 enum FriendshipStatus {
-  REQUESTED
+  SENT_REQUEST
+  GOT_REQUEST
   ACCEPTED
   DECLINED
   BLOCKED
