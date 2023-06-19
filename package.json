@@ -60,7 +60,7 @@
     "@google-cloud/firestore": "^6.6.1",
     "@google-cloud/secret-manager": "^4.2.2",
     "@google-cloud/storage": "^6.9.5",
-    "@milkshakechat/helpers": "^1.0.37",
+    "@milkshakechat/helpers": "^1.0.45",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",

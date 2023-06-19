@@ -4,12 +4,12 @@ import {
 } from "@/graphql/types/resolvers-types";
 import { GraphQLResolveInfo } from "graphql";
 
-export const demoMutation = (
+export const demoMutation = async (
   _parent: any,
   args: MutationDemoMutationArgs,
   _context: any,
   _info: any
-) => {
+): Promise<DemoMutationResponse> => {
   return {
     item: {
       id: "id",

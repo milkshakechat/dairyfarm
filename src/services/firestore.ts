@@ -118,7 +118,7 @@ export const updateFirestoreDoc = async <SchemaID extends string, SchemaType>({
   return updatedObj;
 };
 
-// list
+// list single where
 interface TListFirestoreDocsProps {
   where: {
     field: string;
@@ -148,7 +148,7 @@ export const listFirestoreDocs = async <SchemaType>({
     );
   }
 };
-// list
+// list double where - template
 export const demoListFirestore = async (): Promise<User_Firestore[]> => {
   const ref = firestore
     .collection(FirestoreCollection.USERS)
