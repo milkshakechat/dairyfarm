@@ -53,10 +53,27 @@ union CheckUsernameAvailableResponse =
     CheckUsernameAvailableResponseSuccess
   | ResponseError
 
+
+# --- viewPublicProfile
+input ViewPublicProfileInput {
+  username: String!
+}
+type ViewPublicProfileResponseSuccess {
+  id: UserID!
+  username: String!
+  avatar: String
+}
+union ViewPublicProfileResponse =
+    ViewPublicProfileResponseSuccess
+  | ResponseError
+
 # --- Queries
 type Query {
   getMyProfile: GetMyProfileResponse!
   checkUsernameAvailable(input: CheckUsernameAvailableInput!): CheckUsernameAvailableResponse!
+  viewPublicProfile(
+    input: ViewPublicProfileInput!
+  ): ViewPublicProfileResponse!
 }
 
 # --- modifyProfile

@@ -1,16 +1,21 @@
-import { SendFriendRequestInput } from "@/graphql/types/resolvers-types";
+import {
+  SendFriendRequestInput,
+  ViewPublicProfileResponseSuccess,
+} from "@/graphql/types/resolvers-types";
 import {
   FirestoreCollection,
   FriendshipID,
   FriendshipStatus,
   Friendship_Firestore,
   UserID,
+  Username,
   privacyModeEnum,
 } from "@milkshakechat/helpers";
 import {
   createFirestoreDoc,
   createFirestoreTimestamp,
   getFirestoreDoc,
+  listFirestoreDocs,
   updateFirestoreDoc,
 } from "@/services/firestore";
 import { v4 as uuidv4 } from "uuid";
@@ -341,4 +346,29 @@ export const sendFriendRequestFirestore = async ({
     message: comment,
     status: FriendshipStatus.REQUESTED,
   };
+};
+
+export const getPublicProfile = async (
+  username: Username
+): Promise<ViewPublicProfileResponseSuccess> => {
+  const matchingUsers = await listFirestoreDocs<User_Firestore>({
+    where: {
+      field: "username",
+      operator: "==",
+      value: username,
+    },
+    collection: FirestoreCollection.USERS,
+  });
+  const matchedUser = matchingUsers[0];
+  if (!matchedUser) {
+    throw Error(`Could not find user with username ${username}`);
+  }
+  const publicProfile: ViewPublicProfileResponseSuccess = {
+    id: matchedUser.id,
+    username: matchedUser.username,
+  };
+  if (matchedUser.avatar) {
+    publicProfile.avatar = matchedUser.avatar;
+  }
+  return publicProfile;
 };

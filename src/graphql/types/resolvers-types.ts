@@ -156,6 +156,7 @@ export type Query = {
   demoQuery: DemoQueryResponse;
   getMyProfile: GetMyProfileResponse;
   ping: Ping;
+  viewPublicProfile: ViewPublicProfileResponse;
 };
 
 
@@ -166,6 +167,11 @@ export type QueryCheckUsernameAvailableArgs = {
 
 export type QueryDemoQueryArgs = {
   input: DemoQueryInput;
+};
+
+
+export type QueryViewPublicProfileArgs = {
+  input: ViewPublicProfileInput;
 };
 
 export type ResponseError = {
@@ -237,6 +243,19 @@ export type User = {
   phone?: Maybe<Scalars['String']['output']>;
   privacyMode: PrivacyModeEnum;
   themeColor: Scalars['HexColorCode']['output'];
+  username: Scalars['String']['output'];
+};
+
+export type ViewPublicProfileInput = {
+  username: Scalars['String']['input'];
+};
+
+export type ViewPublicProfileResponse = ResponseError | ViewPublicProfileResponseSuccess;
+
+export type ViewPublicProfileResponseSuccess = {
+  __typename?: 'ViewPublicProfileResponseSuccess';
+  avatar?: Maybe<Scalars['String']['output']>;
+  id: Scalars['UserID']['output'];
   username: Scalars['String']['output'];
 };
 
@@ -316,6 +335,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
+  ViewPublicProfileResponse: ( ResponseError ) | ( ViewPublicProfileResponseSuccess );
 };
 
 
@@ -363,6 +383,9 @@ export type ResolversTypes = {
   UpdatePushTokenResponseSuccess: ResolverTypeWrapper<UpdatePushTokenResponseSuccess>;
   User: ResolverTypeWrapper<User>;
   UserID: ResolverTypeWrapper<Scalars['UserID']['output']>;
+  ViewPublicProfileInput: ViewPublicProfileInput;
+  ViewPublicProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ViewPublicProfileResponse']>;
+  ViewPublicProfileResponseSuccess: ResolverTypeWrapper<ViewPublicProfileResponseSuccess>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -405,6 +428,9 @@ export type ResolversParentTypes = {
   UpdatePushTokenResponseSuccess: UpdatePushTokenResponseSuccess;
   User: User;
   UserID: Scalars['UserID']['output'];
+  ViewPublicProfileInput: ViewPublicProfileInput;
+  ViewPublicProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ViewPublicProfileResponse'];
+  ViewPublicProfileResponseSuccess: ViewPublicProfileResponseSuccess;
 };
 
 export type CheckUsernameAvailableResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckUsernameAvailableResponse'] = ResolversParentTypes['CheckUsernameAvailableResponse']> = {
@@ -497,6 +523,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
+  viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
 };
 
 export type ResponseErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ResponseError'] = ResolversParentTypes['ResponseError']> = {
@@ -559,6 +586,17 @@ export interface UserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
   name: 'UserID';
 }
 
+export type ViewPublicProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ViewPublicProfileResponse'] = ResolversParentTypes['ViewPublicProfileResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'ViewPublicProfileResponseSuccess', ParentType, ContextType>;
+};
+
+export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ViewPublicProfileResponseSuccess'] = ResolversParentTypes['ViewPublicProfileResponseSuccess']> = {
+  avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
@@ -589,5 +627,7 @@ export type Resolvers<ContextType = any> = {
   UpdatePushTokenResponseSuccess?: UpdatePushTokenResponseSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserID?: GraphQLScalarType;
+  ViewPublicProfileResponse?: ViewPublicProfileResponseResolvers<ContextType>;
+  ViewPublicProfileResponseSuccess?: ViewPublicProfileResponseSuccessResolvers<ContextType>;
 };
 
