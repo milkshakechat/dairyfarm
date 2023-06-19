@@ -3,11 +3,4 @@ export {
   modifyProfile,
   updatePushToken,
 } from "@/graphql/mutations/lib/profile.mutations";
-// export {
-//   createGroupChat,
-//   sendFriendRequest,
-//   joinGroupChat,
-//   leaveGroupChat,
-//   respondFriendRequest,
-//   modifyFriendship,
-// } from "@/graphql/mutations/lib/friend-and-chat.mutations";
+export { sendFriendRequest } from "@/graphql/mutations/lib/friend-and-chat.mutations";

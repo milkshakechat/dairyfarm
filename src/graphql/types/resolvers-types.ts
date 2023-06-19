@@ -66,6 +66,14 @@ export type DemoSubscriptionEvent = {
   message: Scalars['String']['output'];
 };
 
+export enum FriendshipStatus {
+  Accepted = 'ACCEPTED',
+  Blocked = 'BLOCKED',
+  Declined = 'DECLINED',
+  None = 'NONE',
+  Requested = 'REQUESTED'
+}
+
 export type GetMyProfileResponse = GetMyProfileResponseSuccess | ResponseError;
 
 export type GetMyProfileResponseSuccess = {
@@ -106,6 +114,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   demoMutation: DemoMutationResponse;
   modifyProfile: ModifyProfileResponse;
+  sendFriendRequest: SendFriendRequestResponse;
   updatePushToken: UpdatePushTokenResponse;
 };
 
@@ -117,6 +126,11 @@ export type MutationDemoMutationArgs = {
 
 export type MutationModifyProfileArgs = {
   input: ModifyProfileInput;
+};
+
+
+export type MutationSendFriendRequestArgs = {
+  input: SendFriendRequestInput;
 };
 
 
@@ -142,6 +156,7 @@ export type Query = {
   demoQuery: DemoQueryResponse;
   getMyProfile: GetMyProfileResponse;
   ping: Ping;
+  viewPublicProfile: ViewPublicProfileResponse;
 };
 
 
@@ -154,9 +169,27 @@ export type QueryDemoQueryArgs = {
   input: DemoQueryInput;
 };
 
+
+export type QueryViewPublicProfileArgs = {
+  input: ViewPublicProfileInput;
+};
+
 export type ResponseError = {
   __typename?: 'ResponseError';
   error: Status;
+};
+
+export type SendFriendRequestInput = {
+  note?: InputMaybe<Scalars['String']['input']>;
+  recipientID: Scalars['UserID']['input'];
+  utmAttribution?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SendFriendRequestResponse = ResponseError | SendFriendRequestResponseSuccess;
+
+export type SendFriendRequestResponseSuccess = {
+  __typename?: 'SendFriendRequestResponseSuccess';
+  status: FriendshipStatus;
 };
 
 export type Status = {
@@ -210,6 +243,19 @@ export type User = {
   phone?: Maybe<Scalars['String']['output']>;
   privacyMode: PrivacyModeEnum;
   themeColor: Scalars['HexColorCode']['output'];
+  username: Scalars['String']['output'];
+};
+
+export type ViewPublicProfileInput = {
+  username: Scalars['String']['input'];
+};
+
+export type ViewPublicProfileResponse = ResponseError | ViewPublicProfileResponseSuccess;
+
+export type ViewPublicProfileResponseSuccess = {
+  __typename?: 'ViewPublicProfileResponseSuccess';
+  avatar?: Maybe<Scalars['String']['output']>;
+  id: Scalars['UserID']['output'];
   username: Scalars['String']['output'];
 };
 
@@ -287,7 +333,9 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
+  SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
+  ViewPublicProfileResponse: ( ResponseError ) | ( ViewPublicProfileResponseSuccess );
 };
 
 
@@ -306,6 +354,7 @@ export type ResolversTypes = {
   DemoQueryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DemoQueryResponse']>;
   DemoQueryResponseSuccess: ResolverTypeWrapper<DemoQueryResponseSuccess>;
   DemoSubscriptionEvent: ResolverTypeWrapper<DemoSubscriptionEvent>;
+  FriendshipStatus: FriendshipStatus;
   GetMyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMyProfileResponse']>;
   GetMyProfileResponseSuccess: ResolverTypeWrapper<GetMyProfileResponseSuccess>;
   GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
@@ -322,6 +371,9 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
   SendBirdInternalUserID: ResolverTypeWrapper<Scalars['SendBirdInternalUserID']['output']>;
+  SendFriendRequestInput: SendFriendRequestInput;
+  SendFriendRequestResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendFriendRequestResponse']>;
+  SendFriendRequestResponseSuccess: ResolverTypeWrapper<SendFriendRequestResponseSuccess>;
   Status: ResolverTypeWrapper<Status>;
   StatusCode: StatusCode;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -331,6 +383,9 @@ export type ResolversTypes = {
   UpdatePushTokenResponseSuccess: ResolverTypeWrapper<UpdatePushTokenResponseSuccess>;
   User: ResolverTypeWrapper<User>;
   UserID: ResolverTypeWrapper<Scalars['UserID']['output']>;
+  ViewPublicProfileInput: ViewPublicProfileInput;
+  ViewPublicProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ViewPublicProfileResponse']>;
+  ViewPublicProfileResponseSuccess: ResolverTypeWrapper<ViewPublicProfileResponseSuccess>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -362,6 +417,9 @@ export type ResolversParentTypes = {
   Query: {};
   ResponseError: ResponseError;
   SendBirdInternalUserID: Scalars['SendBirdInternalUserID']['output'];
+  SendFriendRequestInput: SendFriendRequestInput;
+  SendFriendRequestResponse: ResolversUnionTypes<ResolversParentTypes>['SendFriendRequestResponse'];
+  SendFriendRequestResponseSuccess: SendFriendRequestResponseSuccess;
   Status: Status;
   String: Scalars['String']['output'];
   Subscription: {};
@@ -370,6 +428,9 @@ export type ResolversParentTypes = {
   UpdatePushTokenResponseSuccess: UpdatePushTokenResponseSuccess;
   User: User;
   UserID: Scalars['UserID']['output'];
+  ViewPublicProfileInput: ViewPublicProfileInput;
+  ViewPublicProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ViewPublicProfileResponse'];
+  ViewPublicProfileResponseSuccess: ViewPublicProfileResponseSuccess;
 };
 
 export type CheckUsernameAvailableResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckUsernameAvailableResponse'] = ResolversParentTypes['CheckUsernameAvailableResponse']> = {
@@ -443,6 +504,7 @@ export type ModifyProfileResponseSuccessResolvers<ContextType = any, ParentType 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
+  sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
 };
 
@@ -461,6 +523,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
+  viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
 };
 
 export type ResponseErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ResponseError'] = ResolversParentTypes['ResponseError']> = {
@@ -471,6 +534,15 @@ export type ResponseErrorResolvers<ContextType = any, ParentType extends Resolve
 export interface SendBirdInternalUserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['SendBirdInternalUserID'], any> {
   name: 'SendBirdInternalUserID';
 }
+
+export type SendFriendRequestResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendFriendRequestResponse'] = ResolversParentTypes['SendFriendRequestResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'SendFriendRequestResponseSuccess', ParentType, ContextType>;
+};
+
+export type SendFriendRequestResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendFriendRequestResponseSuccess'] = ResolversParentTypes['SendFriendRequestResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['FriendshipStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type StatusResolvers<ContextType = any, ParentType extends ResolversParentTypes['Status'] = ResolversParentTypes['Status']> = {
   code?: Resolver<ResolversTypes['StatusCode'], ParentType, ContextType>;
@@ -514,6 +586,17 @@ export interface UserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
   name: 'UserID';
 }
 
+export type ViewPublicProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ViewPublicProfileResponse'] = ResolversParentTypes['ViewPublicProfileResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'ViewPublicProfileResponseSuccess', ParentType, ContextType>;
+};
+
+export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ViewPublicProfileResponseSuccess'] = ResolversParentTypes['ViewPublicProfileResponseSuccess']> = {
+  avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
@@ -536,11 +619,15 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
   SendBirdInternalUserID?: GraphQLScalarType;
+  SendFriendRequestResponse?: SendFriendRequestResponseResolvers<ContextType>;
+  SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;
   Status?: StatusResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   UpdatePushTokenResponse?: UpdatePushTokenResponseResolvers<ContextType>;
   UpdatePushTokenResponseSuccess?: UpdatePushTokenResponseSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserID?: GraphQLScalarType;
+  ViewPublicProfileResponse?: ViewPublicProfileResponseResolvers<ContextType>;
+  ViewPublicProfileResponseSuccess?: ViewPublicProfileResponseSuccessResolvers<ContextType>;
 };
 

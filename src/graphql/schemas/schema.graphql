@@ -53,10 +53,27 @@ union CheckUsernameAvailableResponse =
     CheckUsernameAvailableResponseSuccess
   | ResponseError
 
+
+# --- viewPublicProfile
+input ViewPublicProfileInput {
+  username: String!
+}
+type ViewPublicProfileResponseSuccess {
+  id: UserID!
+  username: String!
+  avatar: String
+}
+union ViewPublicProfileResponse =
+    ViewPublicProfileResponseSuccess
+  | ResponseError
+
 # --- Queries
 type Query {
   getMyProfile: GetMyProfileResponse!
   checkUsernameAvailable(input: CheckUsernameAvailableInput!): CheckUsernameAvailableResponse!
+  viewPublicProfile(
+    input: ViewPublicProfileInput!
+  ): ViewPublicProfileResponse!
 }
 
 # --- modifyProfile
@@ -90,10 +107,32 @@ union UpdatePushTokenResponse =
     UpdatePushTokenResponseSuccess
   | ResponseError
 
+
+# --- send friend request
+enum FriendshipStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  BLOCKED
+  NONE
+}
+input SendFriendRequestInput {
+  recipientID: UserID!
+  note: String
+  utmAttribution: String
+}
+type SendFriendRequestResponseSuccess {
+  status: FriendshipStatus!
+}
+union SendFriendRequestResponse =
+    SendFriendRequestResponseSuccess
+  | ResponseError
+
 # --- Mutations
 type Mutation {
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
+  sendFriendRequest(input: SendFriendRequestInput!): SendFriendRequestResponse!
   # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
 }
 

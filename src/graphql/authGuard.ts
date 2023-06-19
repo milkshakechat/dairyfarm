@@ -56,6 +56,8 @@ export const authGuardHTTP = async ({
     isAuth: boolean;
   } = { userID: null, idToken: null, isAuth: false };
   const { authorization } = _context.req.headers;
+  // console.log(`---- authorization ----`);
+  // console.log(authorization);
   if (!authorization) {
     if (enforceAuth) {
       throw new GraphQLError(
