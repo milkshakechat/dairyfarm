@@ -1,7 +1,13 @@
 import config from "@/config.env";
 import { getSendbirdSecret } from "@/utils/secrets";
-import { UserID, placeholderImageThumbnail } from "@milkshakechat/helpers";
+import {
+  SendBirdChannelURL,
+  UserID,
+  User_Firestore,
+  placeholderImageThumbnail,
+} from "@milkshakechat/helpers";
 import axios from "axios";
+import { isLaterThanNow_FirestoreTimestamp } from "./firestore";
 
 class SendBirdService {
   private static secretKey: string;
@@ -41,11 +47,10 @@ export const listSendbirdUsers = async () => {
 };
 
 export const createSendbirdUser = async ({ userID }: { userID: UserID }) => {
-  console.log(`createSendbirdUser`);
+  console.log(`--- createSendbirdUser`);
   const secretKey = await SendBirdService.getSendbirdSecret();
-
   try {
-    const response = await axios.post(
+    const response = await axios.post<PartialSendbirdUser>(
       `${config.SENDBIRD.API_URL}/v3/users`,
       {
         user_id: userID,
@@ -61,8 +66,49 @@ export const createSendbirdUser = async ({ userID }: { userID: UserID }) => {
       }
     );
     console.log(response.data);
+    return response.data;
   } catch (e) {
     console.log(e);
+    console.log(`---- >>>>`);
+    throw Error("Could not create Sendbird user.");
+  }
+};
+
+export interface PartialSendbirdUser {
+  user_id: string;
+  nickname: string;
+  profile_url: string;
+  require_auth_for_profile_image: boolean;
+  metadata: any;
+  access_token: string;
+  created_at: number;
+  phone_number: string;
+  is_online: boolean;
+  last_seen_at: number;
+  is_active: boolean;
+  has_ever_logged_in: boolean;
+  locale: string;
+  unread_channel_count: number;
+  unread_message_count: number;
+}
+export const getSendbirdUser = async ({ userID }: { userID: UserID }) => {
+  console.log(`getSendbirdUser....`);
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.get<PartialSendbirdUser>(
+      `${config.SENDBIRD.API_URL}/v3/users/${userID}?include_unread_count=true`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log((e as any).response);
+    throw Error("Could not get Sendbird user.");
   }
 };
 
@@ -93,6 +139,42 @@ export const issueSessonToken = async ({ userID }: { userID: UserID }) => {
   }
 };
 
+export interface PartialSendbirdChannel {
+  name: string;
+  channel_url: string;
+  cover_url: string;
+  custom_type: string;
+  unread_message_count: number;
+  data: any;
+  is_distinct: boolean;
+  is_public: boolean;
+  is_super: boolean;
+  is_ephemeral: boolean;
+  is_access_code_required: boolean;
+  member_count: number;
+  joined_member_count: number;
+  unread_mention_count: number;
+  created_by: {
+    user_id: string;
+    nickname: string;
+    profile_url: string;
+    require_auth_for_profile_image: boolean;
+  };
+  members: {
+    user_id: string;
+    nickname: string;
+    profile_url: string;
+    is_active: boolean;
+    is_online: boolean;
+    last_seen_at: number;
+    state: string;
+  }[];
+  last_message: any;
+  message_survival_seconds: number;
+  max_length_message: number;
+  created_at: number;
+  freeze: boolean;
+}
 interface CreateGroupChatProps {
   participants: UserID[];
   isEphemeral?: boolean;
@@ -104,13 +186,13 @@ export const createGroupChannel = async ({
   console.log(`createGroupChannel`);
   const secretKey = await SendBirdService.getSendbirdSecret();
   try {
-    const response = await axios.post(
+    const response = await axios.post<PartialSendbirdChannel>(
       `${config.SENDBIRD.API_URL}/v3/group_channels`,
       {
         user_ids: participants,
         is_distinct: true,
         is_public: false,
-        is_ephemeral: isEphemeral,
+        is_ephemeral: false,
         invitation_status: participants.reduce<Record<UserID, string>>(
           (acc, curr) => {
             return {
@@ -133,6 +215,58 @@ export const createGroupChannel = async ({
   } catch (e) {
     console.log(e);
   }
+};
+
+export const inviteToGroupChannelWithAutoAccept = async ({
+  channelUrl,
+  userIDs,
+}: {
+  channelUrl: SendBirdChannelURL;
+  userIDs: UserID[];
+}) => {
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.post<PartialSendbirdChannel>(
+      `${config.SENDBIRD.API_URL}/v3/group_channels/${channelUrl}/invite`,
+      {
+        user_ids: userIDs,
+        is_distinct: true,
+        is_public: false,
+        is_ephemeral: true,
+        invitation_status: userIDs.reduce<Record<UserID, string>>(
+          (acc, curr) => {
+            return {
+              ...acc,
+              [curr]: "joined",
+            };
+          },
+          {}
+        ),
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+    throw Error(`Could not invite to group channel`);
+  }
+};
+
+export const checkIfUserHasPaidChatPrivileges = (user: User_Firestore) => {
+  if (
+    user.isPaidChat &&
+    user.isPaidChatUntil &&
+    isLaterThanNow_FirestoreTimestamp(user.isPaidChatUntil)
+  ) {
+    return true;
+  }
+  return false;
 };
 
 // interface CreateGroupChannelInviteProps {

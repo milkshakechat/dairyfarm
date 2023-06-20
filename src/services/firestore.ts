@@ -1,5 +1,9 @@
 import { firestore } from "@/services/firebase";
-import { FirestoreCollection, User_Firestore } from "@milkshakechat/helpers";
+import {
+  FirestoreCollection,
+  TimestampFirestore,
+  User_Firestore,
+} from "@milkshakechat/helpers";
 import {
   DocumentReference,
   Query,
@@ -13,6 +17,19 @@ export const createFirestoreTimestamp = (date?: Date) => {
   const targetDate = date || new Date();
   const timestamp = admin.firestore.Timestamp.fromDate(targetDate);
   return timestamp;
+};
+
+export const isLaterThanNow_FirestoreTimestamp = (
+  timestamp: TimestampFirestore
+) => {
+  // Current date in JavaScript
+  const now = new Date();
+
+  // Convert Firestore Timestamp to JavaScript Date object
+  const firestoreDate = (timestamp as any).toDate();
+
+  // Compare if Firestore date is later than current time
+  return firestoreDate > now;
 };
 
 // creation
@@ -61,7 +78,7 @@ export const getFirestoreDoc = async <SchemaID extends string, SchemaType>({
 
   const snapshot = await ref.get();
 
-  if (!snapshot.exists) {
+  if (!snapshot || !snapshot.exists) {
     throw Error("No document found");
   }
   const data = snapshot.data();

@@ -35,7 +35,7 @@ export const checkUserPrivacy = async (
   return user.privacyMode;
 };
 
-const checkExistingFriendship = async ({
+export const checkExistingFriendship = async ({
   to,
   from,
 }: {
