@@ -3,10 +3,15 @@ import {
   DemoQueryResponse,
   EnterChatRoomResponse,
   EnterChatRoomResponseSuccess,
+  ListChatRoomsResponse,
+  ListChatRoomsResponseSuccess,
   QueryDemoQueryArgs,
   QueryEnterChatRoomArgs,
 } from "@/graphql/types/resolvers-types";
-import { enterChatRoom as retrieveChatRoom } from "@/services/chat";
+import {
+  enterChatRoom as retrieveChatRoom,
+  retrieveChatRooms,
+} from "@/services/chat";
 import { sendPushNotification } from "@/services/push";
 import {
   ChatRoomID,
@@ -28,11 +33,12 @@ export const enterChatRoom = async (
   }
   console.log(`Entering chat room...`);
 
-  const chatRoom = await retrieveChatRoom({
+  const { chatRoom, isNew } = await retrieveChatRoom({
     userID: userID,
     chatRoomID: (args.input.chatRoomID as ChatRoomID) || undefined,
     participants: (args.input.participants as UserID[]) || undefined,
   });
+
   return {
     chatRoom: {
       chatRoomID: chatRoom.id,
@@ -44,6 +50,26 @@ export const enterChatRoom = async (
       ),
       sendBirdChannelURL: chatRoom.sendBirdChannelURL,
     },
+    isNew,
+  };
+};
+
+export const listChatRooms = async (
+  _parent: any,
+  args: any,
+  _context: any,
+  _info: any
+): Promise<ListChatRoomsResponseSuccess> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  console.log(`listChatRooms...`);
+  if (!userID) {
+    throw new Error("Your UserID not found");
+  }
+  const chatRooms = await retrieveChatRooms({
+    userID: userID,
+  });
+  return {
+    chatRooms,
   };
 };
 
@@ -56,6 +82,21 @@ export const responses = {
     ) {
       if ("chatRoom" in obj) {
         return "EnterChatRoomResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  ListChatRoomsResponse: {
+    __resolveType(
+      obj: ListChatRoomsResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("chatRooms" in obj) {
+        return "ListChatRoomsResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

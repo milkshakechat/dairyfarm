@@ -28,7 +28,7 @@ import {
   getSendbirdUser,
   inviteToGroupChannelWithAutoAccept,
 } from "./sendbird";
-import { EnterChatRoomInput } from "@/graphql/types/resolvers-types";
+import { ChatRoom, EnterChatRoomInput } from "@/graphql/types/resolvers-types";
 import { firestore } from "./firebase";
 import { Query, QueryDocumentSnapshot } from "@google-cloud/firestore";
 import { checkExistingFriendship } from "./friends";
@@ -109,7 +109,7 @@ export const enterChatRoom = async ({
   userID: UserID;
   chatRoomID?: ChatRoomID;
   participants?: UserID[];
-}): Promise<ChatRoom_Firestore> => {
+}): Promise<{ chatRoom: ChatRoom_Firestore; isNew: boolean }> => {
   // reject if you are not friends
   if (participants && participants.length > 0) {
     const friendships = await Promise.all(
@@ -246,10 +246,16 @@ export const enterChatRoom = async ({
         payload: updateData,
         collection: FirestoreCollection.CHAT_ROOMS,
       });
-      return updatedChatRoom;
+      return {
+        chatRoom: updatedChatRoom,
+        isNew: false,
+      };
     } else {
       console.log(`no need to update anything since no changes`);
-      return chatroom;
+      return {
+        chatRoom: chatroom,
+        isNew: false,
+      };
     }
   } else {
     // handle non-existent room, by creating a room
@@ -295,6 +301,7 @@ export const enterChatRoom = async ({
           allUsers: users.map((u) => u.id),
           sendbirdAllowed: hasSendbirdPrivileges.map((u) => u.id),
         }),
+        firestoreParticipantSearch: users.map((u) => u.id),
         firestoreQuickCheckHash: users
           .map((u) => u.id)
           .sort()
@@ -304,7 +311,10 @@ export const enterChatRoom = async ({
       },
       collection: FirestoreCollection.CHAT_ROOMS,
     });
-    return chatroom;
+    return {
+      chatRoom: chatroom,
+      isNew: true,
+    };
   }
 };
 
@@ -353,4 +363,46 @@ const checkIfChatRoomPermissionsMatch = ({
     }
   });
   return perfectMatch;
+};
+
+export const retrieveChatRooms = async ({
+  userID,
+}: {
+  userID: UserID;
+}): Promise<ChatRoom[]> => {
+  console.log(`retrieveChatRooms...`);
+
+  console.log(`
+  
+  where: {
+    field: "firestoreParticipantSearch",
+    operator: "array-contains",
+    value: ${userID},
+  },
+  
+  
+`);
+
+  const rawChatRooms = await listFirestoreDocs<ChatRoom_Firestore>({
+    where: {
+      field: `firestoreParticipantSearch`,
+      operator: "array-contains",
+      value: userID,
+    },
+    collection: FirestoreCollection.CHAT_ROOMS,
+  });
+
+  console.log(`Got ${rawChatRooms.length} chat rooms`);
+
+  const chatRooms = rawChatRooms.map((chatRoom) => ({
+    chatRoomID: chatRoom.id,
+    participants: Object.keys(chatRoom.participants),
+    sendBirdParticipants: Object.keys(chatRoom.participants).filter(
+      (userID) =>
+        chatRoom.participants[userID as UserID] ===
+        ChatRoomParticipantStatus.SENDBIRD_ALLOWED
+    ),
+    sendBirdChannelURL: chatRoom.sendBirdChannelURL,
+  }));
+  return chatRooms;
 };

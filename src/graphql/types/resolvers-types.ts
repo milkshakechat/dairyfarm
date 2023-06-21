@@ -93,6 +93,7 @@ export type EnterChatRoomResponse = EnterChatRoomResponseSuccess | ResponseError
 export type EnterChatRoomResponseSuccess = {
   __typename?: 'EnterChatRoomResponseSuccess';
   chatRoom: ChatRoom;
+  isNew: Scalars['Boolean']['output'];
 };
 
 export enum FriendshipAction {
@@ -130,6 +131,13 @@ export enum LanguageEnum {
   Thai = 'thai',
   Vietnamese = 'vietnamese'
 }
+
+export type ListChatRoomsResponse = ListChatRoomsResponseSuccess | ResponseError;
+
+export type ListChatRoomsResponseSuccess = {
+  __typename?: 'ListChatRoomsResponseSuccess';
+  chatRooms: Array<ChatRoom>;
+};
 
 export type ListContactsResponse = ListContactsResponseSuccess | ResponseError;
 
@@ -221,6 +229,7 @@ export type Query = {
   demoQuery: DemoQueryResponse;
   enterChatRoom: EnterChatRoomResponse;
   getMyProfile: GetMyProfileResponse;
+  listChatRooms: ListChatRoomsResponse;
   listContacts: ListContactsResponse;
   ping: Ping;
   viewPublicProfile: ViewPublicProfileResponse;
@@ -408,6 +417,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
+  ListChatRoomsResponse: ( ListChatRoomsResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
@@ -445,6 +455,8 @@ export type ResolversTypes = {
   HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   LanguageEnum: LanguageEnum;
+  ListChatRoomsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListChatRoomsResponse']>;
+  ListChatRoomsResponseSuccess: ResolverTypeWrapper<ListChatRoomsResponseSuccess>;
   ListContactsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListContactsResponse']>;
   ListContactsResponseSuccess: ResolverTypeWrapper<ListContactsResponseSuccess>;
   ManageFriendshipInput: ManageFriendshipInput;
@@ -502,6 +514,8 @@ export type ResolversParentTypes = {
   GroupChatID: Scalars['GroupChatID']['output'];
   HexColorCode: Scalars['HexColorCode']['output'];
   ID: Scalars['ID']['output'];
+  ListChatRoomsResponse: ResolversUnionTypes<ResolversParentTypes>['ListChatRoomsResponse'];
+  ListChatRoomsResponseSuccess: ListChatRoomsResponseSuccess;
   ListContactsResponse: ResolversUnionTypes<ResolversParentTypes>['ListContactsResponse'];
   ListContactsResponseSuccess: ListContactsResponseSuccess;
   ManageFriendshipInput: ManageFriendshipInput;
@@ -597,6 +611,7 @@ export type EnterChatRoomResponseResolvers<ContextType = any, ParentType extends
 
 export type EnterChatRoomResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['EnterChatRoomResponseSuccess'] = ResolversParentTypes['EnterChatRoomResponseSuccess']> = {
   chatRoom?: Resolver<ResolversTypes['ChatRoom'], ParentType, ContextType>;
+  isNew?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -616,6 +631,15 @@ export interface GroupChatIdScalarConfig extends GraphQLScalarTypeConfig<Resolve
 export interface HexColorCodeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['HexColorCode'], any> {
   name: 'HexColorCode';
 }
+
+export type ListChatRoomsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListChatRoomsResponse'] = ResolversParentTypes['ListChatRoomsResponse']> = {
+  __resolveType: TypeResolveFn<'ListChatRoomsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type ListChatRoomsResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListChatRoomsResponseSuccess'] = ResolversParentTypes['ListChatRoomsResponseSuccess']> = {
+  chatRooms?: Resolver<Array<ResolversTypes['ChatRoom']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type ListContactsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListContactsResponse'] = ResolversParentTypes['ListContactsResponse']> = {
   __resolveType: TypeResolveFn<'ListContactsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
@@ -668,6 +692,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   enterChatRoom?: Resolver<ResolversTypes['EnterChatRoomResponse'], ParentType, ContextType, RequireFields<QueryEnterChatRoomArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
+  listChatRooms?: Resolver<ResolversTypes['ListChatRoomsResponse'], ParentType, ContextType>;
   listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
@@ -764,6 +789,8 @@ export type Resolvers<ContextType = any> = {
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
   HexColorCode?: GraphQLScalarType;
+  ListChatRoomsResponse?: ListChatRoomsResponseResolvers<ContextType>;
+  ListChatRoomsResponseSuccess?: ListChatRoomsResponseSuccessResolvers<ContextType>;
   ListContactsResponse?: ListContactsResponseResolvers<ContextType>;
   ListContactsResponseSuccess?: ListContactsResponseSuccessResolvers<ContextType>;
   ManageFriendshipResponse?: ManageFriendshipResponseResolvers<ContextType>;
