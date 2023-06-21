@@ -101,9 +101,19 @@ input EnterChatRoomInput {
 }
 type EnterChatRoomResponseSuccess {
   chatRoom: ChatRoom!
+  isNew: Boolean!
 }
 union EnterChatRoomResponse =
     EnterChatRoomResponseSuccess
+  | ResponseError
+
+
+# --- list chat rooms
+type ListChatRoomsResponseSuccess {
+  chatRooms: [ChatRoom!]!
+}
+union ListChatRoomsResponse =
+    ListChatRoomsResponseSuccess
   | ResponseError
 
 # --- Queries
@@ -117,6 +127,7 @@ type Query {
   enterChatRoom(
     input: EnterChatRoomInput!
   ): EnterChatRoomResponse!
+  listChatRooms: ListChatRoomsResponse!
 }
 
 # --- modifyProfile

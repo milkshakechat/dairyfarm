@@ -6,4 +6,7 @@ export {
   listContacts,
 } from "@/graphql/queries/lib/profile.queries";
 export { viewPublicProfile } from "@/graphql/queries/lib/friend.queries";
-export { enterChatRoom } from "@/graphql/queries/lib/chat.queries";
+export {
+  enterChatRoom,
+  listChatRooms,
+} from "@/graphql/queries/lib/chat.queries";
