@@ -46,7 +46,13 @@ export const listSendbirdUsers = async () => {
   }
 };
 
-export const createSendbirdUser = async ({ userID }: { userID: UserID }) => {
+export const createSendbirdUser = async ({
+  userID,
+  displayName,
+}: {
+  userID: UserID;
+  displayName: string;
+}) => {
   console.log(`--- createSendbirdUser`);
   const secretKey = await SendBirdService.getSendbirdSecret();
   try {
@@ -54,7 +60,7 @@ export const createSendbirdUser = async ({ userID }: { userID: UserID }) => {
       `${config.SENDBIRD.API_URL}/v3/users`,
       {
         user_id: userID,
-        nickname: "Monsier User",
+        nickname: displayName,
         profile_url: placeholderImageThumbnail,
         issue_access_token: true,
       },
@@ -267,6 +273,26 @@ export const checkIfUserHasPaidChatPrivileges = (user: User_Firestore) => {
     return true;
   }
   return false;
+};
+
+export const deleteSendbirdUser = async ({ userID }: { userID: UserID }) => {
+  console.log(`deleteSendbirdUser`);
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.delete<PartialSendbirdChannel>(
+      `${config.SENDBIRD.API_URL}/v3/users/${userID}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // interface CreateGroupChannelInviteProps {

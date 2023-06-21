@@ -1,6 +1,7 @@
 import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   DemoQueryResponse,
+  DemoQueryResponseSuccess,
   QueryDemoQueryArgs,
 } from "@/graphql/types/resolvers-types";
 import { sendPushNotification } from "@/services/push";
@@ -11,7 +12,7 @@ export const demoQuery = async (
   args: QueryDemoQueryArgs,
   _context: any,
   _info: any
-) => {
+): Promise<DemoQueryResponseSuccess> => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   console.log(`sending push notification...`);
   return {

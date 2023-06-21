@@ -2,12 +2,17 @@ import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   DemoQueryResponse,
   EnterChatRoomResponse,
+  EnterChatRoomResponseSuccess,
   QueryDemoQueryArgs,
   QueryEnterChatRoomArgs,
 } from "@/graphql/types/resolvers-types";
 import { enterChatRoom as retrieveChatRoom } from "@/services/chat";
 import { sendPushNotification } from "@/services/push";
-import { ChatRoomID, UserID } from "@milkshakechat/helpers";
+import {
+  ChatRoomID,
+  ChatRoomParticipantStatus,
+  UserID,
+} from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 
 export const enterChatRoom = async (
@@ -15,7 +20,7 @@ export const enterChatRoom = async (
   args: QueryEnterChatRoomArgs,
   _context: any,
   _info: any
-) => {
+): Promise<EnterChatRoomResponseSuccess> => {
   console.log(`enterChatRoom()...`);
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
@@ -29,10 +34,16 @@ export const enterChatRoom = async (
     participants: (args.input.participants as UserID[]) || undefined,
   });
   return {
-    chatRoomID: chatRoom.id,
-    participants: chatRoom.participants,
-    sendBirdChannelURL: chatRoom.sendBirdChannelURL,
-    hasSendBirdPriviledge: chatRoom.sendBirdParticipants.includes(userID),
+    chatRoom: {
+      chatRoomID: chatRoom.id,
+      participants: Object.keys(chatRoom.participants),
+      sendBirdParticipants: Object.keys(chatRoom.participants).filter(
+        (userID) =>
+          chatRoom.participants[userID as UserID] ===
+          ChatRoomParticipantStatus.SENDBIRD_ALLOWED
+      ),
+      sendBirdChannelURL: chatRoom.sendBirdChannelURL,
+    },
   };
 };
 
@@ -43,8 +54,8 @@ export const responses = {
       context: any,
       info: GraphQLResolveInfo
     ) {
-      if ("message" in obj) {
-        return "DemoQueryResponseSuccess";
+      if ("chatRoom" in obj) {
+        return "EnterChatRoomResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

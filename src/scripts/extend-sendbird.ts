@@ -2,11 +2,15 @@
 
 import { extendChatPrivileges } from "@/services/chat";
 import { initFirebase } from "@/services/firebase";
+import { deleteSendbirdUser } from "@/services/sendbird";
 import { UserID } from "@milkshakechat/helpers";
 
 const run = async () => {
-  const targetUserID = "VUac5PRSdxZmpSwBYRsAZOEyvhk2" as UserID;
+  const targetUserID = "V968yxHwkoc2eCQwnhV1WN5jWRy1" as UserID;
   await initFirebase();
+  // await deleteSendbirdUser({
+  //   userID: targetUserID,
+  // });
   await extendChatPrivileges({
     userID: targetUserID,
   });

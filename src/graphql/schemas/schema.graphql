@@ -32,6 +32,7 @@ type User {
   privacyMode: PrivacyModeEnum!
   themeColor: HexColorCode!
   language: LanguageEnum!
+  sendBirdAccessToken: String
 }
 
 # --- getMyProfile
@@ -91,7 +92,7 @@ union ListContactsResponse =
 type ChatRoom {
   chatRoomID: String!
   participants: [UserID!]!
-  hasSendBirdPriviledge: Boolean!
+  sendBirdParticipants: [UserID!]!
   sendBirdChannelURL: String
 }
 input EnterChatRoomInput {

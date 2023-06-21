@@ -27,6 +27,7 @@ export type ChatRoom = {
   chatRoomID: Scalars['String']['output'];
   participants: Array<Scalars['UserID']['output']>;
   sendBirdChannelURL?: Maybe<Scalars['String']['output']>;
+  sendBirdParticipants: Array<Scalars['UserID']['output']>;
 };
 
 export type CheckUsernameAvailableInput = {
@@ -313,6 +314,7 @@ export type User = {
   link: Scalars['String']['output'];
   phone?: Maybe<Scalars['String']['output']>;
   privacyMode: PrivacyModeEnum;
+  sendBirdAccessToken?: Maybe<Scalars['String']['output']>;
   themeColor: Scalars['HexColorCode']['output'];
   username: Scalars['String']['output'];
 };
@@ -534,6 +536,7 @@ export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversPar
   chatRoomID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   participants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
   sendBirdChannelURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sendBirdParticipants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -721,6 +724,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   privacyMode?: Resolver<ResolversTypes['PrivacyModeEnum'], ParentType, ContextType>;
+  sendBirdAccessToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   themeColor?: Resolver<ResolversTypes['HexColorCode'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
