@@ -32,6 +32,7 @@ type User {
   privacyMode: PrivacyModeEnum!
   themeColor: HexColorCode!
   language: LanguageEnum!
+  sendBirdAccessToken: String
 }
 
 # --- getMyProfile
@@ -87,6 +88,24 @@ union ListContactsResponse =
     ListContactsResponseSuccess
   | ResponseError
 
+# --- enterChatRoom
+type ChatRoom {
+  chatRoomID: String!
+  participants: [UserID!]!
+  sendBirdParticipants: [UserID!]!
+  sendBirdChannelURL: String
+}
+input EnterChatRoomInput {
+  chatRoomID: String
+  participants: [UserID!]
+}
+type EnterChatRoomResponseSuccess {
+  chatRoom: ChatRoom!
+}
+union EnterChatRoomResponse =
+    EnterChatRoomResponseSuccess
+  | ResponseError
+
 # --- Queries
 type Query {
   getMyProfile: GetMyProfileResponse!
@@ -95,6 +114,9 @@ type Query {
     input: ViewPublicProfileInput!
   ): ViewPublicProfileResponse!
   listContacts: ListContactsResponse!
+  enterChatRoom(
+    input: EnterChatRoomInput!
+  ): EnterChatRoomResponse!
 }
 
 # --- modifyProfile

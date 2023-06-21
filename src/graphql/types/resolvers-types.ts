@@ -22,6 +22,14 @@ export type Scalars = {
   UserID: { input: any; output: any; }
 };
 
+export type ChatRoom = {
+  __typename?: 'ChatRoom';
+  chatRoomID: Scalars['String']['output'];
+  participants: Array<Scalars['UserID']['output']>;
+  sendBirdChannelURL?: Maybe<Scalars['String']['output']>;
+  sendBirdParticipants: Array<Scalars['UserID']['output']>;
+};
+
 export type CheckUsernameAvailableInput = {
   username: Scalars['String']['input'];
 };
@@ -73,6 +81,18 @@ export type DemoQueryResponseSuccess = {
 export type DemoSubscriptionEvent = {
   __typename?: 'DemoSubscriptionEvent';
   message: Scalars['String']['output'];
+};
+
+export type EnterChatRoomInput = {
+  chatRoomID?: InputMaybe<Scalars['String']['input']>;
+  participants?: InputMaybe<Array<Scalars['UserID']['input']>>;
+};
+
+export type EnterChatRoomResponse = EnterChatRoomResponseSuccess | ResponseError;
+
+export type EnterChatRoomResponseSuccess = {
+  __typename?: 'EnterChatRoomResponseSuccess';
+  chatRoom: ChatRoom;
 };
 
 export enum FriendshipAction {
@@ -199,6 +219,7 @@ export type Query = {
   checkUsernameAvailable: CheckUsernameAvailableResponse;
   demoPing: Ping;
   demoQuery: DemoQueryResponse;
+  enterChatRoom: EnterChatRoomResponse;
   getMyProfile: GetMyProfileResponse;
   listContacts: ListContactsResponse;
   ping: Ping;
@@ -213,6 +234,11 @@ export type QueryCheckUsernameAvailableArgs = {
 
 export type QueryDemoQueryArgs = {
   input: DemoQueryInput;
+};
+
+
+export type QueryEnterChatRoomArgs = {
+  input: EnterChatRoomInput;
 };
 
 
@@ -288,6 +314,7 @@ export type User = {
   link: Scalars['String']['output'];
   phone?: Maybe<Scalars['String']['output']>;
   privacyMode: PrivacyModeEnum;
+  sendBirdAccessToken?: Maybe<Scalars['String']['output']>;
   themeColor: Scalars['HexColorCode']['output'];
   username: Scalars['String']['output'];
 };
@@ -379,6 +406,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
+  EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
@@ -392,6 +420,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChatRoom: ResolverTypeWrapper<ChatRoom>;
   CheckUsernameAvailableInput: CheckUsernameAvailableInput;
   CheckUsernameAvailableResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckUsernameAvailableResponse']>;
   CheckUsernameAvailableResponseSuccess: ResolverTypeWrapper<CheckUsernameAvailableResponseSuccess>;
@@ -405,6 +434,9 @@ export type ResolversTypes = {
   DemoQueryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DemoQueryResponse']>;
   DemoQueryResponseSuccess: ResolverTypeWrapper<DemoQueryResponseSuccess>;
   DemoSubscriptionEvent: ResolverTypeWrapper<DemoSubscriptionEvent>;
+  EnterChatRoomInput: EnterChatRoomInput;
+  EnterChatRoomResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EnterChatRoomResponse']>;
+  EnterChatRoomResponseSuccess: ResolverTypeWrapper<EnterChatRoomResponseSuccess>;
   FriendshipAction: FriendshipAction;
   FriendshipStatus: FriendshipStatus;
   GetMyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMyProfileResponse']>;
@@ -448,6 +480,7 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
+  ChatRoom: ChatRoom;
   CheckUsernameAvailableInput: CheckUsernameAvailableInput;
   CheckUsernameAvailableResponse: ResolversUnionTypes<ResolversParentTypes>['CheckUsernameAvailableResponse'];
   CheckUsernameAvailableResponseSuccess: CheckUsernameAvailableResponseSuccess;
@@ -461,6 +494,9 @@ export type ResolversParentTypes = {
   DemoQueryResponse: ResolversUnionTypes<ResolversParentTypes>['DemoQueryResponse'];
   DemoQueryResponseSuccess: DemoQueryResponseSuccess;
   DemoSubscriptionEvent: DemoSubscriptionEvent;
+  EnterChatRoomInput: EnterChatRoomInput;
+  EnterChatRoomResponse: ResolversUnionTypes<ResolversParentTypes>['EnterChatRoomResponse'];
+  EnterChatRoomResponseSuccess: EnterChatRoomResponseSuccess;
   GetMyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['GetMyProfileResponse'];
   GetMyProfileResponseSuccess: GetMyProfileResponseSuccess;
   GroupChatID: Scalars['GroupChatID']['output'];
@@ -494,6 +530,14 @@ export type ResolversParentTypes = {
   ViewPublicProfileInput: ViewPublicProfileInput;
   ViewPublicProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ViewPublicProfileResponse'];
   ViewPublicProfileResponseSuccess: ViewPublicProfileResponseSuccess;
+};
+
+export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatRoom'] = ResolversParentTypes['ChatRoom']> = {
+  chatRoomID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  participants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
+  sendBirdChannelURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sendBirdParticipants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CheckUsernameAvailableResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckUsernameAvailableResponse'] = ResolversParentTypes['CheckUsernameAvailableResponse']> = {
@@ -544,6 +588,15 @@ export type DemoQueryResponseSuccessResolvers<ContextType = any, ParentType exte
 
 export type DemoSubscriptionEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['DemoSubscriptionEvent'] = ResolversParentTypes['DemoSubscriptionEvent']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EnterChatRoomResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['EnterChatRoomResponse'] = ResolversParentTypes['EnterChatRoomResponse']> = {
+  __resolveType: TypeResolveFn<'EnterChatRoomResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type EnterChatRoomResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['EnterChatRoomResponseSuccess'] = ResolversParentTypes['EnterChatRoomResponseSuccess']> = {
+  chatRoom?: Resolver<ResolversTypes['ChatRoom'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -613,6 +666,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   checkUsernameAvailable?: Resolver<ResolversTypes['CheckUsernameAvailableResponse'], ParentType, ContextType, RequireFields<QueryCheckUsernameAvailableArgs, 'input'>>;
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
+  enterChatRoom?: Resolver<ResolversTypes['EnterChatRoomResponse'], ParentType, ContextType, RequireFields<QueryEnterChatRoomArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
@@ -670,6 +724,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   privacyMode?: Resolver<ResolversTypes['PrivacyModeEnum'], ParentType, ContextType>;
+  sendBirdAccessToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   themeColor?: Resolver<ResolversTypes['HexColorCode'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -692,6 +747,7 @@ export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentT
 };
 
 export type Resolvers<ContextType = any> = {
+  ChatRoom?: ChatRoomResolvers<ContextType>;
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
@@ -702,6 +758,8 @@ export type Resolvers<ContextType = any> = {
   DemoQueryResponse?: DemoQueryResponseResolvers<ContextType>;
   DemoQueryResponseSuccess?: DemoQueryResponseSuccessResolvers<ContextType>;
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
+  EnterChatRoomResponse?: EnterChatRoomResponseResolvers<ContextType>;
+  EnterChatRoomResponseSuccess?: EnterChatRoomResponseSuccessResolvers<ContextType>;
   GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
