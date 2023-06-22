@@ -49,21 +49,24 @@ export const listSendbirdUsers = async () => {
 export const createSendbirdUser = async ({
   userID,
   displayName,
+  profileUrl,
 }: {
   userID: UserID;
   displayName: string;
+  profileUrl?: string;
 }) => {
   console.log(`--- createSendbirdUser`);
   const secretKey = await SendBirdService.getSendbirdSecret();
+  const data = {
+    user_id: userID,
+    nickname: displayName,
+    profile_url: profileUrl || placeholderImageThumbnail,
+    issue_access_token: true,
+  };
   try {
     const response = await axios.post<PartialSendbirdUser>(
       `${config.SENDBIRD.API_URL}/v3/users`,
-      {
-        user_id: userID,
-        nickname: displayName,
-        profile_url: placeholderImageThumbnail,
-        issue_access_token: true,
-      },
+      data,
       {
         headers: {
           "Content-Type": "application/json",
@@ -111,6 +114,7 @@ export const getSendbirdUser = async ({ userID }: { userID: UserID }) => {
       }
     );
     console.log(response.data);
+    console.log(`--------- getSendbirdUser ----------`);
     return response.data;
   } catch (e) {
     console.log((e as any).response);
