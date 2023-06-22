@@ -15,6 +15,7 @@ import {
 } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 import { ListContactsResponse } from "../../types/resolvers-types";
+import { getSendbirdUser } from "@/services/sendbird";
 
 export const getMyProfile = async (
   _parent: any,
@@ -27,14 +28,23 @@ export const getMyProfile = async (
     throw new Error("No userID found");
   }
   try {
-    const user = await getFirestoreDoc<UserID, User_Firestore>({
-      id: userID,
-      collection: FirestoreCollection.USERS,
-    });
+    const [
+      user,
+      // sendbirdUser
+    ] = await Promise.all([
+      getFirestoreDoc<UserID, User_Firestore>({
+        id: userID,
+        collection: FirestoreCollection.USERS,
+      }),
+      // getSendbirdUser({
+      //   userID,
+      // }),
+    ]);
 
     return {
       user: {
         ...user,
+        // sendBirdAccessToken: sendbirdUser.access_token,
         createdAt: (user.createdAt as any).toDate(),
       },
     };
