@@ -94,6 +94,11 @@ type ChatRoom {
   participants: [UserID!]!
   sendBirdParticipants: [UserID!]!
   sendBirdChannelURL: String
+  pushConfig: PushConfig
+}
+type PushConfig {
+  snoozeUntil: String
+  allowPush: Boolean
 }
 input EnterChatRoomInput {
   chatRoomID: String
@@ -204,12 +209,28 @@ union ManageFriendshipResponse =
     ManageFriendshipResponseSuccess
   | ResponseError
 
+
+# --- update chat settings
+input UpdateChatSettingsInput {
+  chatRoomID: String!
+  allowPush: Boolean
+  snoozeUntil: String
+}
+type UpdateChatSettingsResponseSuccess {
+  chatRoom: ChatRoom!
+}
+union UpdateChatSettingsResponse =
+    UpdateChatSettingsResponseSuccess
+  | ResponseError
+
+
 # --- Mutations
 type Mutation {
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
   sendFriendRequest(input: SendFriendRequestInput!): SendFriendRequestResponse!
   manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!
+  updateChatSettings(input: UpdateChatSettingsInput!): UpdateChatSettingsResponse!
   # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
 }
 

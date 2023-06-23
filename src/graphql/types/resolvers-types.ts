@@ -26,6 +26,7 @@ export type ChatRoom = {
   __typename?: 'ChatRoom';
   chatRoomID: Scalars['String']['output'];
   participants: Array<Scalars['UserID']['output']>;
+  pushConfig?: Maybe<PushConfig>;
   sendBirdChannelURL?: Maybe<Scalars['String']['output']>;
   sendBirdParticipants: Array<Scalars['UserID']['output']>;
 };
@@ -183,6 +184,7 @@ export type Mutation = {
   manageFriendship: ManageFriendshipResponse;
   modifyProfile: ModifyProfileResponse;
   sendFriendRequest: SendFriendRequestResponse;
+  updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
 };
 
@@ -207,6 +209,11 @@ export type MutationSendFriendRequestArgs = {
 };
 
 
+export type MutationUpdateChatSettingsArgs = {
+  input: UpdateChatSettingsInput;
+};
+
+
 export type MutationUpdatePushTokenArgs = {
   input: UpdatePushTokenInput;
 };
@@ -221,6 +228,12 @@ export enum PrivacyModeEnum {
   Private = 'private',
   Public = 'public'
 }
+
+export type PushConfig = {
+  __typename?: 'PushConfig';
+  allowPush?: Maybe<Scalars['Boolean']['output']>;
+  snoozeUntil?: Maybe<Scalars['String']['output']>;
+};
 
 export type Query = {
   __typename?: 'Query';
@@ -293,6 +306,19 @@ export enum StatusCode {
 export type Subscription = {
   __typename?: 'Subscription';
   demoSubscription: DemoSubscriptionEvent;
+};
+
+export type UpdateChatSettingsInput = {
+  allowPush?: InputMaybe<Scalars['Boolean']['input']>;
+  chatRoomID: Scalars['String']['input'];
+  snoozeUntil?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateChatSettingsResponse = ResponseError | UpdateChatSettingsResponseSuccess;
+
+export type UpdateChatSettingsResponseSuccess = {
+  __typename?: 'UpdateChatSettingsResponseSuccess';
+  chatRoom: ChatRoom;
 };
 
 export type UpdatePushTokenInput = {
@@ -422,6 +448,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
+  UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
   ViewPublicProfileResponse: ( ResponseError ) | ( ViewPublicProfileResponseSuccess );
 };
@@ -468,6 +495,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Ping: ResolverTypeWrapper<Ping>;
   PrivacyModeEnum: PrivacyModeEnum;
+  PushConfig: ResolverTypeWrapper<PushConfig>;
   PushToken: ResolverTypeWrapper<Scalars['PushToken']['output']>;
   Query: ResolverTypeWrapper<{}>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
@@ -479,6 +507,9 @@ export type ResolversTypes = {
   StatusCode: StatusCode;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  UpdateChatSettingsInput: UpdateChatSettingsInput;
+  UpdateChatSettingsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateChatSettingsResponse']>;
+  UpdateChatSettingsResponseSuccess: ResolverTypeWrapper<UpdateChatSettingsResponseSuccess>;
   UpdatePushTokenInput: UpdatePushTokenInput;
   UpdatePushTokenResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdatePushTokenResponse']>;
   UpdatePushTokenResponseSuccess: ResolverTypeWrapper<UpdatePushTokenResponseSuccess>;
@@ -526,6 +557,7 @@ export type ResolversParentTypes = {
   ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
   Mutation: {};
   Ping: Ping;
+  PushConfig: PushConfig;
   PushToken: Scalars['PushToken']['output'];
   Query: {};
   ResponseError: ResponseError;
@@ -536,6 +568,9 @@ export type ResolversParentTypes = {
   Status: Status;
   String: Scalars['String']['output'];
   Subscription: {};
+  UpdateChatSettingsInput: UpdateChatSettingsInput;
+  UpdateChatSettingsResponse: ResolversUnionTypes<ResolversParentTypes>['UpdateChatSettingsResponse'];
+  UpdateChatSettingsResponseSuccess: UpdateChatSettingsResponseSuccess;
   UpdatePushTokenInput: UpdatePushTokenInput;
   UpdatePushTokenResponse: ResolversUnionTypes<ResolversParentTypes>['UpdatePushTokenResponse'];
   UpdatePushTokenResponseSuccess: UpdatePushTokenResponseSuccess;
@@ -549,6 +584,7 @@ export type ResolversParentTypes = {
 export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatRoom'] = ResolversParentTypes['ChatRoom']> = {
   chatRoomID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   participants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
+  pushConfig?: Resolver<Maybe<ResolversTypes['PushConfig']>, ParentType, ContextType>;
   sendBirdChannelURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sendBirdParticipants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -674,11 +710,18 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
+  updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
 };
 
 export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PushConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['PushConfig'] = ResolversParentTypes['PushConfig']> = {
+  allowPush?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  snoozeUntil?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -724,6 +767,15 @@ export type StatusResolvers<ContextType = any, ParentType extends ResolversParen
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   demoSubscription?: SubscriptionResolver<ResolversTypes['DemoSubscriptionEvent'], "demoSubscription", ParentType, ContextType>;
+};
+
+export type UpdateChatSettingsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdateChatSettingsResponse'] = ResolversParentTypes['UpdateChatSettingsResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'UpdateChatSettingsResponseSuccess', ParentType, ContextType>;
+};
+
+export type UpdateChatSettingsResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdateChatSettingsResponseSuccess'] = ResolversParentTypes['UpdateChatSettingsResponseSuccess']> = {
+  chatRoom?: Resolver<ResolversTypes['ChatRoom'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UpdatePushTokenResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdatePushTokenResponse'] = ResolversParentTypes['UpdatePushTokenResponse']> = {
@@ -799,6 +851,7 @@ export type Resolvers<ContextType = any> = {
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
+  PushConfig?: PushConfigResolvers<ContextType>;
   PushToken?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
@@ -807,6 +860,8 @@ export type Resolvers<ContextType = any> = {
   SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;
   Status?: StatusResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  UpdateChatSettingsResponse?: UpdateChatSettingsResponseResolvers<ContextType>;
+  UpdateChatSettingsResponseSuccess?: UpdateChatSettingsResponseSuccessResolvers<ContextType>;
   UpdatePushTokenResponse?: UpdatePushTokenResponseResolvers<ContextType>;
   UpdatePushTokenResponseSuccess?: UpdatePushTokenResponseSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

@@ -13,6 +13,12 @@ import {
 import { UpdateData } from "@firebase/firestore-types";
 import * as admin from "firebase-admin";
 
+// encode/decode firestore timestamp (FirestoreTimestamp)
+/**
+ * const now = createFirestoreTimestamp();
+ * const nowDatestring = now.toDate();
+ * const nowUnix = now.seconds
+ */
 export const createFirestoreTimestamp = (date?: Date) => {
   const targetDate = date || new Date();
   const timestamp = admin.firestore.Timestamp.fromDate(targetDate);

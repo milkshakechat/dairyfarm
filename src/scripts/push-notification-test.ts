@@ -12,7 +12,7 @@ const run = async () => {
   console.log(`push-notification-test.ts ....`);
   await initFirebase();
   await sendPushNotificationToUserDevices({
-    userID: "ZqpXtiCDOyXFIEmb2N49ft5RuNi1" as UserID,
+    userID: "m2fb0WWHOBesIAsevvCeNfv1w2Z2" as UserID,
     notification: {
       data: {
         title: "Hello World",

@@ -3,12 +3,10 @@ import {
   NotificationID,
   Notification_Firestore,
   PushMessageRecieptID,
+  PushNotificationShape,
   UserID,
 } from "@milkshakechat/helpers";
-import {
-  PushNotificationShape,
-  sendPushNotificationToUserDevices,
-} from "@/services/push";
+import { sendPushNotificationToUserDevices } from "@/services/push";
 import {
   createFirestoreDoc,
   createFirestoreTimestamp,

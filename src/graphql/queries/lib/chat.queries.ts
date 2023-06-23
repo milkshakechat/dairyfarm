@@ -38,7 +38,22 @@ export const enterChatRoom = async (
     chatRoomID: (args.input.chatRoomID as ChatRoomID) || undefined,
     participants: (args.input.participants as UserID[]) || undefined,
   });
-
+  console.log(
+    `chatRoom.sendBirdPushNotifConfig`,
+    chatRoom.sendBirdPushNotifConfig
+  );
+  const pushConfig =
+    chatRoom.sendBirdPushNotifConfig &&
+    chatRoom.sendBirdPushNotifConfig[userID as UserID]
+      ? {
+          snoozeUntil: (
+            chatRoom.sendBirdPushNotifConfig[userID as UserID]
+              .snoozeUntil as any
+          ).toDate(),
+          allowPush:
+            chatRoom.sendBirdPushNotifConfig[userID as UserID].allowPush,
+        }
+      : undefined;
   return {
     chatRoom: {
       chatRoomID: chatRoom.id,
@@ -49,6 +64,7 @@ export const enterChatRoom = async (
           ChatRoomParticipantStatus.SENDBIRD_ALLOWED
       ),
       sendBirdChannelURL: chatRoom.sendBirdChannelURL,
+      pushConfig,
     },
     isNew,
   };
