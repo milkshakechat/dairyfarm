@@ -1,6 +1,9 @@
 import {
+  DEFAULT_PUSH_NOTIFICATION_IMAGE,
   FirestoreCollection,
   PushMessageRecieptID,
+  PushNotificationPackage,
+  PushNotificationShape,
   PushPlatformType,
   PushTokenID,
   PushToken_Firestore,
@@ -89,22 +92,6 @@ export const deactivatePushToken = async ({
   });
   return `Successfully deactivated push token ${token} for user ${userID}`;
 };
-
-const DEFAULT_PUSH_NOTIFICATION_IMAGE =
-  "https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
-export type ValidClientAppRoute = string;
-export interface PushNotificationShape {
-  data: {
-    title: string;
-    body: string;
-    image?: string;
-    icon?: string; // icon="https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/app-public-shared%2Fmilkshake_fcm_icon.jpg?alt=media";
-    route: ValidClientAppRoute; // eg: "/app/chats/123"";
-  };
-}
-export interface PushNotificationPackage extends PushNotificationShape {
-  to: PushTokenID;
-}
 
 export const sendPushNotification = async (
   notification: PushNotificationPackage

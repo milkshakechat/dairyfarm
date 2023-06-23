@@ -7,6 +7,7 @@ import {
   SendBirdAccessToken,
   SendBirdChannelType,
   SendBirdChannelURL,
+  SendBirdPushNotifConfig,
   SendBirdUserID,
   UserID,
   User_Firestore,
@@ -28,7 +29,11 @@ import {
   getSendbirdUser,
   inviteToGroupChannelWithAutoAccept,
 } from "./sendbird";
-import { ChatRoom, EnterChatRoomInput } from "@/graphql/types/resolvers-types";
+import {
+  ChatRoom,
+  EnterChatRoomInput,
+  UpdateChatSettingsInput,
+} from "@/graphql/types/resolvers-types";
 import { firestore } from "./firebase";
 import { Query, QueryDocumentSnapshot } from "@google-cloud/firestore";
 import { checkExistingFriendship } from "./friends";
@@ -308,6 +313,16 @@ export const enterChatRoom = async ({
           .join(","),
         sendBirdChannelURL,
         sendBirdChannelType,
+        sendBirdPushNotifConfig:
+          hasSendbirdPrivileges.reduce<SendBirdPushNotifConfig>((acc, curr) => {
+            return {
+              ...acc,
+              [curr.id]: {
+                snoozeUntil: createFirestoreTimestamp(new Date(0)),
+                allowPush: true,
+              },
+            };
+          }, {}),
       },
       collection: FirestoreCollection.CHAT_ROOMS,
     });
@@ -394,15 +409,95 @@ export const retrieveChatRooms = async ({
 
   console.log(`Got ${rawChatRooms.length} chat rooms`);
 
-  const chatRooms = rawChatRooms.map((chatRoom) => ({
-    chatRoomID: chatRoom.id,
-    participants: Object.keys(chatRoom.participants),
-    sendBirdParticipants: Object.keys(chatRoom.participants).filter(
+  const chatRooms = rawChatRooms.map((chatRoom) => {
+    const pushConfig =
+      chatRoom.sendBirdPushNotifConfig &&
+      chatRoom.sendBirdPushNotifConfig[userID as UserID]
+        ? {
+            snoozeUntil: (
+              chatRoom.sendBirdPushNotifConfig[userID as UserID]
+                .snoozeUntil as any
+            ).toDate(),
+            allowPush:
+              chatRoom.sendBirdPushNotifConfig[userID as UserID].allowPush,
+          }
+        : undefined;
+    return {
+      chatRoomID: chatRoom.id,
+      participants: Object.keys(chatRoom.participants),
+      sendBirdParticipants: Object.keys(chatRoom.participants).filter(
+        (userID) =>
+          chatRoom.participants[userID as UserID] ===
+          ChatRoomParticipantStatus.SENDBIRD_ALLOWED
+      ),
+      sendBirdChannelURL: chatRoom.sendBirdChannelURL,
+      pushConfig,
+    };
+  });
+  return chatRooms;
+};
+
+export const updateChatSettingsFirestore = async ({
+  userID,
+  input,
+}: {
+  userID: UserID;
+  input: UpdateChatSettingsInput;
+}): Promise<ChatRoom> => {
+  console.log(`updateChatSettingsFirestore...`);
+  const { chatRoomID, allowPush, snoozeUntil } = input;
+
+  // get the chat room
+  const chatRoom = await getFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
+    id: chatRoomID as ChatRoomID,
+    collection: FirestoreCollection.CHAT_ROOMS,
+  });
+  console.log(`snoozeUntil`, snoozeUntil);
+  const snoozeUntilDate = snoozeUntil
+    ? createFirestoreTimestamp(new Date(parseInt(snoozeUntil)))
+    : createFirestoreTimestamp(new Date(0));
+
+  console.log(`snoozeUntilDate`, snoozeUntilDate);
+
+  const updatedChatRoom = await updateFirestoreDoc<
+    ChatRoomID,
+    ChatRoom_Firestore
+  >({
+    id: chatRoomID as ChatRoomID,
+    payload: {
+      ...chatRoom,
+      sendBirdPushNotifConfig: {
+        ...chatRoom.sendBirdPushNotifConfig,
+        [userID]: {
+          allowPush,
+          snoozeUntil: snoozeUntilDate,
+        },
+      },
+    },
+    collection: FirestoreCollection.CHAT_ROOMS,
+  });
+
+  const pushConfig =
+    updatedChatRoom.sendBirdPushNotifConfig &&
+    updatedChatRoom.sendBirdPushNotifConfig[userID as UserID]
+      ? {
+          snoozeUntil: (
+            updatedChatRoom.sendBirdPushNotifConfig[userID as UserID]
+              .snoozeUntil as any
+          ).toDate(),
+          allowPush:
+            updatedChatRoom.sendBirdPushNotifConfig[userID as UserID].allowPush,
+        }
+      : undefined;
+  return {
+    chatRoomID: updatedChatRoom.id,
+    participants: Object.keys(updatedChatRoom.participants),
+    sendBirdParticipants: Object.keys(updatedChatRoom.participants).filter(
       (userID) =>
-        chatRoom.participants[userID as UserID] ===
+        updatedChatRoom.participants[userID as UserID] ===
         ChatRoomParticipantStatus.SENDBIRD_ALLOWED
     ),
-    sendBirdChannelURL: chatRoom.sendBirdChannelURL,
-  }));
-  return chatRooms;
+    sendBirdChannelURL: updatedChatRoom.sendBirdChannelURL,
+    pushConfig,
+  };
 };

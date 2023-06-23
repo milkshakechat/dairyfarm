@@ -299,6 +299,34 @@ export const deleteSendbirdUser = async ({ userID }: { userID: UserID }) => {
   }
 };
 
+export const configureSendBirdWebhooks = async () => {
+  console.log(`---Configure Sendbird Webhooks`);
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  const data = {
+    enabled: true,
+    url: config.SENDBIRD.WEBHOOK_URL,
+    enabled_events: ["group_channel:message_send"],
+  };
+  try {
+    const response = await axios.put(
+      `${config.SENDBIRD.API_URL}/v3/applications/settings/webhook`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+    console.log(`---- >>>>`);
+    throw Error("Could not create Sendbird user.");
+  }
+};
+
 // interface CreateGroupChannelInviteProps {
 //   userID: UserID;
 //   channelUrl: string;

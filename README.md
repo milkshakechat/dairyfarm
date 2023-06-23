@@ -8,3 +8,5 @@ The backend server for Milkshake Chat
 $ npm run build
 $ npm run deploy:staging
 ```
+
+## Push Notifications

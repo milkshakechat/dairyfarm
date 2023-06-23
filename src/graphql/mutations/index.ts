@@ -6,4 +6,5 @@ export {
 export {
   sendFriendRequest,
   manageFriendship,
+  updateChatSettings,
 } from "@/graphql/mutations/lib/friend-and-chat.mutations";
