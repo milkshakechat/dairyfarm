@@ -1,3 +1,4 @@
+import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   DemoMutationResponse,
   MutationDemoMutationArgs,
@@ -10,6 +11,10 @@ export const demoMutation = async (
   _context: any,
   _info: any
 ): Promise<DemoMutationResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
   return {
     item: {
       id: "id",

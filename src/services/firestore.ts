@@ -24,6 +24,9 @@ export const createFirestoreTimestamp = (date?: Date) => {
   const timestamp = admin.firestore.Timestamp.fromDate(targetDate);
   return timestamp;
 };
+export const decodeFirestoreTimestamp = (timestamp: TimestampFirestore) => {
+  return (timestamp as any).toDate();
+};
 
 export const isLaterThanNow_FirestoreTimestamp = (
   timestamp: TimestampFirestore

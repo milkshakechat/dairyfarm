@@ -51,6 +51,18 @@ export type Contact = {
   username?: Maybe<Scalars['String']['output']>;
 };
 
+export type CreateStoryInput = {
+  caption: Scalars['String']['input'];
+  media?: InputMaybe<StoryMediaAttachmentInput>;
+};
+
+export type CreateStoryResponse = CreateStoryResponseSuccess | ResponseError;
+
+export type CreateStoryResponseSuccess = {
+  __typename?: 'CreateStoryResponseSuccess';
+  story: Story;
+};
+
 export type DemoMutatedItem = {
   __typename?: 'DemoMutatedItem';
   id: Scalars['ID']['output'];
@@ -180,12 +192,18 @@ export type ModifyProfileResponseSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createStory: CreateStoryResponse;
   demoMutation: DemoMutationResponse;
   manageFriendship: ManageFriendshipResponse;
   modifyProfile: ModifyProfileResponse;
   sendFriendRequest: SendFriendRequestResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
+};
+
+
+export type MutationCreateStoryArgs = {
+  input: CreateStoryInput;
 };
 
 
@@ -302,6 +320,41 @@ export enum StatusCode {
   Success = 'Success',
   Unauthorized = 'Unauthorized'
 }
+
+export type Story = {
+  __typename?: 'Story';
+  attachments: Array<StoryAttachment>;
+  caption?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['DateString']['output']>;
+  expiresAt?: Maybe<Scalars['DateString']['output']>;
+  id: Scalars['ID']['output'];
+  outboundLink?: Maybe<Scalars['String']['output']>;
+  pinned?: Maybe<Scalars['Boolean']['output']>;
+  showcaseThumbnail?: Maybe<Scalars['String']['output']>;
+  thumbnail: Scalars['String']['output'];
+  userID: Scalars['UserID']['output'];
+};
+
+export type StoryAttachment = {
+  __typename?: 'StoryAttachment';
+  altText?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  stream?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  type: StoryAttachmentType;
+  url: Scalars['String']['output'];
+  userID: Scalars['UserID']['output'];
+};
+
+export enum StoryAttachmentType {
+  Image = 'IMAGE',
+  Video = 'VIDEO'
+}
+
+export type StoryMediaAttachmentInput = {
+  type: StoryAttachmentType;
+  url: Scalars['String']['input'];
+};
 
 export type Subscription = {
   __typename?: 'Subscription';
@@ -439,6 +492,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
+  CreateStoryResponse: ( CreateStoryResponseSuccess ) | ( ResponseError );
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
@@ -462,6 +516,9 @@ export type ResolversTypes = {
   CheckUsernameAvailableResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckUsernameAvailableResponse']>;
   CheckUsernameAvailableResponseSuccess: ResolverTypeWrapper<CheckUsernameAvailableResponseSuccess>;
   Contact: ResolverTypeWrapper<Contact>;
+  CreateStoryInput: CreateStoryInput;
+  CreateStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateStoryResponse']>;
+  CreateStoryResponseSuccess: ResolverTypeWrapper<CreateStoryResponseSuccess>;
   DateString: ResolverTypeWrapper<Scalars['DateString']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
   DemoMutationInput: DemoMutationInput;
@@ -505,6 +562,10 @@ export type ResolversTypes = {
   SendFriendRequestResponseSuccess: ResolverTypeWrapper<SendFriendRequestResponseSuccess>;
   Status: ResolverTypeWrapper<Status>;
   StatusCode: StatusCode;
+  Story: ResolverTypeWrapper<Story>;
+  StoryAttachment: ResolverTypeWrapper<StoryAttachment>;
+  StoryAttachmentType: StoryAttachmentType;
+  StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   UpdateChatSettingsInput: UpdateChatSettingsInput;
@@ -528,6 +589,9 @@ export type ResolversParentTypes = {
   CheckUsernameAvailableResponse: ResolversUnionTypes<ResolversParentTypes>['CheckUsernameAvailableResponse'];
   CheckUsernameAvailableResponseSuccess: CheckUsernameAvailableResponseSuccess;
   Contact: Contact;
+  CreateStoryInput: CreateStoryInput;
+  CreateStoryResponse: ResolversUnionTypes<ResolversParentTypes>['CreateStoryResponse'];
+  CreateStoryResponseSuccess: CreateStoryResponseSuccess;
   DateString: Scalars['DateString']['output'];
   DemoMutatedItem: DemoMutatedItem;
   DemoMutationInput: DemoMutationInput;
@@ -566,6 +630,9 @@ export type ResolversParentTypes = {
   SendFriendRequestResponse: ResolversUnionTypes<ResolversParentTypes>['SendFriendRequestResponse'];
   SendFriendRequestResponseSuccess: SendFriendRequestResponseSuccess;
   Status: Status;
+  Story: Story;
+  StoryAttachment: StoryAttachment;
+  StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: Scalars['String']['output'];
   Subscription: {};
   UpdateChatSettingsInput: UpdateChatSettingsInput;
@@ -605,6 +672,15 @@ export type ContactResolvers<ContextType = any, ParentType extends ResolversPare
   friendID?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
   status?: Resolver<Maybe<ResolversTypes['FriendshipStatus']>, ParentType, ContextType>;
   username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateStoryResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateStoryResponse'] = ResolversParentTypes['CreateStoryResponse']> = {
+  __resolveType: TypeResolveFn<'CreateStoryResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type CreateStoryResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateStoryResponseSuccess'] = ResolversParentTypes['CreateStoryResponseSuccess']> = {
+  story?: Resolver<ResolversTypes['Story'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -706,6 +782,7 @@ export type ModifyProfileResponseSuccessResolvers<ContextType = any, ParentType 
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
@@ -762,6 +839,31 @@ export type SendFriendRequestResponseSuccessResolvers<ContextType = any, ParentT
 export type StatusResolvers<ContextType = any, ParentType extends ResolversParentTypes['Status'] = ResolversParentTypes['Status']> = {
   code?: Resolver<ResolversTypes['StatusCode'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type StoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Story'] = ResolversParentTypes['Story']> = {
+  attachments?: Resolver<Array<ResolversTypes['StoryAttachment']>, ParentType, ContextType>;
+  caption?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  outboundLink?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  pinned?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  showcaseThumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userID?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type StoryAttachmentResolvers<ContextType = any, ParentType extends ResolversParentTypes['StoryAttachment'] = ResolversParentTypes['StoryAttachment']> = {
+  altText?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  stream?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['StoryAttachmentType'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userID?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -828,6 +930,8 @@ export type Resolvers<ContextType = any> = {
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
+  CreateStoryResponse?: CreateStoryResponseResolvers<ContextType>;
+  CreateStoryResponseSuccess?: CreateStoryResponseSuccessResolvers<ContextType>;
   DateString?: GraphQLScalarType;
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
   DemoMutationResponse?: DemoMutationResponseResolvers<ContextType>;
@@ -859,6 +963,8 @@ export type Resolvers<ContextType = any> = {
   SendFriendRequestResponse?: SendFriendRequestResponseResolvers<ContextType>;
   SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;
   Status?: StatusResolvers<ContextType>;
+  Story?: StoryResolvers<ContextType>;
+  StoryAttachment?: StoryAttachmentResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   UpdateChatSettingsResponse?: UpdateChatSettingsResponseResolvers<ContextType>;
   UpdateChatSettingsResponseSuccess?: UpdateChatSettingsResponseSuccessResolvers<ContextType>;

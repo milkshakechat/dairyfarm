@@ -8,3 +8,4 @@ export {
   manageFriendship,
   updateChatSettings,
 } from "@/graphql/mutations/lib/friend-and-chat.mutations";
+export { createStory } from "@/graphql/mutations/lib/story.mutations";
