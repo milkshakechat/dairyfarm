@@ -1,6 +1,14 @@
+import { BucketDef, SecretConfig } from "@milkshakechat/helpers";
+
 const devConfig: ConfigEnv = {
   GCLOUD: {
     projectId: "milkshake-dev-faf77",
+  },
+  BUCKETS: {
+    UserStories: {
+      name: "user-stories-social",
+      location: "asia-northeast1",
+    },
   },
   SECRETS: {
     FIREBASE_CONFIG: {
@@ -38,6 +46,12 @@ const stagingConfig: ConfigEnv = {
   GCLOUD: {
     projectId: "milkshake-dev-faf77",
   },
+  BUCKETS: {
+    UserStories: {
+      name: "user-stories-social",
+      location: "asia-northeast1",
+    },
+  },
   SECRETS: {
     FIREBASE_CONFIG: {
       secretId: "firebase-init",
@@ -73,9 +87,16 @@ const stagingConfig: ConfigEnv = {
     ],
   },
 };
+
 const prodConfig: ConfigEnv = {
   GCLOUD: {
     projectId: "milkshake-dev-faf77",
+  },
+  BUCKETS: {
+    UserStories: {
+      name: "user-stories-social",
+      location: "asia-northeast1",
+    },
   },
   SECRETS: {
     FIREBASE_CONFIG: {
@@ -110,13 +131,12 @@ const prodConfig: ConfigEnv = {
   },
 };
 
-interface SecretConfig {
-  secretId: string;
-  versionId: string;
-}
 interface ConfigEnv {
   GCLOUD: {
     projectId: string;
+  };
+  BUCKETS: {
+    UserStories: BucketDef;
   };
   SECRETS: {
     FIREBASE_CONFIG: SecretConfig;
