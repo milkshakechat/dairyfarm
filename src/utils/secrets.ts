@@ -40,6 +40,16 @@ async function accessSecretVersion({
   return secretValue;
 }
 
+export const accessLocalGCPKeyFile = async () => {
+  // path to repo working directory
+  const base64KeyFile = Buffer.from(
+    process.env.GCP_KEYFILE_BASE64 || "",
+    "base64"
+  ).toString("utf-8");
+  const credentials = JSON.parse(base64KeyFile);
+  return credentials;
+};
+
 export interface FirebaseConfig {
   apiKey: string;
   authDomain: string;
