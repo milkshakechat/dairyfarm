@@ -20,6 +20,10 @@ export const createStory = async (
   }
   const { caption, media } = args.input;
   const { url, type, assetID } = media || {};
+
+  if (caption.length > 240) {
+    throw Error("Caption must be less than 240 characters");
+  }
   // create the story
   const story = await createStoryFirestore({
     mediaUrl: url,
