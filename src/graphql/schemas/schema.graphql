@@ -224,14 +224,70 @@ union UpdateChatSettingsResponse =
   | ResponseError
 
 
+# --- create story
+enum StoryAttachmentType {
+  IMAGE
+  VIDEO
+}
+type StoryAttachment {
+  id: ID!
+  userID: UserID!
+  type: StoryAttachmentType!
+  url: String!
+  thumbnail: String
+  stream: String
+  altText: String
+}
+type Story {
+  id: ID!
+  userID: UserID!
+  caption: String
+  attachments: [StoryAttachment!]!
+  pinned: Boolean
+  thumbnail: String!
+  showcaseThumbnail: String
+  # visibleAudienceGroups: AudienceGroupID[]
+  # visibleFriends: UserID[]
+  # visibleHashtags: StoryHashtag[]
+  # hiddenUsers: UserID[]
+  # mentionedUsers: UserID[]
+  # mentionedWishlists: StickerID[]
+  # location?: StoryLocation
+  outboundLink: String
+  createdAt: DateString
+  expiresAt: DateString
+}
+input CreateStoryInput {
+  caption: String!
+  media: StoryMediaAttachmentInput
+  # link: String
+  # outboundLink: String
+}
+input StoryMediaAttachmentInput {
+  url: String!
+  type: StoryAttachmentType!
+  assetID: String!
+}
+type CreateStoryResponseSuccess {
+  story: Story!
+}
+union CreateStoryResponse =
+    CreateStoryResponseSuccess
+  | ResponseError
+
+
 # --- Mutations
 type Mutation {
+  # profile
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
+  # friends
   sendFriendRequest(input: SendFriendRequestInput!): SendFriendRequestResponse!
   manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!
+  # chat
   updateChatSettings(input: UpdateChatSettingsInput!): UpdateChatSettingsResponse!
-  # createGroupChat(input: CreateGroupChatInput!): CreateGroupChatResponse!
+  # story
+  createStory(input: CreateStoryInput!): CreateStoryResponse!
 }
 
 
