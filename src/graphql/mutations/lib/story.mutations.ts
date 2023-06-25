@@ -19,13 +19,14 @@ export const createStory = async (
     throw Error("No user ID found");
   }
   const { caption, media } = args.input;
-  const { url, type } = media || {};
+  const { url, type, assetID } = media || {};
   // create the story
   const story = await createStoryFirestore({
     mediaUrl: url,
     mediaType: type,
     userID,
     caption,
+    assetID,
   });
   // return the story
   return {

@@ -266,6 +266,7 @@ input CreateStoryInput {
 input StoryMediaAttachmentInput {
   url: String!
   type: StoryAttachmentType!
+  assetID: String!
 }
 type CreateStoryResponseSuccess {
   story: Story!

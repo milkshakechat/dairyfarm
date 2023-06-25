@@ -5,21 +5,38 @@ import {
   StoryID,
   Story_Firestore,
   UserID,
-  getCompressedMediaUrl,
   StoryAttachmentType as TSStoryAttachmentType,
   StoryAttachmentID,
+  getCompressedStoryImageUrl,
 } from "@milkshakechat/helpers";
 import { createFirestoreDoc, createFirestoreTimestamp } from "./firestore";
 import { v4 as uuidv4 } from "uuid";
 import { StoryAttachmentType } from "@/graphql/types/resolvers-types";
+import config from "@/config.env";
+import {
+  predictVideoThumbnailRoute,
+  predictVideoTranscodedManifestRoute,
+  predictVideoTranscodedSDHDRoute,
+} from "./video-transcoder";
 
-export const getVideoThumbnail = (mediaUrl: string) => "";
-export const getVideoStream = (mediaUrl: string) => "";
-export const getImageCompressed = (
-  mediaUrl: string,
-  option: ImageResizeOption
-) => {
-  return getCompressedMediaUrl(mediaUrl, BucketFolderSlug.story_image, option);
+export const getImageStoryCompressed = ({
+  storyID,
+  userID,
+  assetID,
+  size,
+}: {
+  storyID: StoryID;
+  userID: UserID;
+  assetID: string;
+  size: ImageResizeOption;
+}) => {
+  return getCompressedStoryImageUrl({
+    storyID,
+    userID,
+    size,
+    assetID,
+    bucketName: config.FIREBASE.storageBucket,
+  });
 };
 
 interface CreateStoryFirestoreArgs {
@@ -27,13 +44,17 @@ interface CreateStoryFirestoreArgs {
   mediaType?: StoryAttachmentType;
   userID: UserID;
   caption?: string;
+  assetID?: string;
 }
 export const createStoryFirestore = async ({
   mediaUrl,
   mediaType,
   userID,
   caption,
+  assetID,
 }: CreateStoryFirestoreArgs) => {
+  console.log(`mediaType = ${mediaType}`);
+  console.log(`mediaUrl`, mediaUrl);
   const isVideo = mediaType === StoryAttachmentType.Video;
   const now = new Date();
   const defaultExpiry24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -44,13 +65,34 @@ export const createStoryFirestore = async ({
     storyID: storyID, // index
     userID: userID,
     type: mediaType as unknown as TSStoryAttachmentType, // image or video
-    url: mediaUrl || "", // standard definition url
+    url: !mediaUrl
+      ? ""
+      : isVideo
+      ? predictVideoTranscodedSDHDRoute(mediaUrl || "").sd
+      : getImageStoryCompressed({
+          storyID: storyID,
+          userID,
+          assetID: assetID || "",
+          size: ImageResizeOption.compressed,
+        }), // standard definition url
     thumbnail: !mediaUrl
       ? ""
       : isVideo
-      ? getVideoThumbnail(mediaUrl)
-      : getImageCompressed(mediaUrl, ImageResizeOption.thumbnail),
-    stream: !mediaUrl ? "" : isVideo ? getVideoStream(mediaUrl) : undefined,
+      ? predictVideoThumbnailRoute({
+          userID,
+          assetID: assetID || "",
+        })
+      : getImageStoryCompressed({
+          storyID: storyID,
+          userID,
+          assetID: assetID || "",
+          size: ImageResizeOption.thumbnail,
+        }),
+    stream: !mediaUrl
+      ? ""
+      : isVideo
+      ? predictVideoTranscodedManifestRoute(mediaUrl)
+      : undefined,
     altText: caption || "",
   };
   const storyData = {
@@ -70,13 +112,30 @@ export const createStoryFirestore = async ({
     thumbnail: !mediaUrl
       ? ""
       : isVideo
-      ? getVideoThumbnail(mediaUrl)
-      : getImageCompressed(mediaUrl, ImageResizeOption.thumbnail),
+      ? predictVideoThumbnailRoute({
+          userID,
+          assetID: assetID || "",
+        })
+      : getImageStoryCompressed({
+          storyID: storyID,
+          userID,
+          assetID: assetID || "",
+          size: ImageResizeOption.thumbnail,
+        }),
     showcaseThumbnail: !mediaUrl
       ? ""
       : isVideo
-      ? getVideoThumbnail(mediaUrl)
-      : getImageCompressed(mediaUrl, ImageResizeOption.compressed),
+      ? predictVideoThumbnailRoute({
+          userID,
+          assetID: assetID || "",
+          size: ImageResizeOption.compressed,
+        })
+      : getImageStoryCompressed({
+          storyID: storyID,
+          userID,
+          assetID: assetID || "",
+          size: ImageResizeOption.thumbnail,
+        }),
     // visibility
     visibleAudienceGroups: [],
     visibleFriends: [],
@@ -94,6 +153,7 @@ export const createStoryFirestore = async ({
     // outbound link to internet (call to action)
     // outboundLink?: string;
     // metadata
+    processingComplete: isVideo ? false : true,
     createdAt: createFirestoreTimestamp(),
     deleted: false,
   };
@@ -105,3 +165,9 @@ export const createStoryFirestore = async ({
   });
   return story;
 };
+
+// received
+// https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/users/m2fb0WWHOBesIAsevvCeNfv1w2Z2/story/VIDEO/f7f2533c-6acb-4e70-bde4-cdc2b8d36d1f/resized-media/thumbnail-f7f2533c-6acb-4e70-bde4-cdc2b8d36d1f_200x200.jpeg?alt=media
+
+// actual
+// https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/users%2Fm2fb0WWHOBesIAsevvCeNfv1w2Z2%2Fstory%2FVIDEO%2Ff7f2533c-6acb-4e70-bde4-cdc2b8d36d1f%2Fresized-media%2Fthumbnail-f7f2533c-6acb-4e70-bde4-cdc2b8d36d1f_200x200.jpeg?alt=media&token=e645439e-d3a4-4eb3-8f73-7b7496a307d1

@@ -352,6 +352,7 @@ export enum StoryAttachmentType {
 }
 
 export type StoryMediaAttachmentInput = {
+  assetID: Scalars['String']['input'];
   type: StoryAttachmentType;
   url: Scalars['String']['input'];
 };
