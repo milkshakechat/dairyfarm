@@ -121,6 +121,31 @@ union ListChatRoomsResponse =
     ListChatRoomsResponseSuccess
   | ResponseError
 
+
+# --- get story
+input GetStoryInput {
+  storyID: ID!
+}
+type GetStoryResponseSuccess {
+  story: Story!
+}
+union GetStoryResponse =
+    GetStoryResponseSuccess
+  | ResponseError
+
+
+# --- fetch story feed
+input FetchStoryFeedInput {
+  nonce: String
+}
+type FetchStoryFeedResponseSuccess {
+  stories: [Story!]!
+}
+union FetchStoryFeedResponse =
+    FetchStoryFeedResponseSuccess
+  | ResponseError
+
+
 # --- Queries
 type Query {
   getMyProfile: GetMyProfileResponse!
@@ -133,6 +158,8 @@ type Query {
     input: EnterChatRoomInput!
   ): EnterChatRoomResponse!
   listChatRooms: ListChatRoomsResponse!
+  getStory(input: GetStoryInput!): GetStoryResponse!
+  fetchStoryFeed(input: FetchStoryFeedInput!): FetchStoryFeedResponse!
 }
 
 # --- modifyProfile
@@ -256,6 +283,13 @@ type Story {
   outboundLink: String
   createdAt: DateString
   expiresAt: DateString
+  author: StoryAuthor!
+}
+type StoryAuthor {
+  id: UserID!
+  username: String!
+  avatar: String!
+  displayName: String!
 }
 input CreateStoryInput {
   caption: String!

@@ -109,6 +109,17 @@ export type EnterChatRoomResponseSuccess = {
   isNew: Scalars['Boolean']['output'];
 };
 
+export type FetchStoryFeedInput = {
+  nonce?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type FetchStoryFeedResponse = FetchStoryFeedResponseSuccess | ResponseError;
+
+export type FetchStoryFeedResponseSuccess = {
+  __typename?: 'FetchStoryFeedResponseSuccess';
+  stories: Array<Story>;
+};
+
 export enum FriendshipAction {
   AcceptRequest = 'ACCEPT_REQUEST',
   Block = 'BLOCK',
@@ -132,6 +143,17 @@ export type GetMyProfileResponse = GetMyProfileResponseSuccess | ResponseError;
 export type GetMyProfileResponseSuccess = {
   __typename?: 'GetMyProfileResponseSuccess';
   user: User;
+};
+
+export type GetStoryInput = {
+  storyID: Scalars['ID']['input'];
+};
+
+export type GetStoryResponse = GetStoryResponseSuccess | ResponseError;
+
+export type GetStoryResponseSuccess = {
+  __typename?: 'GetStoryResponseSuccess';
+  story: Story;
 };
 
 export enum LanguageEnum {
@@ -259,7 +281,9 @@ export type Query = {
   demoPing: Ping;
   demoQuery: DemoQueryResponse;
   enterChatRoom: EnterChatRoomResponse;
+  fetchStoryFeed: FetchStoryFeedResponse;
   getMyProfile: GetMyProfileResponse;
+  getStory: GetStoryResponse;
   listChatRooms: ListChatRoomsResponse;
   listContacts: ListContactsResponse;
   ping: Ping;
@@ -279,6 +303,16 @@ export type QueryDemoQueryArgs = {
 
 export type QueryEnterChatRoomArgs = {
   input: EnterChatRoomInput;
+};
+
+
+export type QueryFetchStoryFeedArgs = {
+  input: FetchStoryFeedInput;
+};
+
+
+export type QueryGetStoryArgs = {
+  input: GetStoryInput;
 };
 
 
@@ -324,6 +358,7 @@ export enum StatusCode {
 export type Story = {
   __typename?: 'Story';
   attachments: Array<StoryAttachment>;
+  author: StoryAuthor;
   caption?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['DateString']['output']>;
   expiresAt?: Maybe<Scalars['DateString']['output']>;
@@ -350,6 +385,14 @@ export enum StoryAttachmentType {
   Image = 'IMAGE',
   Video = 'VIDEO'
 }
+
+export type StoryAuthor = {
+  __typename?: 'StoryAuthor';
+  avatar: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
+  id: Scalars['UserID']['output'];
+  username: Scalars['String']['output'];
+};
 
 export type StoryMediaAttachmentInput = {
   assetID: Scalars['String']['input'];
@@ -497,7 +540,9 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
+  FetchStoryFeedResponse: ( FetchStoryFeedResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
+  GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
   ListChatRoomsResponse: ( ListChatRoomsResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
@@ -532,10 +577,16 @@ export type ResolversTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EnterChatRoomResponse']>;
   EnterChatRoomResponseSuccess: ResolverTypeWrapper<EnterChatRoomResponseSuccess>;
+  FetchStoryFeedInput: FetchStoryFeedInput;
+  FetchStoryFeedResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchStoryFeedResponse']>;
+  FetchStoryFeedResponseSuccess: ResolverTypeWrapper<FetchStoryFeedResponseSuccess>;
   FriendshipAction: FriendshipAction;
   FriendshipStatus: FriendshipStatus;
   GetMyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMyProfileResponse']>;
   GetMyProfileResponseSuccess: ResolverTypeWrapper<GetMyProfileResponseSuccess>;
+  GetStoryInput: GetStoryInput;
+  GetStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetStoryResponse']>;
+  GetStoryResponseSuccess: ResolverTypeWrapper<GetStoryResponseSuccess>;
   GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
   HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -566,6 +617,7 @@ export type ResolversTypes = {
   Story: ResolverTypeWrapper<Story>;
   StoryAttachment: ResolverTypeWrapper<StoryAttachment>;
   StoryAttachmentType: StoryAttachmentType;
+  StoryAuthor: ResolverTypeWrapper<StoryAuthor>;
   StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
@@ -605,8 +657,14 @@ export type ResolversParentTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolversUnionTypes<ResolversParentTypes>['EnterChatRoomResponse'];
   EnterChatRoomResponseSuccess: EnterChatRoomResponseSuccess;
+  FetchStoryFeedInput: FetchStoryFeedInput;
+  FetchStoryFeedResponse: ResolversUnionTypes<ResolversParentTypes>['FetchStoryFeedResponse'];
+  FetchStoryFeedResponseSuccess: FetchStoryFeedResponseSuccess;
   GetMyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['GetMyProfileResponse'];
   GetMyProfileResponseSuccess: GetMyProfileResponseSuccess;
+  GetStoryInput: GetStoryInput;
+  GetStoryResponse: ResolversUnionTypes<ResolversParentTypes>['GetStoryResponse'];
+  GetStoryResponseSuccess: GetStoryResponseSuccess;
   GroupChatID: Scalars['GroupChatID']['output'];
   HexColorCode: Scalars['HexColorCode']['output'];
   ID: Scalars['ID']['output'];
@@ -633,6 +691,7 @@ export type ResolversParentTypes = {
   Status: Status;
   Story: Story;
   StoryAttachment: StoryAttachment;
+  StoryAuthor: StoryAuthor;
   StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: Scalars['String']['output'];
   Subscription: {};
@@ -728,12 +787,30 @@ export type EnterChatRoomResponseSuccessResolvers<ContextType = any, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FetchStoryFeedResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchStoryFeedResponse'] = ResolversParentTypes['FetchStoryFeedResponse']> = {
+  __resolveType: TypeResolveFn<'FetchStoryFeedResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type FetchStoryFeedResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchStoryFeedResponseSuccess'] = ResolversParentTypes['FetchStoryFeedResponseSuccess']> = {
+  stories?: Resolver<Array<ResolversTypes['Story']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type GetMyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetMyProfileResponse'] = ResolversParentTypes['GetMyProfileResponse']> = {
   __resolveType: TypeResolveFn<'GetMyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
 
 export type GetMyProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetMyProfileResponseSuccess'] = ResolversParentTypes['GetMyProfileResponseSuccess']> = {
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GetStoryResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetStoryResponse'] = ResolversParentTypes['GetStoryResponse']> = {
+  __resolveType: TypeResolveFn<'GetStoryResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type GetStoryResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetStoryResponseSuccess'] = ResolversParentTypes['GetStoryResponseSuccess']> = {
+  story?: Resolver<ResolversTypes['Story'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -812,7 +889,9 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   enterChatRoom?: Resolver<ResolversTypes['EnterChatRoomResponse'], ParentType, ContextType, RequireFields<QueryEnterChatRoomArgs, 'input'>>;
+  fetchStoryFeed?: Resolver<ResolversTypes['FetchStoryFeedResponse'], ParentType, ContextType, RequireFields<QueryFetchStoryFeedArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
+  getStory?: Resolver<ResolversTypes['GetStoryResponse'], ParentType, ContextType, RequireFields<QueryGetStoryArgs, 'input'>>;
   listChatRooms?: Resolver<ResolversTypes['ListChatRoomsResponse'], ParentType, ContextType>;
   listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
@@ -845,6 +924,7 @@ export type StatusResolvers<ContextType = any, ParentType extends ResolversParen
 
 export type StoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Story'] = ResolversParentTypes['Story']> = {
   attachments?: Resolver<Array<ResolversTypes['StoryAttachment']>, ParentType, ContextType>;
+  author?: Resolver<ResolversTypes['StoryAuthor'], ParentType, ContextType>;
   caption?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
@@ -865,6 +945,14 @@ export type StoryAttachmentResolvers<ContextType = any, ParentType extends Resol
   type?: Resolver<ResolversTypes['StoryAttachmentType'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userID?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type StoryAuthorResolvers<ContextType = any, ParentType extends ResolversParentTypes['StoryAuthor'] = ResolversParentTypes['StoryAuthor']> = {
+  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -942,8 +1030,12 @@ export type Resolvers<ContextType = any> = {
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
   EnterChatRoomResponse?: EnterChatRoomResponseResolvers<ContextType>;
   EnterChatRoomResponseSuccess?: EnterChatRoomResponseSuccessResolvers<ContextType>;
+  FetchStoryFeedResponse?: FetchStoryFeedResponseResolvers<ContextType>;
+  FetchStoryFeedResponseSuccess?: FetchStoryFeedResponseSuccessResolvers<ContextType>;
   GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
+  GetStoryResponse?: GetStoryResponseResolvers<ContextType>;
+  GetStoryResponseSuccess?: GetStoryResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
   HexColorCode?: GraphQLScalarType;
   ListChatRoomsResponse?: ListChatRoomsResponseResolvers<ContextType>;
@@ -966,6 +1058,7 @@ export type Resolvers<ContextType = any> = {
   Status?: StatusResolvers<ContextType>;
   Story?: StoryResolvers<ContextType>;
   StoryAttachment?: StoryAttachmentResolvers<ContextType>;
+  StoryAuthor?: StoryAuthorResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   UpdateChatSettingsResponse?: UpdateChatSettingsResponseResolvers<ContextType>;
   UpdateChatSettingsResponseSuccess?: UpdateChatSettingsResponseSuccessResolvers<ContextType>;

@@ -9,10 +9,16 @@ import {
   StoryAttachmentID,
   getCompressedStoryImageUrl,
 } from "@milkshakechat/helpers";
-import { createFirestoreDoc, createFirestoreTimestamp } from "./firestore";
+import {
+  createFirestoreDoc,
+  createFirestoreTimestamp,
+  decodeFirestoreTimestamp,
+  listFirestoreDocs,
+} from "./firestore";
 import { v4 as uuidv4 } from "uuid";
-import { StoryAttachmentType } from "@/graphql/types/resolvers-types";
+import { Story, StoryAttachmentType } from "@/graphql/types/resolvers-types";
 import config from "@/config.env";
+import { getFirestoreDoc } from "@/services/firestore";
 import {
   predictVideoThumbnailRoute,
   predictVideoTranscodedManifestRoute,
@@ -166,8 +172,60 @@ export const createStoryFirestore = async ({
   return story;
 };
 
-// received
-// https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/users/m2fb0WWHOBesIAsevvCeNfv1w2Z2/story/VIDEO/f7f2533c-6acb-4e70-bde4-cdc2b8d36d1f/resized-media/thumbnail-f7f2533c-6acb-4e70-bde4-cdc2b8d36d1f_200x200.jpeg?alt=media
+interface GetStoryFirestoreArgs {
+  storyID: StoryID;
+}
+export const getStoryFirestore = async ({ storyID }: GetStoryFirestoreArgs) => {
+  const story = await getFirestoreDoc<StoryID, Story_Firestore>({
+    id: storyID,
+    collection: FirestoreCollection.STORIES,
+  });
+  return story;
+};
 
-// actual
-// https://firebasestorage.googleapis.com/v0/b/milkshake-dev-faf77.appspot.com/o/users%2Fm2fb0WWHOBesIAsevvCeNfv1w2Z2%2Fstory%2FVIDEO%2Ff7f2533c-6acb-4e70-bde4-cdc2b8d36d1f%2Fresized-media%2Fthumbnail-f7f2533c-6acb-4e70-bde4-cdc2b8d36d1f_200x200.jpeg?alt=media&token=e645439e-d3a4-4eb3-8f73-7b7496a307d1
+interface FetchStoryFeedFirestoreArgs {
+  userID: UserID;
+}
+export const fetchStoryFeedFirestore = async ({
+  userID,
+}: FetchStoryFeedFirestoreArgs) => {
+  const stories = await listFirestoreDocs<Story_Firestore>({
+    where: {
+      field: "id",
+      operator: "!=",
+      value: null,
+    },
+    collection: FirestoreCollection.STORIES,
+  });
+
+  return stories;
+};
+
+export const convertStoryToGraphQL = (
+  story: Story_Firestore
+): Omit<Story, "author"> => {
+  return {
+    id: story.id,
+    userID: story.userID,
+    caption: story.caption,
+    attachments: story.attachments
+      ? story.attachments.map((att) => {
+          return {
+            id: att.id,
+            userID: att.userID,
+            type: att.type as unknown as StoryAttachmentType,
+            url: att.url,
+            thumbnail: att.thumbnail,
+            stream: att.stream,
+            altText: att.altText,
+          };
+        })
+      : [],
+    pinned: story.pinned,
+    thumbnail: story.thumbnail,
+    showcaseThumbnail: story.showcaseThumbnail,
+    outboundLink: story.outboundLink,
+    createdAt: decodeFirestoreTimestamp(story.createdAt),
+    expiresAt: decodeFirestoreTimestamp(story.expiresAt),
+  };
+};

@@ -14,7 +14,7 @@ export const demoQuery = async (
   _info: any
 ): Promise<DemoQueryResponseSuccess> => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
-  console.log(`sending push notification...`);
+  console.log(`demoQuery...`);
   return {
     message: `Greetings! You said ${args.input.name}. Your userID is ${userID}`,
   };

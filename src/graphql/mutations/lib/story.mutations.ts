@@ -2,10 +2,11 @@ import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   CreateStoryResponse,
   MutationCreateStoryArgs,
+  Story,
   StoryAttachmentType,
 } from "@/graphql/types/resolvers-types";
 import { decodeFirestoreTimestamp } from "@/services/firestore";
-import { createStoryFirestore } from "@/services/story";
+import { convertStoryToGraphQL, createStoryFirestore } from "@/services/story";
 import { GraphQLResolveInfo } from "graphql";
 
 export const createStory = async (
@@ -13,7 +14,9 @@ export const createStory = async (
   args: MutationCreateStoryArgs,
   _context: any,
   _info: any
-): Promise<CreateStoryResponse> => {
+): Promise<{
+  story: Partial<Story>;
+}> => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
     throw Error("No user ID found");
@@ -34,28 +37,8 @@ export const createStory = async (
   });
   // return the story
   return {
-    story: {
-      id: story.id,
-      userID: story.userID,
-      caption: story.caption,
-      attachments: story.attachments.map((att) => {
-        return {
-          id: att.id,
-          userID: att.userID,
-          type: att.type as unknown as StoryAttachmentType,
-          url: att.url,
-          thumbnail: att.thumbnail,
-          stream: att.stream,
-          altText: att.altText,
-        };
-      }),
-      pinned: story.pinned,
-      thumbnail: story.thumbnail,
-      showcaseThumbnail: story.showcaseThumbnail,
-      outboundLink: story.outboundLink,
-      createdAt: decodeFirestoreTimestamp(story.createdAt),
-      expiresAt: decodeFirestoreTimestamp(story.expiresAt),
-    },
+    // @ts-ignore
+    story: convertStoryToGraphQL(story),
   };
 };
 

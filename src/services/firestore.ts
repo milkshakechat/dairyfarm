@@ -149,7 +149,7 @@ interface TListFirestoreDocsProps {
   where: {
     field: string;
     operator: WhereFilterOp;
-    value: string | number | boolean;
+    value: string | number | boolean | null;
   };
   collection: FirestoreCollection;
 }
