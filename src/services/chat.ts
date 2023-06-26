@@ -385,19 +385,6 @@ export const retrieveChatRooms = async ({
 }: {
   userID: UserID;
 }): Promise<ChatRoom[]> => {
-  console.log(`retrieveChatRooms...`);
-
-  console.log(`
-  
-  where: {
-    field: "firestoreParticipantSearch",
-    operator: "array-contains",
-    value: ${userID},
-  },
-  
-  
-`);
-
   const rawChatRooms = await listFirestoreDocs<ChatRoom_Firestore>({
     where: {
       field: `firestoreParticipantSearch`,
@@ -406,8 +393,6 @@ export const retrieveChatRooms = async ({
     },
     collection: FirestoreCollection.CHAT_ROOMS,
   });
-
-  console.log(`Got ${rawChatRooms.length} chat rooms`);
 
   const chatRooms = rawChatRooms.map((chatRoom) => {
     const pushConfig =

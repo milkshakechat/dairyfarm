@@ -6,6 +6,8 @@ import * as QueryResponses from "@/graphql/queries/responses";
 import * as MutationResolvers from "@/graphql/mutations";
 import * as MutationResponses from "@/graphql/mutations/responses";
 import * as SubscriptionResolvers from "@/graphql/subscriptions";
+// import * as SubscriptionResponses from "@/graphql/subscriptions/responses";
+import { CustomStoryResolvers } from "./queries/lib/story.queries";
 
 // const typeDefs = readFileSync("src/graphql/schema.graphql", "utf8");
 // Define the directory where the .graphql files are
@@ -20,11 +22,17 @@ const typeDefs = schemaFiles
   .join("\n");
 
 const resolvers: Resolvers = {
+  // resolvers
   Query: QueryResolvers,
   Mutation: MutationResolvers,
   Subscription: SubscriptionResolvers,
+  // responses
   ...Object.assign({}, ...Object.values(QueryResponses)),
   ...Object.assign({}, ...Object.values(MutationResponses)),
+  // ...Object.assign({}, ...Object.values(SubscriptionResponses)),
+
+  // custom type resolvers
+  ...CustomStoryResolvers,
 };
 
 export const schema = createSchema({ typeDefs, resolvers });
