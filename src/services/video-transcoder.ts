@@ -100,7 +100,7 @@ export const predictVideoTranscodedManifestRoute = (url: string) => {
   let newPath = relevantPath.replace(".mp4", "");
 
   // Predict the new manifest URL
-  let manifestUrl = `https://storage.googleapis.com/${config.BUCKETS.UserStories.name}${newPath}/video-streaming/manifest.mpd`;
+  let manifestUrl = `https://storage.googleapis.com/${config.BUCKETS.UserStories.name}${newPath}/video-streaming/manifest.m3u8`; // HLS video streaming (manifest.m3u8), not DASH (manifest.mpd)
 
   return manifestUrl;
 };

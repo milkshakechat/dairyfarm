@@ -6,7 +6,7 @@ import { deleteSendbirdUser } from "@/services/sendbird";
 import { UserID } from "@milkshakechat/helpers";
 
 const run = async () => {
-  const targetUserID = "m2fb0WWHOBesIAsevvCeNfv1w2Z2" as UserID;
+  const targetUserID = "bpSkq4bQFuWYoj7xtGD8pr5gUdD3" as UserID;
   await initFirebase();
   // await deleteSendbirdUser({
   //   userID: targetUserID,
