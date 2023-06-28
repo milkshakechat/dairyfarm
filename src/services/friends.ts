@@ -381,6 +381,7 @@ export const getPublicProfile = async ({
       const publicProfile: ViewPublicProfileResponseSuccess = {
         id: user.id,
         username: user.username,
+        stories: [],
       };
       if (user.avatar) {
         publicProfile.avatar = user.avatar;
@@ -410,6 +411,7 @@ export const getPublicProfile = async ({
     const publicProfile: ViewPublicProfileResponseSuccess = {
       id: matchedUser.id,
       username: matchedUser.username,
+      stories: [],
     };
     if (matchedUser.avatar) {
       publicProfile.avatar = matchedUser.avatar;

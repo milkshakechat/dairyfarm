@@ -33,6 +33,7 @@ type User {
   themeColor: HexColorCode!
   language: LanguageEnum!
   sendBirdAccessToken: String
+  stories: [Story!]!
 }
 
 # --- getMyProfile
@@ -65,6 +66,7 @@ type ViewPublicProfileResponseSuccess {
   username: String!
   avatar: String
   displayName: String
+  stories: [Story!]!
 }
 union ViewPublicProfileResponse =
     ViewPublicProfileResponseSuccess

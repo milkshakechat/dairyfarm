@@ -447,6 +447,7 @@ export type User = {
   phone?: Maybe<Scalars['String']['output']>;
   privacyMode: PrivacyModeEnum;
   sendBirdAccessToken?: Maybe<Scalars['String']['output']>;
+  stories: Array<Story>;
   themeColor: Scalars['HexColorCode']['output'];
   username: Scalars['String']['output'];
 };
@@ -463,6 +464,7 @@ export type ViewPublicProfileResponseSuccess = {
   avatar?: Maybe<Scalars['String']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
   id: Scalars['UserID']['output'];
+  stories: Array<Story>;
   username: Scalars['String']['output'];
 };
 
@@ -993,6 +995,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   privacyMode?: Resolver<ResolversTypes['PrivacyModeEnum'], ParentType, ContextType>;
   sendBirdAccessToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  stories?: Resolver<Array<ResolversTypes['Story']>, ParentType, ContextType>;
   themeColor?: Resolver<ResolversTypes['HexColorCode'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1010,6 +1013,7 @@ export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentT
   avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  stories?: Resolver<Array<ResolversTypes['Story']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
