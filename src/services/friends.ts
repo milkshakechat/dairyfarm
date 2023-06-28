@@ -386,7 +386,6 @@ export const getPublicProfile = async ({
 }): Promise<PartialViewPublicProfileResponseSuccess> => {
   if (userID) {
     try {
-      const now = admin.firestore.Timestamp.now();
       const [user, stories] = await Promise.all([
         getFirestoreDoc<UserID, User_Firestore>({
           id: userID,
@@ -399,9 +398,9 @@ export const getPublicProfile = async ({
             value: userID,
           },
           where2: {
-            field: "expiryDate",
-            operator: ">",
-            value: now,
+            field: "showcase",
+            operator: "==",
+            value: true,
           },
           collection: FirestoreCollection.STORIES,
         }),
@@ -410,7 +409,7 @@ export const getPublicProfile = async ({
         id: user.id,
         username: user.username,
         stories: stories
-          .filter((s) => !s.deleted && s.showcase)
+          .filter((s) => !s.deleted)
           .map((s) => convertStoryToGraphQL(s)),
       };
       if (user.avatar) {

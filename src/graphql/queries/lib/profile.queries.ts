@@ -212,21 +212,16 @@ export const CustomProfileResolvers = {
       } else {
         const now = admin.firestore.Timestamp.now();
         // other users profile
-        const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
-          where1: {
+        const stories = await listFirestoreDocs<Story_Firestore>({
+          where: {
             field: "userID",
             operator: "==",
             value: _parent.id,
           },
-          where2: {
-            field: "expiryDate",
-            operator: ">",
-            value: now,
-          },
           collection: FirestoreCollection.STORIES,
         });
         return stories
-          .filter((s) => !s.deleted && s.showcase)
+          .filter((s) => !s.deleted)
           .map((s) => convertStoryToGraphQL(s));
       }
     },

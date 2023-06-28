@@ -192,13 +192,8 @@ export const fetchStoryFeedFirestore = async ({
   userID,
 }: FetchStoryFeedFirestoreArgs) => {
   const now = admin.firestore.Timestamp.now();
-  const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
-    where1: {
-      field: "id",
-      operator: "!=",
-      value: null,
-    },
-    where2: {
+  const stories = await listFirestoreDocs<Story_Firestore>({
+    where: {
       field: "expiryDate",
       operator: ">",
       value: now,
