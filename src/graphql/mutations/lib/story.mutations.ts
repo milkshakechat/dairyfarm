@@ -1,12 +1,23 @@
 import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   CreateStoryResponse,
+  ModifyStoryResponse,
   MutationCreateStoryArgs,
+  MutationModifyStoryArgs,
   Story,
   StoryAttachmentType,
 } from "@/graphql/types/resolvers-types";
-import { decodeFirestoreTimestamp } from "@/services/firestore";
+import {
+  decodeFirestoreTimestamp,
+  getFirestoreDoc,
+  updateFirestoreDoc,
+} from "@/services/firestore";
 import { convertStoryToGraphQL, createStoryFirestore } from "@/services/story";
+import {
+  FirestoreCollection,
+  StoryID,
+  Story_Firestore,
+} from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 
 export const createStory = async (
@@ -42,6 +53,50 @@ export const createStory = async (
   };
 };
 
+export const modifyStory = async (
+  _parent: any,
+  args: MutationModifyStoryArgs,
+  _context: any,
+  _info: any
+): Promise<{ story: Partial<Story> }> => {
+  console.log(`modifyStory()...`);
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  console.log("modifyStory");
+  const story = await getFirestoreDoc<StoryID, Story_Firestore>({
+    id: args.input.storyID as StoryID,
+    collection: FirestoreCollection.STORIES,
+  });
+  console.log("story", story);
+  if (story.userID !== userID) {
+    throw new Error(`You do not have permission to update story ${story.id}`);
+  }
+  // update
+  const updatePayload: Partial<Story_Firestore> = {};
+  if (args.input.pinned != undefined) {
+    updatePayload.pinned = args.input.pinned;
+    updatePayload.previewable = args.input.pinned;
+  }
+  if (args.input.previewable != undefined) {
+    updatePayload.previewable = args.input.previewable;
+  }
+  if (args.input.showcase != undefined) {
+    updatePayload.showcase = args.input.showcase;
+  }
+  console.log("updating story");
+  const updatedStory = await updateFirestoreDoc<StoryID, Story_Firestore>({
+    id: story.id,
+    payload: updatePayload,
+    collection: FirestoreCollection.STORIES,
+  });
+  console.log("updatedStory", updatedStory);
+  return {
+    story: convertStoryToGraphQL(updatedStory),
+  };
+};
+
 export const responses = {
   CreateStoryResponse: {
     __resolveType(
@@ -51,6 +106,21 @@ export const responses = {
     ) {
       if ("story" in obj) {
         return "CreateStoryResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  ModifyStoryResponse: {
+    __resolveType(
+      obj: ModifyStoryResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("story" in obj) {
+        return "ModifyStoryResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

@@ -212,12 +212,27 @@ export type ModifyProfileResponseSuccess = {
   user: User;
 };
 
+export type ModifyStoryInput = {
+  pinned?: InputMaybe<Scalars['Boolean']['input']>;
+  previewable?: InputMaybe<Scalars['Boolean']['input']>;
+  showcase?: InputMaybe<Scalars['Boolean']['input']>;
+  storyID: Scalars['ID']['input'];
+};
+
+export type ModifyStoryResponse = ModifyStoryResponseSuccess | ResponseError;
+
+export type ModifyStoryResponseSuccess = {
+  __typename?: 'ModifyStoryResponseSuccess';
+  story: Story;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createStory: CreateStoryResponse;
   demoMutation: DemoMutationResponse;
   manageFriendship: ManageFriendshipResponse;
   modifyProfile: ModifyProfileResponse;
+  modifyStory: ModifyStoryResponse;
   sendFriendRequest: SendFriendRequestResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
@@ -241,6 +256,11 @@ export type MutationManageFriendshipArgs = {
 
 export type MutationModifyProfileArgs = {
   input: ModifyProfileInput;
+};
+
+
+export type MutationModifyStoryArgs = {
+  input: ModifyStoryInput;
 };
 
 
@@ -365,6 +385,7 @@ export type Story = {
   id: Scalars['ID']['output'];
   outboundLink?: Maybe<Scalars['String']['output']>;
   pinned?: Maybe<Scalars['Boolean']['output']>;
+  showcase?: Maybe<Scalars['Boolean']['output']>;
   showcaseThumbnail?: Maybe<Scalars['String']['output']>;
   thumbnail: Scalars['String']['output'];
   userID: Scalars['UserID']['output'];
@@ -549,6 +570,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
+  ModifyStoryResponse: ( ModifyStoryResponseSuccess ) | ( ResponseError );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
@@ -603,6 +625,9 @@ export type ResolversTypes = {
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyProfileResponse']>;
   ModifyProfileResponseSuccess: ResolverTypeWrapper<ModifyProfileResponseSuccess>;
+  ModifyStoryInput: ModifyStoryInput;
+  ModifyStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyStoryResponse']>;
+  ModifyStoryResponseSuccess: ResolverTypeWrapper<ModifyStoryResponseSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   Ping: ResolverTypeWrapper<Ping>;
   PrivacyModeEnum: PrivacyModeEnum;
@@ -680,6 +705,9 @@ export type ResolversParentTypes = {
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyProfileResponse'];
   ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
+  ModifyStoryInput: ModifyStoryInput;
+  ModifyStoryResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyStoryResponse'];
+  ModifyStoryResponseSuccess: ModifyStoryResponseSuccess;
   Mutation: {};
   Ping: Ping;
   PushConfig: PushConfig;
@@ -861,11 +889,21 @@ export type ModifyProfileResponseSuccessResolvers<ContextType = any, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ModifyStoryResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyStoryResponse'] = ResolversParentTypes['ModifyStoryResponse']> = {
+  __resolveType: TypeResolveFn<'ModifyStoryResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type ModifyStoryResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyStoryResponseSuccess'] = ResolversParentTypes['ModifyStoryResponseSuccess']> = {
+  story?: Resolver<ResolversTypes['Story'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
+  modifyStory?: Resolver<ResolversTypes['ModifyStoryResponse'], ParentType, ContextType, RequireFields<MutationModifyStoryArgs, 'input'>>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
@@ -933,6 +971,7 @@ export type StoryResolvers<ContextType = any, ParentType extends ResolversParent
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   outboundLink?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   pinned?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  showcase?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   showcaseThumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userID?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
@@ -1050,6 +1089,8 @@ export type Resolvers<ContextType = any> = {
   ManageFriendshipResponseSuccess?: ManageFriendshipResponseSuccessResolvers<ContextType>;
   ModifyProfileResponse?: ModifyProfileResponseResolvers<ContextType>;
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
+  ModifyStoryResponse?: ModifyStoryResponseResolvers<ContextType>;
+  ModifyStoryResponseSuccess?: ModifyStoryResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
   PushConfig?: PushConfigResolvers<ContextType>;

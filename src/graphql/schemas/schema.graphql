@@ -273,6 +273,7 @@ type Story {
   caption: String
   attachments: [StoryAttachment!]!
   pinned: Boolean
+  showcase: Boolean
   thumbnail: String!
   showcaseThumbnail: String
   # visibleAudienceGroups: AudienceGroupID[]
@@ -312,6 +313,20 @@ union CreateStoryResponse =
   | ResponseError
 
 
+# --- modify story
+input ModifyStoryInput {
+  storyID: ID!
+  pinned: Boolean
+  showcase: Boolean
+  previewable: Boolean
+}
+type ModifyStoryResponseSuccess {
+  story: Story!
+}
+union ModifyStoryResponse =
+    ModifyStoryResponseSuccess
+  | ResponseError
+
 # --- Mutations
 type Mutation {
   # profile
@@ -324,6 +339,7 @@ type Mutation {
   updateChatSettings(input: UpdateChatSettingsInput!): UpdateChatSettingsResponse!
   # story
   createStory(input: CreateStoryInput!): CreateStoryResponse!
+  modifyStory(input: ModifyStoryInput!): ModifyStoryResponse!
 }
 
 

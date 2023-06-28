@@ -113,7 +113,7 @@ export const createStoryFirestore = async ({
     // pinned will allow story to appear at top of profile (also dynamically retrieved)
     pinned: false,
     // showcase will allow story to appear in timeline (also dynamically retrieved)
-    showcase: false,
+    showcase: true,
     // thumbnails
     thumbnail: !mediaUrl
       ? ""
@@ -222,6 +222,7 @@ export const convertStoryToGraphQL = (
         })
       : [],
     pinned: story.pinned,
+    showcase: story.showcase,
     thumbnail: story.thumbnail,
     showcaseThumbnail: story.showcaseThumbnail,
     outboundLink: story.outboundLink,
