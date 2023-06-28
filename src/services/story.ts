@@ -14,11 +14,13 @@ import {
   createFirestoreTimestamp,
   decodeFirestoreTimestamp,
   listFirestoreDocs,
+  listFirestoreDocsDoubleWhere,
 } from "./firestore";
 import { v4 as uuidv4 } from "uuid";
 import { Story, StoryAttachmentType } from "@/graphql/types/resolvers-types";
 import config from "@/config.env";
 import { getFirestoreDoc } from "@/services/firestore";
+import * as admin from "firebase-admin";
 import {
   predictVideoThumbnailRoute,
   predictVideoTranscodedManifestRoute,
@@ -189,16 +191,22 @@ interface FetchStoryFeedFirestoreArgs {
 export const fetchStoryFeedFirestore = async ({
   userID,
 }: FetchStoryFeedFirestoreArgs) => {
-  const stories = await listFirestoreDocs<Story_Firestore>({
-    where: {
+  const now = admin.firestore.Timestamp.now();
+  const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+    where1: {
       field: "id",
       operator: "!=",
       value: null,
     },
+    where2: {
+      field: "expiryDate",
+      operator: ">",
+      value: now,
+    },
     collection: FirestoreCollection.STORIES,
   });
 
-  return stories;
+  return stories.filter((s) => !s.deleted && s.showcase);
 };
 
 export const convertStoryToGraphQL = (

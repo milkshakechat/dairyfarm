@@ -3,12 +3,14 @@ import {
   SendFriendRequestInput,
   ViewPublicProfileResponseSuccess,
   FriendshipStatus as FriendshipStatusEnum,
+  Story,
 } from "@/graphql/types/resolvers-types";
 import {
   FirestoreCollection,
   FriendshipID,
   FriendshipStatus,
   Friendship_Firestore,
+  Story_Firestore,
   UserID,
   Username,
   privacyModeEnum,
@@ -18,12 +20,15 @@ import {
   createFirestoreTimestamp,
   getFirestoreDoc,
   listFirestoreDocs,
+  listFirestoreDocsDoubleWhere,
   updateFirestoreDoc,
 } from "@/services/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { User_Firestore } from "@milkshakechat/helpers";
 import { firestore } from "@/services/firebase";
 import { Query, QueryDocumentSnapshot } from "firebase-admin/firestore";
+import { convertStoryToGraphQL } from "@/services/story";
+import * as admin from "firebase-admin";
 
 export const checkUserPrivacy = async (
   userID: UserID
@@ -365,23 +370,48 @@ export const sendFriendRequestFirestore = async ({
   };
 };
 
+type PartialViewPublicProfileResponseSuccess = Omit<
+  ViewPublicProfileResponseSuccess,
+  "stories"
+> & {
+  stories: Partial<Story>[];
+};
+
 export const getPublicProfile = async ({
   username,
   userID,
 }: {
   username?: Username;
   userID?: UserID;
-}): Promise<ViewPublicProfileResponseSuccess> => {
+}): Promise<PartialViewPublicProfileResponseSuccess> => {
   if (userID) {
     try {
-      const user = await getFirestoreDoc<UserID, User_Firestore>({
-        id: userID,
-        collection: FirestoreCollection.USERS,
-      });
-      const publicProfile: ViewPublicProfileResponseSuccess = {
+      const now = admin.firestore.Timestamp.now();
+      const [user, stories] = await Promise.all([
+        getFirestoreDoc<UserID, User_Firestore>({
+          id: userID,
+          collection: FirestoreCollection.USERS,
+        }),
+        listFirestoreDocsDoubleWhere<Story_Firestore>({
+          where1: {
+            field: "userID",
+            operator: "==",
+            value: userID,
+          },
+          where2: {
+            field: "expiryDate",
+            operator: ">",
+            value: now,
+          },
+          collection: FirestoreCollection.STORIES,
+        }),
+      ]);
+      const publicProfile: PartialViewPublicProfileResponseSuccess = {
         id: user.id,
         username: user.username,
-        stories: [],
+        stories: stories
+          .filter((s) => !s.deleted && s.showcase)
+          .map((s) => convertStoryToGraphQL(s)),
       };
       if (user.avatar) {
         publicProfile.avatar = user.avatar;
@@ -408,10 +438,25 @@ export const getPublicProfile = async ({
     if (!matchedUser) {
       throw Error(`Could not find user with username ${username}`);
     }
-    const publicProfile: ViewPublicProfileResponseSuccess = {
+    const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+      where1: {
+        field: "userID",
+        operator: "==",
+        value: matchedUser.id,
+      },
+      where2: {
+        field: "showcase",
+        operator: "==",
+        value: true,
+      },
+      collection: FirestoreCollection.STORIES,
+    });
+    const publicProfile: PartialViewPublicProfileResponseSuccess = {
       id: matchedUser.id,
       username: matchedUser.username,
-      stories: [],
+      stories: stories
+        .filter((s) => !s.deleted)
+        .map((s) => convertStoryToGraphQL(s)),
     };
     if (matchedUser.avatar) {
       publicProfile.avatar = matchedUser.avatar;

@@ -59,17 +59,16 @@ export const modifyStory = async (
   _context: any,
   _info: any
 ): Promise<{ story: Partial<Story> }> => {
-  console.log(`modifyStory()...`);
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
     throw Error("No user ID found");
   }
-  console.log("modifyStory");
+
   const story = await getFirestoreDoc<StoryID, Story_Firestore>({
     id: args.input.storyID as StoryID,
     collection: FirestoreCollection.STORIES,
   });
-  console.log("story", story);
+
   if (story.userID !== userID) {
     throw new Error(`You do not have permission to update story ${story.id}`);
   }
@@ -85,13 +84,13 @@ export const modifyStory = async (
   if (args.input.showcase != undefined) {
     updatePayload.showcase = args.input.showcase;
   }
-  console.log("updating story");
+
   const updatedStory = await updateFirestoreDoc<StoryID, Story_Firestore>({
     id: story.id,
     payload: updatePayload,
     collection: FirestoreCollection.STORIES,
   });
-  console.log("updatedStory", updatedStory);
+
   return {
     story: convertStoryToGraphQL(updatedStory),
   };

@@ -5,7 +5,11 @@ import {
   QueryCheckUsernameAvailableArgs,
   User,
 } from "@/graphql/types/resolvers-types";
-import { getFirestoreDoc, listFirestoreDocs } from "@/services/firestore";
+import {
+  getFirestoreDoc,
+  listFirestoreDocs,
+  listFirestoreDocsDoubleWhere,
+} from "@/services/firestore";
 import { checkIfUsernameAvailable } from "@/utils/username";
 import {
   FirestoreCollection,
@@ -19,6 +23,7 @@ import { GraphQLResolveInfo } from "graphql";
 import { ListContactsResponse } from "../../types/resolvers-types";
 import { getSendbirdUser } from "@/services/sendbird";
 import { convertStoryToGraphQL } from "@/services/story";
+import * as admin from "firebase-admin";
 
 export const getMyProfile = async (
   _parent: any,
@@ -192,9 +197,6 @@ export const CustomProfileResolvers = {
       _context: any,
       _info: any
     ): Promise<any | null> => {
-      console.log(Object.keys(_context));
-      console.log(Object.keys(_context.req));
-      console.log(`--------------`);
       const selfUserID = await getUserIDFromAuthToken(_context);
       if (selfUserID === _parent.id) {
         // own profile
@@ -208,16 +210,24 @@ export const CustomProfileResolvers = {
         });
         return stories.map((s) => convertStoryToGraphQL(s));
       } else {
+        const now = admin.firestore.Timestamp.now();
         // other users profile
-        const stories = await listFirestoreDocs<Story_Firestore>({
-          where: {
+        const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+          where1: {
             field: "userID",
             operator: "==",
             value: _parent.id,
           },
+          where2: {
+            field: "expiryDate",
+            operator: ">",
+            value: now,
+          },
           collection: FirestoreCollection.STORIES,
         });
-        return stories.map((s) => convertStoryToGraphQL(s));
+        return stories
+          .filter((s) => !s.deleted && s.showcase)
+          .map((s) => convertStoryToGraphQL(s));
       }
     },
   },

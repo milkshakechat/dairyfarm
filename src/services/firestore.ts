@@ -8,6 +8,7 @@ import {
   DocumentReference,
   Query,
   QueryDocumentSnapshot,
+  Timestamp,
   WhereFilterOp,
 } from "firebase-admin/firestore";
 import { UpdateData } from "@firebase/firestore-types";
@@ -149,7 +150,7 @@ interface TListFirestoreDocsProps {
   where: {
     field: string;
     operator: WhereFilterOp;
-    value: string | number | boolean | null;
+    value: string | number | boolean | null | Timestamp;
   };
   collection: FirestoreCollection;
 }
@@ -174,6 +175,45 @@ export const listFirestoreDocs = async <SchemaType>({
     );
   }
 };
+
+// list double where
+interface TListFirestoreDocsDoubleWhereProps {
+  where1: {
+    field: string;
+    operator: WhereFilterOp;
+    value: string | number | boolean | null | Timestamp;
+  };
+  where2: {
+    field: string;
+    operator: WhereFilterOp;
+    value: string | number | boolean | null | Timestamp;
+  };
+  collection: FirestoreCollection;
+}
+export const listFirestoreDocsDoubleWhere = async <SchemaType>({
+  where1,
+  where2,
+  collection,
+}: TListFirestoreDocsDoubleWhereProps): Promise<SchemaType[]> => {
+  const ref = firestore
+    .collection(collection)
+    .where(where1.field, where1.operator, where1.value)
+    .where(where2.field, where2.operator, where2.value) as Query<SchemaType>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return [];
+  } else {
+    return collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<SchemaType>) => {
+        const data = doc.data();
+        return data;
+      }
+    );
+  }
+};
+
 // list double where - template
 export const demoListFirestore = async (): Promise<User_Firestore[]> => {
   const ref = firestore
