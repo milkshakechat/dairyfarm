@@ -1,14 +1,20 @@
-import { authGuardHTTP } from "@/graphql/authGuard";
+import { authGuardHTTP, getUserIDFromAuthToken } from "@/graphql/authGuard";
 import {
   CheckUsernameAvailableResponse,
   GetMyProfileResponse,
   QueryCheckUsernameAvailableArgs,
+  User,
 } from "@/graphql/types/resolvers-types";
-import { getFirestoreDoc, listFirestoreDocs } from "@/services/firestore";
+import {
+  getFirestoreDoc,
+  listFirestoreDocs,
+  listFirestoreDocsDoubleWhere,
+} from "@/services/firestore";
 import { checkIfUsernameAvailable } from "@/utils/username";
 import {
   FirestoreCollection,
   Friendship_Firestore,
+  Story_Firestore,
   UserID,
   User_Firestore,
   checkIfUsernameIsAllowed,
@@ -16,6 +22,8 @@ import {
 import { GraphQLResolveInfo } from "graphql";
 import { ListContactsResponse } from "../../types/resolvers-types";
 import { getSendbirdUser } from "@/services/sendbird";
+import { convertStoryToGraphQL } from "@/services/story";
+import * as admin from "firebase-admin";
 
 export const getMyProfile = async (
   _parent: any,
@@ -177,6 +185,45 @@ export const responses = {
         return "ResponseError";
       }
       return null; // GraphQLError is thrown here
+    },
+  },
+};
+
+export const CustomProfileResolvers = {
+  User: {
+    stories: async (
+      _parent: User,
+      args: any,
+      _context: any,
+      _info: any
+    ): Promise<any | null> => {
+      const selfUserID = await getUserIDFromAuthToken(_context);
+      if (selfUserID === _parent.id) {
+        // own profile
+        const stories = await listFirestoreDocs<Story_Firestore>({
+          where: {
+            field: "userID",
+            operator: "==",
+            value: selfUserID,
+          },
+          collection: FirestoreCollection.STORIES,
+        });
+        return stories.map((s) => convertStoryToGraphQL(s));
+      } else {
+        const now = admin.firestore.Timestamp.now();
+        // other users profile
+        const stories = await listFirestoreDocs<Story_Firestore>({
+          where: {
+            field: "userID",
+            operator: "==",
+            value: _parent.id,
+          },
+          collection: FirestoreCollection.STORIES,
+        });
+        return stories
+          .filter((s) => !s.deleted)
+          .map((s) => convertStoryToGraphQL(s));
+      }
     },
   },
 };

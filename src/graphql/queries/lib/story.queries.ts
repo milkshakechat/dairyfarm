@@ -22,6 +22,7 @@ import {
   StoryID,
   UserID,
   User_Firestore,
+  Story_Firestore,
 } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 

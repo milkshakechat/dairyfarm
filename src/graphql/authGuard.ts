@@ -84,3 +84,31 @@ export const authGuardHTTP = async ({
     throw new GraphQLError(`Failed to decode user auth token`);
   }
 };
+
+export const getUserIDFromAuthToken = async ({
+  _context,
+}: {
+  _context: any;
+}) => {
+  if (!_context) {
+    return null;
+  }
+  const { authorization } = _context.req.headers;
+  // console.log(`---- authorization ----`);
+  // console.log(authorization);
+  if (!authorization) {
+    return null;
+  }
+  try {
+    const idToken = getTokenFromBearer(authorization);
+    if (!idToken) {
+      return null;
+    }
+    const decodedToken = await getAuth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    return uid as UserID;
+  } catch (e) {
+    console.log(e);
+    throw new GraphQLError(`Failed to decode user auth token`);
+  }
+};

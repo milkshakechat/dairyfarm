@@ -14,11 +14,13 @@ import {
   createFirestoreTimestamp,
   decodeFirestoreTimestamp,
   listFirestoreDocs,
+  listFirestoreDocsDoubleWhere,
 } from "./firestore";
 import { v4 as uuidv4 } from "uuid";
 import { Story, StoryAttachmentType } from "@/graphql/types/resolvers-types";
 import config from "@/config.env";
 import { getFirestoreDoc } from "@/services/firestore";
+import * as admin from "firebase-admin";
 import {
   predictVideoThumbnailRoute,
   predictVideoTranscodedManifestRoute,
@@ -113,7 +115,7 @@ export const createStoryFirestore = async ({
     // pinned will allow story to appear at top of profile (also dynamically retrieved)
     pinned: false,
     // showcase will allow story to appear in timeline (also dynamically retrieved)
-    showcase: false,
+    showcase: true,
     // thumbnails
     thumbnail: !mediaUrl
       ? ""
@@ -189,16 +191,17 @@ interface FetchStoryFeedFirestoreArgs {
 export const fetchStoryFeedFirestore = async ({
   userID,
 }: FetchStoryFeedFirestoreArgs) => {
+  const now = admin.firestore.Timestamp.now();
   const stories = await listFirestoreDocs<Story_Firestore>({
     where: {
-      field: "id",
-      operator: "!=",
-      value: null,
+      field: "expiryDate",
+      operator: ">",
+      value: now,
     },
     collection: FirestoreCollection.STORIES,
   });
 
-  return stories;
+  return stories.filter((s) => !s.deleted && s.showcase);
 };
 
 export const convertStoryToGraphQL = (
@@ -222,6 +225,7 @@ export const convertStoryToGraphQL = (
         })
       : [],
     pinned: story.pinned,
+    showcase: story.showcase,
     thumbnail: story.thumbnail,
     showcaseThumbnail: story.showcaseThumbnail,
     outboundLink: story.outboundLink,
