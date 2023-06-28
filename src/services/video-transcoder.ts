@@ -1,6 +1,10 @@
 import config from "@/config.env";
 import { v1 } from "@google-cloud/video-transcoder";
-import { ImageResizeOption, UserID } from "@milkshakechat/helpers";
+import {
+  ImageResizeOption,
+  UserID,
+  getVideoFileExtension,
+} from "@milkshakechat/helpers";
 const { TranscoderServiceClient } = v1;
 
 /**
@@ -96,11 +100,13 @@ export const predictVideoTranscodedManifestRoute = (url: string) => {
   // Extract the relevant part of the path
   let relevantPath = decodedPath.slice(usersPos);
 
+  const extensionType = getVideoFileExtension(url);
+  console.log(`extensionType == `, extensionType);
   // Remove the .mp4 from the relevant path and add the video streaming path
-  let newPath = relevantPath.replace(".mp4", "");
-
+  let newPath = relevantPath.replace(`.${extensionType}`, "");
+  console.log(`replacement newPath == `, newPath);
   // Predict the new manifest URL
-  let manifestUrl = `https://storage.googleapis.com/${config.BUCKETS.UserStories.name}${newPath}/video-streaming/manifest.mpd`;
+  let manifestUrl = `https://storage.googleapis.com/${config.BUCKETS.UserStories.name}${newPath}/video-streaming/manifest.m3u8`; // HLS video streaming (manifest.m3u8), not DASH (manifest.mpd)
 
   return manifestUrl;
 };
@@ -126,16 +132,15 @@ export const predictVideoTranscodedSDHDRoute = (url: string) => {
   // Extract the relevant part of the path
   let relevantPath = decodedPath.slice(usersPos);
 
+  const extensionType = getVideoFileExtension(url);
   // Remove the .mp4 from the relevant path and add the video streaming path
-  let newPath = relevantPath.replace(".mp4", "");
+  let newPath = relevantPath.replace(`.${extensionType}`, "");
 
-  // Predict the new manifest URL
-  let sdUrl = `https://storage.googleapis.com/${config.BUCKETS.UserStories.name}${newPath}/video-streaming/sd.mp4`;
-  let hdUrl = `https://storage.googleapis.com/${config.BUCKETS.UserStories.name}${newPath}/video-streaming/hd.mp4`;
+  // Predict the new URLs
+  let sdUrl = `https://storage.googleapis.com/${config.BUCKETS.UserStories.name}${newPath}/video-streaming/standard-video.mp4`;
 
   return {
     sd: sdUrl,
-    hd: hdUrl,
   };
 };
 

@@ -77,7 +77,7 @@ export const listChatRooms = async (
   _info: any
 ): Promise<ListChatRoomsResponseSuccess> => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
-  console.log(`listChatRooms...`);
+
   if (!userID) {
     throw new Error("Your UserID not found");
   }
