@@ -109,6 +109,13 @@ export type EnterChatRoomResponseSuccess = {
   isNew: Scalars['Boolean']['output'];
 };
 
+export type FetchRecentNotificationsResponse = FetchRecentNotificationsResponseSuccess | ResponseError;
+
+export type FetchRecentNotificationsResponseSuccess = {
+  __typename?: 'FetchRecentNotificationsResponseSuccess';
+  notifications: Array<NotificationGql>;
+};
+
 export type FetchStoryFeedInput = {
   nonce?: InputMaybe<Scalars['String']['input']>;
 };
@@ -279,6 +286,17 @@ export type MutationUpdatePushTokenArgs = {
   input: UpdatePushTokenInput;
 };
 
+export type NotificationGql = {
+  __typename?: 'NotificationGQL';
+  createdAt: Scalars['DateString']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  relatedChatRoomID?: Maybe<Scalars['ID']['output']>;
+  route?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
 export type Ping = {
   __typename?: 'Ping';
   timestamp: Scalars['String']['output'];
@@ -302,6 +320,7 @@ export type Query = {
   demoPing: Ping;
   demoQuery: DemoQueryResponse;
   enterChatRoom: EnterChatRoomResponse;
+  fetchRecentNotifications: FetchRecentNotificationsResponse;
   fetchStoryFeed: FetchStoryFeedResponse;
   getMyProfile: GetMyProfileResponse;
   getStory: GetStoryResponse;
@@ -571,6 +590,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
+  FetchRecentNotificationsResponse: ( FetchRecentNotificationsResponseSuccess ) | ( ResponseError );
   FetchStoryFeedResponse: ( FetchStoryFeedResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
@@ -610,6 +630,8 @@ export type ResolversTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EnterChatRoomResponse']>;
   EnterChatRoomResponseSuccess: ResolverTypeWrapper<EnterChatRoomResponseSuccess>;
+  FetchRecentNotificationsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchRecentNotificationsResponse']>;
+  FetchRecentNotificationsResponseSuccess: ResolverTypeWrapper<FetchRecentNotificationsResponseSuccess>;
   FetchStoryFeedInput: FetchStoryFeedInput;
   FetchStoryFeedResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchStoryFeedResponse']>;
   FetchStoryFeedResponseSuccess: ResolverTypeWrapper<FetchStoryFeedResponseSuccess>;
@@ -638,6 +660,7 @@ export type ResolversTypes = {
   ModifyStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyStoryResponse']>;
   ModifyStoryResponseSuccess: ResolverTypeWrapper<ModifyStoryResponseSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
+  NotificationGQL: ResolverTypeWrapper<NotificationGql>;
   Ping: ResolverTypeWrapper<Ping>;
   PrivacyModeEnum: PrivacyModeEnum;
   PushConfig: ResolverTypeWrapper<PushConfig>;
@@ -695,6 +718,8 @@ export type ResolversParentTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolversUnionTypes<ResolversParentTypes>['EnterChatRoomResponse'];
   EnterChatRoomResponseSuccess: EnterChatRoomResponseSuccess;
+  FetchRecentNotificationsResponse: ResolversUnionTypes<ResolversParentTypes>['FetchRecentNotificationsResponse'];
+  FetchRecentNotificationsResponseSuccess: FetchRecentNotificationsResponseSuccess;
   FetchStoryFeedInput: FetchStoryFeedInput;
   FetchStoryFeedResponse: ResolversUnionTypes<ResolversParentTypes>['FetchStoryFeedResponse'];
   FetchStoryFeedResponseSuccess: FetchStoryFeedResponseSuccess;
@@ -720,6 +745,7 @@ export type ResolversParentTypes = {
   ModifyStoryResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyStoryResponse'];
   ModifyStoryResponseSuccess: ModifyStoryResponseSuccess;
   Mutation: {};
+  NotificationGQL: NotificationGql;
   Ping: Ping;
   PushConfig: PushConfig;
   PushToken: Scalars['PushToken']['output'];
@@ -830,6 +856,15 @@ export type EnterChatRoomResponseSuccessResolvers<ContextType = any, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FetchRecentNotificationsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchRecentNotificationsResponse'] = ResolversParentTypes['FetchRecentNotificationsResponse']> = {
+  __resolveType: TypeResolveFn<'FetchRecentNotificationsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type FetchRecentNotificationsResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchRecentNotificationsResponseSuccess'] = ResolversParentTypes['FetchRecentNotificationsResponseSuccess']> = {
+  notifications?: Resolver<Array<ResolversTypes['NotificationGQL']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FetchStoryFeedResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchStoryFeedResponse'] = ResolversParentTypes['FetchStoryFeedResponse']> = {
   __resolveType: TypeResolveFn<'FetchStoryFeedResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -923,6 +958,17 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
 };
 
+export type NotificationGqlResolvers<ContextType = any, ParentType extends ResolversParentTypes['NotificationGQL'] = ResolversParentTypes['NotificationGQL']> = {
+  createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  relatedChatRoomID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  route?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -943,6 +989,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   enterChatRoom?: Resolver<ResolversTypes['EnterChatRoomResponse'], ParentType, ContextType, RequireFields<QueryEnterChatRoomArgs, 'input'>>;
+  fetchRecentNotifications?: Resolver<ResolversTypes['FetchRecentNotificationsResponse'], ParentType, ContextType>;
   fetchStoryFeed?: Resolver<ResolversTypes['FetchStoryFeedResponse'], ParentType, ContextType, RequireFields<QueryFetchStoryFeedArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   getStory?: Resolver<ResolversTypes['GetStoryResponse'], ParentType, ContextType, RequireFields<QueryGetStoryArgs, 'input'>>;
@@ -1096,6 +1143,8 @@ export type Resolvers<ContextType = any> = {
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
   EnterChatRoomResponse?: EnterChatRoomResponseResolvers<ContextType>;
   EnterChatRoomResponseSuccess?: EnterChatRoomResponseSuccessResolvers<ContextType>;
+  FetchRecentNotificationsResponse?: FetchRecentNotificationsResponseResolvers<ContextType>;
+  FetchRecentNotificationsResponseSuccess?: FetchRecentNotificationsResponseSuccessResolvers<ContextType>;
   FetchStoryFeedResponse?: FetchStoryFeedResponseResolvers<ContextType>;
   FetchStoryFeedResponseSuccess?: FetchStoryFeedResponseSuccessResolvers<ContextType>;
   GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
@@ -1115,6 +1164,7 @@ export type Resolvers<ContextType = any> = {
   ModifyStoryResponse?: ModifyStoryResponseResolvers<ContextType>;
   ModifyStoryResponseSuccess?: ModifyStoryResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  NotificationGQL?: NotificationGqlResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
   PushConfig?: PushConfigResolvers<ContextType>;
   PushToken?: GraphQLScalarType;

@@ -147,6 +147,23 @@ union FetchStoryFeedResponse =
     FetchStoryFeedResponseSuccess
   | ResponseError
 
+# --- fetch recent notifications
+type NotificationGql {
+  id: ID!
+  title: String!
+  description: String
+  route: String
+  thumbnail: String
+  relatedChatRoomID: ID
+  createdAt: DateString!
+}
+type FetchRecentNotificationsResponseSuccess {
+  notifications: [NotificationGql!]!
+}
+union FetchRecentNotificationsResponse =
+    FetchRecentNotificationsResponseSuccess
+  | ResponseError
+
 
 # --- Queries
 type Query {
@@ -162,6 +179,7 @@ type Query {
   listChatRooms: ListChatRoomsResponse!
   getStory(input: GetStoryInput!): GetStoryResponse!
   fetchStoryFeed(input: FetchStoryFeedInput!): FetchStoryFeedResponse!
+  fetchRecentNotifications: FetchRecentNotificationsResponse!
 }
 
 # --- modifyProfile
