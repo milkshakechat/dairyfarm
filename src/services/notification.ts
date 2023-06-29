@@ -14,6 +14,7 @@ import {
   createFirestoreDoc,
   createFirestoreTimestamp,
   getFirestoreDoc,
+  updateFirestoreDoc,
 } from "@/services/firestore";
 import { v4 as uuidv4 } from "uuid";
 
@@ -119,4 +120,26 @@ export const notifyAcceptFriendRequest = async ({
     metadataNote: `Recipient=${recipientUserID} accepted friendship from Sender=${senderUserID} on ${new Date().toISOString()}`,
   });
   return res;
+};
+
+export const markNotifications = async ({
+  markedRead,
+  notificationIDs,
+}: {
+  markedRead: boolean;
+  notificationIDs: NotificationID[];
+}) => {
+  const notifs = await Promise.all(
+    notificationIDs.map(async (nid) => {
+      const notif = updateFirestoreDoc<NotificationID, Notification_Firestore>({
+        id: nid,
+        payload: {
+          markedRead,
+        },
+        collection: FirestoreCollection.NOTIFICATIONS,
+      });
+      return notif;
+    })
+  );
+  return notifs;
 };

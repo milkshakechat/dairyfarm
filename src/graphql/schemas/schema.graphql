@@ -156,6 +156,7 @@ type NotificationGql {
   thumbnail: String
   relatedChatRoomID: ID
   createdAt: DateString!
+  markedRead: Boolean!
 }
 type FetchRecentNotificationsResponseSuccess {
   notifications: [NotificationGql!]!
@@ -353,6 +354,17 @@ union ModifyStoryResponse =
     ModifyStoryResponseSuccess
   | ResponseError
 
+# --- mark notifications as read/unread
+input MarkNotificationsAsReadInput {
+  read: [ID!]!
+  unread: [ID!]!
+}
+type MarkNotificationsAsReadResponseSuccess {
+  notifications: [NotificationGql!]!
+}
+union MarkNotificationsAsReadResponse =
+    MarkNotificationsAsReadResponseSuccess
+  | ResponseError
 
 # --- Mutations
 type Mutation {
@@ -360,6 +372,7 @@ type Mutation {
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
   revokePushTokens: RevokePushTokensResponse!
+  markNotificationsAsRead(input: MarkNotificationsAsReadInput!): MarkNotificationsAsReadResponse!
   # friends
   sendFriendRequest(input: SendFriendRequestInput!): SendFriendRequestResponse!
   manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!

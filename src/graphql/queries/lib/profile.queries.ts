@@ -177,6 +177,7 @@ export const fetchRecentNotifications = async (
           thumbnail: data.image,
           relatedChatRoomID: data.relatedChatRoomID,
           createdAt: (data.createdAt as any).toDate(),
+          markedRead: data.markedRead,
         };
       }
     );

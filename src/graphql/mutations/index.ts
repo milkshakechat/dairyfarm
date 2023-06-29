@@ -3,6 +3,7 @@ export {
   modifyProfile,
   updatePushToken,
   revokePushTokens,
+  markNotificationsAsRead,
 } from "@/graphql/mutations/lib/profile.mutations";
 export {
   sendFriendRequest,
