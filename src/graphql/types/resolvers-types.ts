@@ -233,6 +233,7 @@ export type Mutation = {
   manageFriendship: ManageFriendshipResponse;
   modifyProfile: ModifyProfileResponse;
   modifyStory: ModifyStoryResponse;
+  revokePushTokens: RevokePushTokensResponse;
   sendFriendRequest: SendFriendRequestResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
@@ -343,6 +344,13 @@ export type QueryViewPublicProfileArgs = {
 export type ResponseError = {
   __typename?: 'ResponseError';
   error: Status;
+};
+
+export type RevokePushTokensResponse = ResponseError | RevokePushTokensResponseSuccess;
+
+export type RevokePushTokensResponseSuccess = {
+  __typename?: 'RevokePushTokensResponseSuccess';
+  status: Scalars['String']['output'];
 };
 
 export type SendFriendRequestInput = {
@@ -571,6 +579,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   ModifyStoryResponse: ( ModifyStoryResponseSuccess ) | ( ResponseError );
+  RevokePushTokensResponse: ( ResponseError ) | ( RevokePushTokensResponseSuccess );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
@@ -635,6 +644,8 @@ export type ResolversTypes = {
   PushToken: ResolverTypeWrapper<Scalars['PushToken']['output']>;
   Query: ResolverTypeWrapper<{}>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
+  RevokePushTokensResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RevokePushTokensResponse']>;
+  RevokePushTokensResponseSuccess: ResolverTypeWrapper<RevokePushTokensResponseSuccess>;
   SendBirdInternalUserID: ResolverTypeWrapper<Scalars['SendBirdInternalUserID']['output']>;
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendFriendRequestResponse']>;
@@ -714,6 +725,8 @@ export type ResolversParentTypes = {
   PushToken: Scalars['PushToken']['output'];
   Query: {};
   ResponseError: ResponseError;
+  RevokePushTokensResponse: ResolversUnionTypes<ResolversParentTypes>['RevokePushTokensResponse'];
+  RevokePushTokensResponseSuccess: RevokePushTokensResponseSuccess;
   SendBirdInternalUserID: Scalars['SendBirdInternalUserID']['output'];
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolversUnionTypes<ResolversParentTypes>['SendFriendRequestResponse'];
@@ -904,6 +917,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
   modifyStory?: Resolver<ResolversTypes['ModifyStoryResponse'], ParentType, ContextType, RequireFields<MutationModifyStoryArgs, 'input'>>;
+  revokePushTokens?: Resolver<ResolversTypes['RevokePushTokensResponse'], ParentType, ContextType>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
@@ -940,6 +954,15 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 
 export type ResponseErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ResponseError'] = ResolversParentTypes['ResponseError']> = {
   error?: Resolver<ResolversTypes['Status'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RevokePushTokensResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['RevokePushTokensResponse'] = ResolversParentTypes['RevokePushTokensResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'RevokePushTokensResponseSuccess', ParentType, ContextType>;
+};
+
+export type RevokePushTokensResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['RevokePushTokensResponseSuccess'] = ResolversParentTypes['RevokePushTokensResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1097,6 +1120,8 @@ export type Resolvers<ContextType = any> = {
   PushToken?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
+  RevokePushTokensResponse?: RevokePushTokensResponseResolvers<ContextType>;
+  RevokePushTokensResponseSuccess?: RevokePushTokensResponseSuccessResolvers<ContextType>;
   SendBirdInternalUserID?: GraphQLScalarType;
   SendFriendRequestResponse?: SendFriendRequestResponseResolvers<ContextType>;
   SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;

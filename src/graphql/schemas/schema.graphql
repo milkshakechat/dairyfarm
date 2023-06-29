@@ -196,6 +196,14 @@ union UpdatePushTokenResponse =
   | ResponseError
 
 
+# --- revoke push tokens
+type RevokePushTokensResponseSuccess {
+  status: String!
+}
+union RevokePushTokensResponse =
+    RevokePushTokensResponseSuccess
+  | ResponseError
+
 # --- send friend request
 enum FriendshipStatus {
   SENT_REQUEST
@@ -327,11 +335,13 @@ union ModifyStoryResponse =
     ModifyStoryResponseSuccess
   | ResponseError
 
+
 # --- Mutations
 type Mutation {
   # profile
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
+  revokePushTokens: RevokePushTokensResponse!
   # friends
   sendFriendRequest(input: SendFriendRequestInput!): SendFriendRequestResponse!
   manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!
