@@ -2,6 +2,7 @@ export { demoMutation } from "@/graphql/mutations/lib/demo.mutations";
 export {
   modifyProfile,
   updatePushToken,
+  revokePushTokens,
 } from "@/graphql/mutations/lib/profile.mutations";
 export {
   sendFriendRequest,

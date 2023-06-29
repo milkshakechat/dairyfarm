@@ -4,10 +4,15 @@ import {
   MutationDemoMutationArgs,
   MutationModifyProfileArgs,
   MutationUpdatePushTokenArgs,
+  RevokePushTokensResponse,
   UpdatePushTokenResponse,
 } from "@/graphql/types/resolvers-types";
 import { updateFirestoreDoc } from "@/services/firestore";
-import { deactivatePushToken, saveOrUpdatePushToken } from "@/services/push";
+import {
+  deactivatePushToken,
+  revokeAllPushTokens,
+  saveOrUpdatePushToken,
+} from "@/services/push";
 import { FirestoreCollection } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 
@@ -67,6 +72,22 @@ export const updatePushToken = async (
   }
 };
 
+export const revokePushTokens = async (
+  _parent: any,
+  args: any,
+  _context: any,
+  _info: any
+): Promise<RevokePushTokensResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await revokeAllPushTokens(userID);
+  return {
+    status,
+  };
+};
+
 export const responses = {
   ModifyProfileResponse: {
     __resolveType(
@@ -91,6 +112,21 @@ export const responses = {
     ) {
       if ("status" in obj) {
         return "UpdatePushTokenResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  RevokePushTokensResponse: {
+    __resolveType(
+      obj: RevokePushTokensResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "RevokePushTokensResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

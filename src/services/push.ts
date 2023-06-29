@@ -189,3 +189,24 @@ export const sendPushNotificationToUserDevices = async ({
   let pushReciepts = reciepts.flat();
   return pushReciepts;
 };
+
+export const revokeAllPushTokens = async (userID: UserID) => {
+  const targets = await listActivePushTargets(userID);
+  console.log(`Revoking ${targets.length} push tokens for user ${userID}`);
+  await Promise.all(
+    targets.map(async (t) => {
+      const updatedToken = await updateFirestoreDoc<
+        PushTokenID,
+        PushToken_Firestore
+      >({
+        id: t.id,
+        payload: {
+          active: false,
+        },
+        collection: FirestoreCollection.PUSH_TOKENS,
+      });
+      return updatedToken;
+    })
+  );
+  return `Successfully revoked all tokens of user ${userID}`;
+};
