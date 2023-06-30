@@ -63,6 +63,22 @@ export type CreateStoryResponseSuccess = {
   story: Story;
 };
 
+export type CreateWishInput = {
+  cookiePrice: Scalars['Int']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  stickerGraphic?: InputMaybe<Scalars['String']['input']>;
+  stickerTitle?: InputMaybe<Scalars['String']['input']>;
+  wishGraphics?: InputMaybe<Array<Scalars['String']['input']>>;
+  wishTitle: Scalars['String']['input'];
+};
+
+export type CreateWishResponse = CreateWishResponseSuccess | ResponseError;
+
+export type CreateWishResponseSuccess = {
+  __typename?: 'CreateWishResponseSuccess';
+  wish: Wish;
+};
+
 export type DemoMutatedItem = {
   __typename?: 'DemoMutatedItem';
   id: Scalars['ID']['output'];
@@ -221,6 +237,13 @@ export type MarkNotificationsAsReadResponseSuccess = {
   notifications: Array<NotificationGql>;
 };
 
+export type MediaSet = {
+  __typename?: 'MediaSet';
+  large?: Maybe<Scalars['String']['output']>;
+  medium: Scalars['String']['output'];
+  small: Scalars['String']['output'];
+};
+
 export type ModifyProfileInput = {
   avatar?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
@@ -256,6 +279,7 @@ export type ModifyStoryResponseSuccess = {
 export type Mutation = {
   __typename?: 'Mutation';
   createStory: CreateStoryResponse;
+  createWish: CreateWishResponse;
   demoMutation: DemoMutationResponse;
   manageFriendship: ManageFriendshipResponse;
   markNotificationsAsRead: MarkNotificationsAsReadResponse;
@@ -270,6 +294,11 @@ export type Mutation = {
 
 export type MutationCreateStoryArgs = {
   input: CreateStoryInput;
+};
+
+
+export type MutationCreateWishArgs = {
+  input: CreateWishInput;
 };
 
 
@@ -553,6 +582,20 @@ export type ViewPublicProfileResponseSuccess = {
   username: Scalars['String']['output'];
 };
 
+export type Wish = {
+  __typename?: 'Wish';
+  cookiePrice: Scalars['Int']['output'];
+  creatorID: Scalars['ID']['output'];
+  description: Scalars['String']['output'];
+  galleryMediaSet: Array<MediaSet>;
+  id: Scalars['ID']['output'];
+  isFavorite: Scalars['Boolean']['output'];
+  stickerMediaSet: MediaSet;
+  stickerTitle: Scalars['String']['output'];
+  thumbnail: Scalars['String']['output'];
+  wishTitle: Scalars['String']['output'];
+};
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -624,6 +667,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
   CreateStoryResponse: ( CreateStoryResponseSuccess ) | ( ResponseError );
+  CreateWishResponse: ( CreateWishResponseSuccess ) | ( ResponseError );
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
@@ -656,6 +700,9 @@ export type ResolversTypes = {
   CreateStoryInput: CreateStoryInput;
   CreateStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateStoryResponse']>;
   CreateStoryResponseSuccess: ResolverTypeWrapper<CreateStoryResponseSuccess>;
+  CreateWishInput: CreateWishInput;
+  CreateWishResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateWishResponse']>;
+  CreateWishResponseSuccess: ResolverTypeWrapper<CreateWishResponseSuccess>;
   DateString: ResolverTypeWrapper<Scalars['DateString']['output']>;
   DemoMutatedItem: ResolverTypeWrapper<DemoMutatedItem>;
   DemoMutationInput: DemoMutationInput;
@@ -684,6 +731,7 @@ export type ResolversTypes = {
   GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
   HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   LanguageEnum: LanguageEnum;
   ListChatRoomsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListChatRoomsResponse']>;
   ListChatRoomsResponseSuccess: ResolverTypeWrapper<ListChatRoomsResponseSuccess>;
@@ -696,6 +744,7 @@ export type ResolversTypes = {
   MarkNotificationsAsReadInput: MarkNotificationsAsReadInput;
   MarkNotificationsAsReadResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MarkNotificationsAsReadResponse']>;
   MarkNotificationsAsReadResponseSuccess: ResolverTypeWrapper<MarkNotificationsAsReadResponseSuccess>;
+  MediaSet: ResolverTypeWrapper<MediaSet>;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyProfileResponse']>;
   ModifyProfileResponseSuccess: ResolverTypeWrapper<ModifyProfileResponseSuccess>;
@@ -736,6 +785,7 @@ export type ResolversTypes = {
   ViewPublicProfileInput: ViewPublicProfileInput;
   ViewPublicProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ViewPublicProfileResponse']>;
   ViewPublicProfileResponseSuccess: ResolverTypeWrapper<ViewPublicProfileResponseSuccess>;
+  Wish: ResolverTypeWrapper<Wish>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -749,6 +799,9 @@ export type ResolversParentTypes = {
   CreateStoryInput: CreateStoryInput;
   CreateStoryResponse: ResolversUnionTypes<ResolversParentTypes>['CreateStoryResponse'];
   CreateStoryResponseSuccess: CreateStoryResponseSuccess;
+  CreateWishInput: CreateWishInput;
+  CreateWishResponse: ResolversUnionTypes<ResolversParentTypes>['CreateWishResponse'];
+  CreateWishResponseSuccess: CreateWishResponseSuccess;
   DateString: Scalars['DateString']['output'];
   DemoMutatedItem: DemoMutatedItem;
   DemoMutationInput: DemoMutationInput;
@@ -775,6 +828,7 @@ export type ResolversParentTypes = {
   GroupChatID: Scalars['GroupChatID']['output'];
   HexColorCode: Scalars['HexColorCode']['output'];
   ID: Scalars['ID']['output'];
+  Int: Scalars['Int']['output'];
   ListChatRoomsResponse: ResolversUnionTypes<ResolversParentTypes>['ListChatRoomsResponse'];
   ListChatRoomsResponseSuccess: ListChatRoomsResponseSuccess;
   ListContactsInput: ListContactsInput;
@@ -786,6 +840,7 @@ export type ResolversParentTypes = {
   MarkNotificationsAsReadInput: MarkNotificationsAsReadInput;
   MarkNotificationsAsReadResponse: ResolversUnionTypes<ResolversParentTypes>['MarkNotificationsAsReadResponse'];
   MarkNotificationsAsReadResponseSuccess: MarkNotificationsAsReadResponseSuccess;
+  MediaSet: MediaSet;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyProfileResponse'];
   ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
@@ -823,6 +878,7 @@ export type ResolversParentTypes = {
   ViewPublicProfileInput: ViewPublicProfileInput;
   ViewPublicProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ViewPublicProfileResponse'];
   ViewPublicProfileResponseSuccess: ViewPublicProfileResponseSuccess;
+  Wish: Wish;
 };
 
 export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatRoom'] = ResolversParentTypes['ChatRoom']> = {
@@ -858,6 +914,15 @@ export type CreateStoryResponseResolvers<ContextType = any, ParentType extends R
 
 export type CreateStoryResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateStoryResponseSuccess'] = ResolversParentTypes['CreateStoryResponseSuccess']> = {
   story?: Resolver<ResolversTypes['Story'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateWishResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateWishResponse'] = ResolversParentTypes['CreateWishResponse']> = {
+  __resolveType: TypeResolveFn<'CreateWishResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type CreateWishResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateWishResponseSuccess'] = ResolversParentTypes['CreateWishResponseSuccess']> = {
+  wish?: Resolver<ResolversTypes['Wish'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -985,6 +1050,13 @@ export type MarkNotificationsAsReadResponseSuccessResolvers<ContextType = any, P
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MediaSetResolvers<ContextType = any, ParentType extends ResolversParentTypes['MediaSet'] = ResolversParentTypes['MediaSet']> = {
+  large?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  medium?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  small?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ModifyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyProfileResponse'] = ResolversParentTypes['ModifyProfileResponse']> = {
   __resolveType: TypeResolveFn<'ModifyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -1005,6 +1077,7 @@ export type ModifyStoryResponseSuccessResolvers<ContextType = any, ParentType ex
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
+  createWish?: Resolver<ResolversTypes['CreateWishResponse'], ParentType, ContextType, RequireFields<MutationCreateWishArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
   markNotificationsAsRead?: Resolver<ResolversTypes['MarkNotificationsAsReadResponse'], ParentType, ContextType, RequireFields<MutationMarkNotificationsAsReadArgs, 'input'>>;
@@ -1186,6 +1259,20 @@ export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WishResolvers<ContextType = any, ParentType extends ResolversParentTypes['Wish'] = ResolversParentTypes['Wish']> = {
+  cookiePrice?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  creatorID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  galleryMediaSet?: Resolver<Array<ResolversTypes['MediaSet']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isFavorite?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  stickerMediaSet?: Resolver<ResolversTypes['MediaSet'], ParentType, ContextType>;
+  stickerTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wishTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   ChatRoom?: ChatRoomResolvers<ContextType>;
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
@@ -1193,6 +1280,8 @@ export type Resolvers<ContextType = any> = {
   Contact?: ContactResolvers<ContextType>;
   CreateStoryResponse?: CreateStoryResponseResolvers<ContextType>;
   CreateStoryResponseSuccess?: CreateStoryResponseSuccessResolvers<ContextType>;
+  CreateWishResponse?: CreateWishResponseResolvers<ContextType>;
+  CreateWishResponseSuccess?: CreateWishResponseSuccessResolvers<ContextType>;
   DateString?: GraphQLScalarType;
   DemoMutatedItem?: DemoMutatedItemResolvers<ContextType>;
   DemoMutationResponse?: DemoMutationResponseResolvers<ContextType>;
@@ -1220,6 +1309,7 @@ export type Resolvers<ContextType = any> = {
   ManageFriendshipResponseSuccess?: ManageFriendshipResponseSuccessResolvers<ContextType>;
   MarkNotificationsAsReadResponse?: MarkNotificationsAsReadResponseResolvers<ContextType>;
   MarkNotificationsAsReadResponseSuccess?: MarkNotificationsAsReadResponseSuccessResolvers<ContextType>;
+  MediaSet?: MediaSetResolvers<ContextType>;
   ModifyProfileResponse?: ModifyProfileResponseResolvers<ContextType>;
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   ModifyStoryResponse?: ModifyStoryResponseResolvers<ContextType>;
@@ -1249,5 +1339,6 @@ export type Resolvers<ContextType = any> = {
   UserID?: GraphQLScalarType;
   ViewPublicProfileResponse?: ViewPublicProfileResponseResolvers<ContextType>;
   ViewPublicProfileResponseSuccess?: ViewPublicProfileResponseSuccessResolvers<ContextType>;
+  Wish?: WishResolvers<ContextType>;
 };
 
