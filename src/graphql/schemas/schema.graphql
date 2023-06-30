@@ -372,6 +372,39 @@ union MarkNotificationsAsReadResponse =
     MarkNotificationsAsReadResponseSuccess
   | ResponseError
 
+# --- create wishlist item (sticker)
+type MediaSet {
+  small: String!
+  medium: String!
+  large: String
+}
+type Wish {
+  id: ID!
+  creatorID: ID!
+  wishTitle: String!
+  stickerTitle: String!
+  description: String!
+  thumbnail: String!
+  cookiePrice: Int!
+  galleryMediaSet: [MediaSet!]!
+  stickerMediaSet: MediaSet!
+  isFavorite: Boolean!
+}
+input CreateWishInput {
+  wishTitle: String!
+  stickerTitle: String
+  description: String
+  cookiePrice: Int!
+  wishGraphics: [String!]
+  stickerGraphic: String
+}
+type CreateWishResponseSuccess {
+  wish: Wish!
+}
+union CreateWishResponse =
+    CreateWishResponseSuccess
+  | ResponseError
+
 # --- Mutations
 type Mutation {
   # profile
@@ -387,6 +420,8 @@ type Mutation {
   # story
   createStory(input: CreateStoryInput!): CreateStoryResponse!
   modifyStory(input: ModifyStoryInput!): ModifyStoryResponse!
+  # wishlist
+  createWish(input: CreateWishInput!): CreateWishResponse!
 }
 
 

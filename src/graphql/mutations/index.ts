@@ -14,3 +14,4 @@ export {
   createStory,
   modifyStory,
 } from "@/graphql/mutations/lib/story.mutations";
+export { createWish } from "@/graphql/mutations/lib/wish.mutations";
