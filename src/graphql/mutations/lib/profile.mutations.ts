@@ -110,8 +110,20 @@ export const markNotificationsAsRead = async (
       notificationIDs: args.input.unread as NotificationID[],
     }),
   ]);
+  const notifs = [...readNotifs, ...unreadNotifs];
   return {
-    notifications: [...readNotifs, ...unreadNotifs],
+    notifications: notifs.map((n) => {
+      return {
+        id: n.id,
+        title: n.title,
+        description: n.body,
+        route: n.route,
+        thumbnail: n.image,
+        relatedChatRoomID: n.relatedChatRoomID,
+        createdAt: (n.createdAt as any).toDate(),
+        markedRead: n.markedRead,
+      };
+    }),
   };
 };
 

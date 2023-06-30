@@ -109,6 +109,10 @@ export type EnterChatRoomResponseSuccess = {
   isNew: Scalars['Boolean']['output'];
 };
 
+export type FetchRecentNotificationsInput = {
+  nonce?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type FetchRecentNotificationsResponse = FetchRecentNotificationsResponseSuccess | ResponseError;
 
 export type FetchRecentNotificationsResponseSuccess = {
@@ -179,6 +183,10 @@ export type ListChatRoomsResponse = ListChatRoomsResponseSuccess | ResponseError
 export type ListChatRoomsResponseSuccess = {
   __typename?: 'ListChatRoomsResponseSuccess';
   chatRooms: Array<ChatRoom>;
+};
+
+export type ListContactsInput = {
+  nonce?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ListContactsResponse = ListContactsResponseSuccess | ResponseError;
@@ -365,6 +373,11 @@ export type QueryEnterChatRoomArgs = {
 };
 
 
+export type QueryFetchRecentNotificationsArgs = {
+  input: FetchRecentNotificationsInput;
+};
+
+
 export type QueryFetchStoryFeedArgs = {
   input: FetchStoryFeedInput;
 };
@@ -372,6 +385,11 @@ export type QueryFetchStoryFeedArgs = {
 
 export type QueryGetStoryArgs = {
   input: GetStoryInput;
+};
+
+
+export type QueryListContactsArgs = {
+  input: ListContactsInput;
 };
 
 
@@ -650,6 +668,7 @@ export type ResolversTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EnterChatRoomResponse']>;
   EnterChatRoomResponseSuccess: ResolverTypeWrapper<EnterChatRoomResponseSuccess>;
+  FetchRecentNotificationsInput: FetchRecentNotificationsInput;
   FetchRecentNotificationsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchRecentNotificationsResponse']>;
   FetchRecentNotificationsResponseSuccess: ResolverTypeWrapper<FetchRecentNotificationsResponseSuccess>;
   FetchStoryFeedInput: FetchStoryFeedInput;
@@ -668,6 +687,7 @@ export type ResolversTypes = {
   LanguageEnum: LanguageEnum;
   ListChatRoomsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListChatRoomsResponse']>;
   ListChatRoomsResponseSuccess: ResolverTypeWrapper<ListChatRoomsResponseSuccess>;
+  ListContactsInput: ListContactsInput;
   ListContactsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListContactsResponse']>;
   ListContactsResponseSuccess: ResolverTypeWrapper<ListContactsResponseSuccess>;
   ManageFriendshipInput: ManageFriendshipInput;
@@ -741,6 +761,7 @@ export type ResolversParentTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolversUnionTypes<ResolversParentTypes>['EnterChatRoomResponse'];
   EnterChatRoomResponseSuccess: EnterChatRoomResponseSuccess;
+  FetchRecentNotificationsInput: FetchRecentNotificationsInput;
   FetchRecentNotificationsResponse: ResolversUnionTypes<ResolversParentTypes>['FetchRecentNotificationsResponse'];
   FetchRecentNotificationsResponseSuccess: FetchRecentNotificationsResponseSuccess;
   FetchStoryFeedInput: FetchStoryFeedInput;
@@ -756,6 +777,7 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   ListChatRoomsResponse: ResolversUnionTypes<ResolversParentTypes>['ListChatRoomsResponse'];
   ListChatRoomsResponseSuccess: ListChatRoomsResponseSuccess;
+  ListContactsInput: ListContactsInput;
   ListContactsResponse: ResolversUnionTypes<ResolversParentTypes>['ListContactsResponse'];
   ListContactsResponseSuccess: ListContactsResponseSuccess;
   ManageFriendshipInput: ManageFriendshipInput;
@@ -1026,12 +1048,12 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   enterChatRoom?: Resolver<ResolversTypes['EnterChatRoomResponse'], ParentType, ContextType, RequireFields<QueryEnterChatRoomArgs, 'input'>>;
-  fetchRecentNotifications?: Resolver<ResolversTypes['FetchRecentNotificationsResponse'], ParentType, ContextType>;
+  fetchRecentNotifications?: Resolver<ResolversTypes['FetchRecentNotificationsResponse'], ParentType, ContextType, RequireFields<QueryFetchRecentNotificationsArgs, 'input'>>;
   fetchStoryFeed?: Resolver<ResolversTypes['FetchStoryFeedResponse'], ParentType, ContextType, RequireFields<QueryFetchStoryFeedArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   getStory?: Resolver<ResolversTypes['GetStoryResponse'], ParentType, ContextType, RequireFields<QueryGetStoryArgs, 'input'>>;
   listChatRooms?: Resolver<ResolversTypes['ListChatRoomsResponse'], ParentType, ContextType>;
-  listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType>;
+  listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType, RequireFields<QueryListContactsArgs, 'input'>>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
 };

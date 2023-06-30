@@ -570,8 +570,8 @@ export const manageFriendshipFirestore = async ({
           }),
         ]);
         await notifyAcceptFriendRequest({
-          recipientUserID: userID,
-          senderUserID: friendID,
+          recipientUserID: friendID,
+          senderUserID: userID,
         });
         return FriendshipStatusEnum.Accepted;
       } else {

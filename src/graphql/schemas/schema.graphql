@@ -74,6 +74,9 @@ union ViewPublicProfileResponse =
 
 
 # --- listContacts
+input ListContactsInput {
+  nonce: String
+}
 type Contact {
   friendID: UserID!
   username: String
@@ -148,6 +151,9 @@ union FetchStoryFeedResponse =
   | ResponseError
 
 # --- fetch recent notifications
+input FetchRecentNotificationsInput {
+  nonce: String
+}
 type NotificationGql {
   id: ID!
   title: String!
@@ -173,14 +179,14 @@ type Query {
   viewPublicProfile(
     input: ViewPublicProfileInput!
   ): ViewPublicProfileResponse!
-  listContacts: ListContactsResponse!
+  listContacts(input: ListContactsInput!): ListContactsResponse!
   enterChatRoom(
     input: EnterChatRoomInput!
   ): EnterChatRoomResponse!
   listChatRooms: ListChatRoomsResponse!
   getStory(input: GetStoryInput!): GetStoryResponse!
   fetchStoryFeed(input: FetchStoryFeedInput!): FetchStoryFeedResponse!
-  fetchRecentNotifications: FetchRecentNotificationsResponse!
+  fetchRecentNotifications(input: FetchRecentNotificationsInput!): FetchRecentNotificationsResponse!
 }
 
 # --- modifyProfile
