@@ -1,6 +1,8 @@
 import { authGuardHTTP, getUserIDFromAuthToken } from "@/graphql/authGuard";
 import {
   CheckUsernameAvailableResponse,
+  FetchRecentNotificationsResponse,
+  FetchRecentNotificationsResponseSuccess,
   GetMyProfileResponse,
   QueryCheckUsernameAvailableArgs,
   User,
@@ -14,6 +16,7 @@ import { checkIfUsernameAvailable } from "@/utils/username";
 import {
   FirestoreCollection,
   Friendship_Firestore,
+  Notification_Firestore,
   Story_Firestore,
   UserID,
   User_Firestore,
@@ -24,6 +27,8 @@ import { ListContactsResponse } from "../../types/resolvers-types";
 import { getSendbirdUser } from "@/services/sendbird";
 import { convertStoryToGraphQL } from "@/services/story";
 import * as admin from "firebase-admin";
+import { firestore } from "@/services/firebase";
+import { Query, QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 export const getMyProfile = async (
   _parent: any,
@@ -141,6 +146,47 @@ export const listContacts = async (
   };
 };
 
+export const fetchRecentNotifications = async (
+  _parent: any,
+  args: any,
+  _context: any,
+  _info: any
+): Promise<FetchRecentNotificationsResponseSuccess> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+
+  const ref = firestore
+    .collection(FirestoreCollection.NOTIFICATIONS)
+    .where("recipientID", "==", userID)
+    .limit(100) as Query<Notification_Firestore>;
+
+  const collectionItems = await ref.get();
+
+  if (collectionItems.empty) {
+    return {
+      notifications: [],
+    };
+  } else {
+    const notifications = collectionItems.docs.map(
+      (doc: QueryDocumentSnapshot<Notification_Firestore>) => {
+        const data = doc.data();
+        return {
+          id: data.id,
+          title: data.title,
+          description: data.body,
+          route: data.route,
+          thumbnail: data.image,
+          relatedChatRoomID: data.relatedChatRoomID,
+          createdAt: (data.createdAt as any).toDate(),
+          markedRead: data.markedRead,
+        };
+      }
+    );
+    return {
+      notifications,
+    };
+  }
+};
+
 export const responses = {
   GetMyProfileResponse: {
     __resolveType(
@@ -180,6 +226,21 @@ export const responses = {
     ) {
       if ("contacts" in obj) {
         return "ListContactsResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  FetchRecentNotificationsResponse: {
+    __resolveType(
+      obj: FetchRecentNotificationsResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("notifications" in obj) {
+        return "FetchRecentNotificationsResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

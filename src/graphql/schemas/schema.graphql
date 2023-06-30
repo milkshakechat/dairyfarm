@@ -74,6 +74,9 @@ union ViewPublicProfileResponse =
 
 
 # --- listContacts
+input ListContactsInput {
+  nonce: String
+}
 type Contact {
   friendID: UserID!
   username: String
@@ -147,6 +150,27 @@ union FetchStoryFeedResponse =
     FetchStoryFeedResponseSuccess
   | ResponseError
 
+# --- fetch recent notifications
+input FetchRecentNotificationsInput {
+  nonce: String
+}
+type NotificationGql {
+  id: ID!
+  title: String!
+  description: String
+  route: String
+  thumbnail: String
+  relatedChatRoomID: ID
+  createdAt: DateString!
+  markedRead: Boolean!
+}
+type FetchRecentNotificationsResponseSuccess {
+  notifications: [NotificationGql!]!
+}
+union FetchRecentNotificationsResponse =
+    FetchRecentNotificationsResponseSuccess
+  | ResponseError
+
 
 # --- Queries
 type Query {
@@ -155,13 +179,14 @@ type Query {
   viewPublicProfile(
     input: ViewPublicProfileInput!
   ): ViewPublicProfileResponse!
-  listContacts: ListContactsResponse!
+  listContacts(input: ListContactsInput!): ListContactsResponse!
   enterChatRoom(
     input: EnterChatRoomInput!
   ): EnterChatRoomResponse!
   listChatRooms: ListChatRoomsResponse!
   getStory(input: GetStoryInput!): GetStoryResponse!
   fetchStoryFeed(input: FetchStoryFeedInput!): FetchStoryFeedResponse!
+  fetchRecentNotifications(input: FetchRecentNotificationsInput!): FetchRecentNotificationsResponse!
 }
 
 # --- modifyProfile
@@ -335,6 +360,17 @@ union ModifyStoryResponse =
     ModifyStoryResponseSuccess
   | ResponseError
 
+# --- mark notifications as read/unread
+input MarkNotificationsAsReadInput {
+  read: [ID!]!
+  unread: [ID!]!
+}
+type MarkNotificationsAsReadResponseSuccess {
+  notifications: [NotificationGql!]!
+}
+union MarkNotificationsAsReadResponse =
+    MarkNotificationsAsReadResponseSuccess
+  | ResponseError
 
 # --- Mutations
 type Mutation {
@@ -342,6 +378,7 @@ type Mutation {
   modifyProfile(input: ModifyProfileInput!): ModifyProfileResponse!
   updatePushToken(input: UpdatePushTokenInput!): UpdatePushTokenResponse!
   revokePushTokens: RevokePushTokensResponse!
+  markNotificationsAsRead(input: MarkNotificationsAsReadInput!): MarkNotificationsAsReadResponse!
   # friends
   sendFriendRequest(input: SendFriendRequestInput!): SendFriendRequestResponse!
   manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!

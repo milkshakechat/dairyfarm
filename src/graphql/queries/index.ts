@@ -4,6 +4,7 @@ export {
   getMyProfile,
   checkUsernameAvailable,
   listContacts,
+  fetchRecentNotifications,
 } from "@/graphql/queries/lib/profile.queries";
 export { viewPublicProfile } from "@/graphql/queries/lib/friend.queries";
 export {

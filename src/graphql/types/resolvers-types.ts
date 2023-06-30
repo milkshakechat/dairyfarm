@@ -109,6 +109,17 @@ export type EnterChatRoomResponseSuccess = {
   isNew: Scalars['Boolean']['output'];
 };
 
+export type FetchRecentNotificationsInput = {
+  nonce?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type FetchRecentNotificationsResponse = FetchRecentNotificationsResponseSuccess | ResponseError;
+
+export type FetchRecentNotificationsResponseSuccess = {
+  __typename?: 'FetchRecentNotificationsResponseSuccess';
+  notifications: Array<NotificationGql>;
+};
+
 export type FetchStoryFeedInput = {
   nonce?: InputMaybe<Scalars['String']['input']>;
 };
@@ -174,6 +185,10 @@ export type ListChatRoomsResponseSuccess = {
   chatRooms: Array<ChatRoom>;
 };
 
+export type ListContactsInput = {
+  nonce?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ListContactsResponse = ListContactsResponseSuccess | ResponseError;
 
 export type ListContactsResponseSuccess = {
@@ -192,6 +207,18 @@ export type ManageFriendshipResponse = ManageFriendshipResponseSuccess | Respons
 export type ManageFriendshipResponseSuccess = {
   __typename?: 'ManageFriendshipResponseSuccess';
   status: FriendshipStatus;
+};
+
+export type MarkNotificationsAsReadInput = {
+  read: Array<Scalars['ID']['input']>;
+  unread: Array<Scalars['ID']['input']>;
+};
+
+export type MarkNotificationsAsReadResponse = MarkNotificationsAsReadResponseSuccess | ResponseError;
+
+export type MarkNotificationsAsReadResponseSuccess = {
+  __typename?: 'MarkNotificationsAsReadResponseSuccess';
+  notifications: Array<NotificationGql>;
 };
 
 export type ModifyProfileInput = {
@@ -231,6 +258,7 @@ export type Mutation = {
   createStory: CreateStoryResponse;
   demoMutation: DemoMutationResponse;
   manageFriendship: ManageFriendshipResponse;
+  markNotificationsAsRead: MarkNotificationsAsReadResponse;
   modifyProfile: ModifyProfileResponse;
   modifyStory: ModifyStoryResponse;
   revokePushTokens: RevokePushTokensResponse;
@@ -252,6 +280,11 @@ export type MutationDemoMutationArgs = {
 
 export type MutationManageFriendshipArgs = {
   input: ManageFriendshipInput;
+};
+
+
+export type MutationMarkNotificationsAsReadArgs = {
+  input: MarkNotificationsAsReadInput;
 };
 
 
@@ -279,6 +312,18 @@ export type MutationUpdatePushTokenArgs = {
   input: UpdatePushTokenInput;
 };
 
+export type NotificationGql = {
+  __typename?: 'NotificationGql';
+  createdAt: Scalars['DateString']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  markedRead: Scalars['Boolean']['output'];
+  relatedChatRoomID?: Maybe<Scalars['ID']['output']>;
+  route?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+};
+
 export type Ping = {
   __typename?: 'Ping';
   timestamp: Scalars['String']['output'];
@@ -302,6 +347,7 @@ export type Query = {
   demoPing: Ping;
   demoQuery: DemoQueryResponse;
   enterChatRoom: EnterChatRoomResponse;
+  fetchRecentNotifications: FetchRecentNotificationsResponse;
   fetchStoryFeed: FetchStoryFeedResponse;
   getMyProfile: GetMyProfileResponse;
   getStory: GetStoryResponse;
@@ -327,6 +373,11 @@ export type QueryEnterChatRoomArgs = {
 };
 
 
+export type QueryFetchRecentNotificationsArgs = {
+  input: FetchRecentNotificationsInput;
+};
+
+
 export type QueryFetchStoryFeedArgs = {
   input: FetchStoryFeedInput;
 };
@@ -334,6 +385,11 @@ export type QueryFetchStoryFeedArgs = {
 
 export type QueryGetStoryArgs = {
   input: GetStoryInput;
+};
+
+
+export type QueryListContactsArgs = {
+  input: ListContactsInput;
 };
 
 
@@ -571,12 +627,14 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
   DemoQueryResponse: ( DemoQueryResponseSuccess ) | ( ResponseError );
   EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
+  FetchRecentNotificationsResponse: ( FetchRecentNotificationsResponseSuccess ) | ( ResponseError );
   FetchStoryFeedResponse: ( FetchStoryFeedResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
   ListChatRoomsResponse: ( ListChatRoomsResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
+  MarkNotificationsAsReadResponse: ( MarkNotificationsAsReadResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   ModifyStoryResponse: ( ModifyStoryResponseSuccess ) | ( ResponseError );
   RevokePushTokensResponse: ( ResponseError ) | ( RevokePushTokensResponseSuccess );
@@ -610,6 +668,9 @@ export type ResolversTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EnterChatRoomResponse']>;
   EnterChatRoomResponseSuccess: ResolverTypeWrapper<EnterChatRoomResponseSuccess>;
+  FetchRecentNotificationsInput: FetchRecentNotificationsInput;
+  FetchRecentNotificationsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchRecentNotificationsResponse']>;
+  FetchRecentNotificationsResponseSuccess: ResolverTypeWrapper<FetchRecentNotificationsResponseSuccess>;
   FetchStoryFeedInput: FetchStoryFeedInput;
   FetchStoryFeedResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchStoryFeedResponse']>;
   FetchStoryFeedResponseSuccess: ResolverTypeWrapper<FetchStoryFeedResponseSuccess>;
@@ -626,11 +687,15 @@ export type ResolversTypes = {
   LanguageEnum: LanguageEnum;
   ListChatRoomsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListChatRoomsResponse']>;
   ListChatRoomsResponseSuccess: ResolverTypeWrapper<ListChatRoomsResponseSuccess>;
+  ListContactsInput: ListContactsInput;
   ListContactsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListContactsResponse']>;
   ListContactsResponseSuccess: ResolverTypeWrapper<ListContactsResponseSuccess>;
   ManageFriendshipInput: ManageFriendshipInput;
   ManageFriendshipResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ManageFriendshipResponse']>;
   ManageFriendshipResponseSuccess: ResolverTypeWrapper<ManageFriendshipResponseSuccess>;
+  MarkNotificationsAsReadInput: MarkNotificationsAsReadInput;
+  MarkNotificationsAsReadResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MarkNotificationsAsReadResponse']>;
+  MarkNotificationsAsReadResponseSuccess: ResolverTypeWrapper<MarkNotificationsAsReadResponseSuccess>;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyProfileResponse']>;
   ModifyProfileResponseSuccess: ResolverTypeWrapper<ModifyProfileResponseSuccess>;
@@ -638,6 +703,7 @@ export type ResolversTypes = {
   ModifyStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyStoryResponse']>;
   ModifyStoryResponseSuccess: ResolverTypeWrapper<ModifyStoryResponseSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
+  NotificationGql: ResolverTypeWrapper<NotificationGql>;
   Ping: ResolverTypeWrapper<Ping>;
   PrivacyModeEnum: PrivacyModeEnum;
   PushConfig: ResolverTypeWrapper<PushConfig>;
@@ -695,6 +761,9 @@ export type ResolversParentTypes = {
   EnterChatRoomInput: EnterChatRoomInput;
   EnterChatRoomResponse: ResolversUnionTypes<ResolversParentTypes>['EnterChatRoomResponse'];
   EnterChatRoomResponseSuccess: EnterChatRoomResponseSuccess;
+  FetchRecentNotificationsInput: FetchRecentNotificationsInput;
+  FetchRecentNotificationsResponse: ResolversUnionTypes<ResolversParentTypes>['FetchRecentNotificationsResponse'];
+  FetchRecentNotificationsResponseSuccess: FetchRecentNotificationsResponseSuccess;
   FetchStoryFeedInput: FetchStoryFeedInput;
   FetchStoryFeedResponse: ResolversUnionTypes<ResolversParentTypes>['FetchStoryFeedResponse'];
   FetchStoryFeedResponseSuccess: FetchStoryFeedResponseSuccess;
@@ -708,11 +777,15 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   ListChatRoomsResponse: ResolversUnionTypes<ResolversParentTypes>['ListChatRoomsResponse'];
   ListChatRoomsResponseSuccess: ListChatRoomsResponseSuccess;
+  ListContactsInput: ListContactsInput;
   ListContactsResponse: ResolversUnionTypes<ResolversParentTypes>['ListContactsResponse'];
   ListContactsResponseSuccess: ListContactsResponseSuccess;
   ManageFriendshipInput: ManageFriendshipInput;
   ManageFriendshipResponse: ResolversUnionTypes<ResolversParentTypes>['ManageFriendshipResponse'];
   ManageFriendshipResponseSuccess: ManageFriendshipResponseSuccess;
+  MarkNotificationsAsReadInput: MarkNotificationsAsReadInput;
+  MarkNotificationsAsReadResponse: ResolversUnionTypes<ResolversParentTypes>['MarkNotificationsAsReadResponse'];
+  MarkNotificationsAsReadResponseSuccess: MarkNotificationsAsReadResponseSuccess;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyProfileResponse'];
   ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
@@ -720,6 +793,7 @@ export type ResolversParentTypes = {
   ModifyStoryResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyStoryResponse'];
   ModifyStoryResponseSuccess: ModifyStoryResponseSuccess;
   Mutation: {};
+  NotificationGql: NotificationGql;
   Ping: Ping;
   PushConfig: PushConfig;
   PushToken: Scalars['PushToken']['output'];
@@ -830,6 +904,15 @@ export type EnterChatRoomResponseSuccessResolvers<ContextType = any, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FetchRecentNotificationsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchRecentNotificationsResponse'] = ResolversParentTypes['FetchRecentNotificationsResponse']> = {
+  __resolveType: TypeResolveFn<'FetchRecentNotificationsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type FetchRecentNotificationsResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchRecentNotificationsResponseSuccess'] = ResolversParentTypes['FetchRecentNotificationsResponseSuccess']> = {
+  notifications?: Resolver<Array<ResolversTypes['NotificationGql']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FetchStoryFeedResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchStoryFeedResponse'] = ResolversParentTypes['FetchStoryFeedResponse']> = {
   __resolveType: TypeResolveFn<'FetchStoryFeedResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -893,6 +976,15 @@ export type ManageFriendshipResponseSuccessResolvers<ContextType = any, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MarkNotificationsAsReadResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MarkNotificationsAsReadResponse'] = ResolversParentTypes['MarkNotificationsAsReadResponse']> = {
+  __resolveType: TypeResolveFn<'MarkNotificationsAsReadResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type MarkNotificationsAsReadResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['MarkNotificationsAsReadResponseSuccess'] = ResolversParentTypes['MarkNotificationsAsReadResponseSuccess']> = {
+  notifications?: Resolver<Array<ResolversTypes['NotificationGql']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ModifyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyProfileResponse'] = ResolversParentTypes['ModifyProfileResponse']> = {
   __resolveType: TypeResolveFn<'ModifyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -915,12 +1007,25 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
+  markNotificationsAsRead?: Resolver<ResolversTypes['MarkNotificationsAsReadResponse'], ParentType, ContextType, RequireFields<MutationMarkNotificationsAsReadArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
   modifyStory?: Resolver<ResolversTypes['ModifyStoryResponse'], ParentType, ContextType, RequireFields<MutationModifyStoryArgs, 'input'>>;
   revokePushTokens?: Resolver<ResolversTypes['RevokePushTokensResponse'], ParentType, ContextType>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
+};
+
+export type NotificationGqlResolvers<ContextType = any, ParentType extends ResolversParentTypes['NotificationGql'] = ResolversParentTypes['NotificationGql']> = {
+  createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  markedRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  relatedChatRoomID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  route?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
@@ -943,11 +1048,12 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
   enterChatRoom?: Resolver<ResolversTypes['EnterChatRoomResponse'], ParentType, ContextType, RequireFields<QueryEnterChatRoomArgs, 'input'>>;
+  fetchRecentNotifications?: Resolver<ResolversTypes['FetchRecentNotificationsResponse'], ParentType, ContextType, RequireFields<QueryFetchRecentNotificationsArgs, 'input'>>;
   fetchStoryFeed?: Resolver<ResolversTypes['FetchStoryFeedResponse'], ParentType, ContextType, RequireFields<QueryFetchStoryFeedArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   getStory?: Resolver<ResolversTypes['GetStoryResponse'], ParentType, ContextType, RequireFields<QueryGetStoryArgs, 'input'>>;
   listChatRooms?: Resolver<ResolversTypes['ListChatRoomsResponse'], ParentType, ContextType>;
-  listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType>;
+  listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType, RequireFields<QueryListContactsArgs, 'input'>>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
 };
@@ -1096,6 +1202,8 @@ export type Resolvers<ContextType = any> = {
   DemoSubscriptionEvent?: DemoSubscriptionEventResolvers<ContextType>;
   EnterChatRoomResponse?: EnterChatRoomResponseResolvers<ContextType>;
   EnterChatRoomResponseSuccess?: EnterChatRoomResponseSuccessResolvers<ContextType>;
+  FetchRecentNotificationsResponse?: FetchRecentNotificationsResponseResolvers<ContextType>;
+  FetchRecentNotificationsResponseSuccess?: FetchRecentNotificationsResponseSuccessResolvers<ContextType>;
   FetchStoryFeedResponse?: FetchStoryFeedResponseResolvers<ContextType>;
   FetchStoryFeedResponseSuccess?: FetchStoryFeedResponseSuccessResolvers<ContextType>;
   GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
@@ -1110,11 +1218,14 @@ export type Resolvers<ContextType = any> = {
   ListContactsResponseSuccess?: ListContactsResponseSuccessResolvers<ContextType>;
   ManageFriendshipResponse?: ManageFriendshipResponseResolvers<ContextType>;
   ManageFriendshipResponseSuccess?: ManageFriendshipResponseSuccessResolvers<ContextType>;
+  MarkNotificationsAsReadResponse?: MarkNotificationsAsReadResponseResolvers<ContextType>;
+  MarkNotificationsAsReadResponseSuccess?: MarkNotificationsAsReadResponseSuccessResolvers<ContextType>;
   ModifyProfileResponse?: ModifyProfileResponseResolvers<ContextType>;
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   ModifyStoryResponse?: ModifyStoryResponseResolvers<ContextType>;
   ModifyStoryResponseSuccess?: ModifyStoryResponseSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  NotificationGql?: NotificationGqlResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
   PushConfig?: PushConfigResolvers<ContextType>;
   PushToken?: GraphQLScalarType;
