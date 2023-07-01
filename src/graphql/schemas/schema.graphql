@@ -171,22 +171,40 @@ union FetchRecentNotificationsResponse =
     FetchRecentNotificationsResponseSuccess
   | ResponseError
 
+# --- list wishlist
+input ListWishlistInput {
+  userID: UserID!
+}
+type ListWishlistResponseSuccess {
+  wishlist: [Wish!]!
+}
+union ListWishlistResponse =
+    ListWishlistResponseSuccess
+  | ResponseError
+
 
 # --- Queries
 type Query {
+  # profile
   getMyProfile: GetMyProfileResponse!
   checkUsernameAvailable(input: CheckUsernameAvailableInput!): CheckUsernameAvailableResponse!
+  # friend
   viewPublicProfile(
     input: ViewPublicProfileInput!
   ): ViewPublicProfileResponse!
   listContacts(input: ListContactsInput!): ListContactsResponse!
+  # chat
   enterChatRoom(
     input: EnterChatRoomInput!
   ): EnterChatRoomResponse!
   listChatRooms: ListChatRoomsResponse!
+  # story
   getStory(input: GetStoryInput!): GetStoryResponse!
   fetchStoryFeed(input: FetchStoryFeedInput!): FetchStoryFeedResponse!
+  # notifications
   fetchRecentNotifications(input: FetchRecentNotificationsInput!): FetchRecentNotificationsResponse!
+  # wishlist
+  listWishlist(input: ListWishlistInput!): ListWishlistResponse!
 }
 
 # --- modifyProfile

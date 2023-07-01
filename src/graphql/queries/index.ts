@@ -12,3 +12,4 @@ export {
   listChatRooms,
 } from "@/graphql/queries/lib/chat.queries";
 export { getStory, fetchStoryFeed } from "@/graphql/queries/lib/story.queries";
+export { listWishlist } from "@/graphql/queries/lib/wish.queries";

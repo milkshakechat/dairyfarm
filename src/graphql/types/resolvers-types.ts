@@ -213,6 +213,17 @@ export type ListContactsResponseSuccess = {
   globalDirectory: Array<Contact>;
 };
 
+export type ListWishlistInput = {
+  userID: Scalars['UserID']['input'];
+};
+
+export type ListWishlistResponse = ListWishlistResponseSuccess | ResponseError;
+
+export type ListWishlistResponseSuccess = {
+  __typename?: 'ListWishlistResponseSuccess';
+  wishlist: Array<Wish>;
+};
+
 export type ManageFriendshipInput = {
   action: FriendshipAction;
   friendID: Scalars['UserID']['input'];
@@ -382,6 +393,7 @@ export type Query = {
   getStory: GetStoryResponse;
   listChatRooms: ListChatRoomsResponse;
   listContacts: ListContactsResponse;
+  listWishlist: ListWishlistResponse;
   ping: Ping;
   viewPublicProfile: ViewPublicProfileResponse;
 };
@@ -419,6 +431,11 @@ export type QueryGetStoryArgs = {
 
 export type QueryListContactsArgs = {
   input: ListContactsInput;
+};
+
+
+export type QueryListWishlistArgs = {
+  input: ListWishlistInput;
 };
 
 
@@ -677,6 +694,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
   ListChatRoomsResponse: ( ListChatRoomsResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
+  ListWishlistResponse: ( ListWishlistResponseSuccess ) | ( ResponseError );
   ManageFriendshipResponse: ( ManageFriendshipResponseSuccess ) | ( ResponseError );
   MarkNotificationsAsReadResponse: ( MarkNotificationsAsReadResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
@@ -738,6 +756,9 @@ export type ResolversTypes = {
   ListContactsInput: ListContactsInput;
   ListContactsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListContactsResponse']>;
   ListContactsResponseSuccess: ResolverTypeWrapper<ListContactsResponseSuccess>;
+  ListWishlistInput: ListWishlistInput;
+  ListWishlistResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListWishlistResponse']>;
+  ListWishlistResponseSuccess: ResolverTypeWrapper<ListWishlistResponseSuccess>;
   ManageFriendshipInput: ManageFriendshipInput;
   ManageFriendshipResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ManageFriendshipResponse']>;
   ManageFriendshipResponseSuccess: ResolverTypeWrapper<ManageFriendshipResponseSuccess>;
@@ -834,6 +855,9 @@ export type ResolversParentTypes = {
   ListContactsInput: ListContactsInput;
   ListContactsResponse: ResolversUnionTypes<ResolversParentTypes>['ListContactsResponse'];
   ListContactsResponseSuccess: ListContactsResponseSuccess;
+  ListWishlistInput: ListWishlistInput;
+  ListWishlistResponse: ResolversUnionTypes<ResolversParentTypes>['ListWishlistResponse'];
+  ListWishlistResponseSuccess: ListWishlistResponseSuccess;
   ManageFriendshipInput: ManageFriendshipInput;
   ManageFriendshipResponse: ResolversUnionTypes<ResolversParentTypes>['ManageFriendshipResponse'];
   ManageFriendshipResponseSuccess: ManageFriendshipResponseSuccess;
@@ -1032,6 +1056,15 @@ export type ListContactsResponseSuccessResolvers<ContextType = any, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ListWishlistResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListWishlistResponse'] = ResolversParentTypes['ListWishlistResponse']> = {
+  __resolveType: TypeResolveFn<'ListWishlistResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type ListWishlistResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListWishlistResponseSuccess'] = ResolversParentTypes['ListWishlistResponseSuccess']> = {
+  wishlist?: Resolver<Array<ResolversTypes['Wish']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ManageFriendshipResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ManageFriendshipResponse'] = ResolversParentTypes['ManageFriendshipResponse']> = {
   __resolveType: TypeResolveFn<'ManageFriendshipResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -1127,6 +1160,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getStory?: Resolver<ResolversTypes['GetStoryResponse'], ParentType, ContextType, RequireFields<QueryGetStoryArgs, 'input'>>;
   listChatRooms?: Resolver<ResolversTypes['ListChatRoomsResponse'], ParentType, ContextType>;
   listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType, RequireFields<QueryListContactsArgs, 'input'>>;
+  listWishlist?: Resolver<ResolversTypes['ListWishlistResponse'], ParentType, ContextType, RequireFields<QueryListWishlistArgs, 'input'>>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
 };
@@ -1305,6 +1339,8 @@ export type Resolvers<ContextType = any> = {
   ListChatRoomsResponseSuccess?: ListChatRoomsResponseSuccessResolvers<ContextType>;
   ListContactsResponse?: ListContactsResponseResolvers<ContextType>;
   ListContactsResponseSuccess?: ListContactsResponseSuccessResolvers<ContextType>;
+  ListWishlistResponse?: ListWishlistResponseResolvers<ContextType>;
+  ListWishlistResponseSuccess?: ListWishlistResponseSuccessResolvers<ContextType>;
   ManageFriendshipResponse?: ManageFriendshipResponseResolvers<ContextType>;
   ManageFriendshipResponseSuccess?: ManageFriendshipResponseSuccessResolvers<ContextType>;
   MarkNotificationsAsReadResponse?: MarkNotificationsAsReadResponseResolvers<ContextType>;

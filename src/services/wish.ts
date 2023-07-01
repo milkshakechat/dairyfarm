@@ -1,6 +1,7 @@
 import { CreateWishInput } from "@/graphql/types/resolvers-types";
 import {
   FirestoreCollection,
+  Friendship_Firestore,
   ImageResizeOption,
   MediaSet,
   UserID,
@@ -13,7 +14,12 @@ import {
   placeholderSticker,
   placeholderWishlistGraphic,
 } from "@milkshakechat/helpers";
-import { createFirestoreDoc, getFirestoreDoc } from "./firestore";
+import {
+  createFirestoreDoc,
+  getFirestoreDoc,
+  listFirestoreDocs,
+  listFirestoreDocsDoubleWhere,
+} from "./firestore";
 import { v4 as uuidv4 } from "uuid";
 import config from "@/config.env";
 
@@ -92,6 +98,7 @@ export const createWishFirestore = async (
     galleryMediaSet,
     stickerMediaSet,
     isFavorite: false,
+    deleted: false,
   };
   const wish = await createFirestoreDoc<WishID, Wish_Firestore>({
     id: id as WishID,
@@ -99,4 +106,42 @@ export const createWishFirestore = async (
     collection: FirestoreCollection.WISH,
   });
   return wish;
+};
+
+export const listWishlistFirestore = async ({
+  targetUserID,
+  requesterUserID,
+}: {
+  targetUserID: UserID;
+  requesterUserID: UserID;
+}) => {
+  if (targetUserID !== requesterUserID) {
+    const friendships =
+      await listFirestoreDocsDoubleWhere<Friendship_Firestore>({
+        where1: {
+          field: "primaryUserID",
+          operator: "==",
+          value: requesterUserID,
+        },
+        where2: {
+          field: "friendID",
+          operator: "==",
+          value: targetUserID,
+        },
+        collection: FirestoreCollection.FRIENDSHIPS,
+      });
+    const friendship = friendships[0];
+    if (!friendship) {
+      throw new Error(`You are not friends with user ${targetUserID}`);
+    }
+  }
+  const wishlist = await listFirestoreDocs<Wish_Firestore>({
+    where: {
+      field: "creatorID",
+      operator: "==",
+      value: targetUserID,
+    },
+    collection: FirestoreCollection.WISH,
+  });
+  return wishlist.filter((w) => !w.deleted);
 };
