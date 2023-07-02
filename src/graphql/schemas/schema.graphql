@@ -182,6 +182,17 @@ union ListWishlistResponse =
     ListWishlistResponseSuccess
   | ResponseError
 
+# --- get wish
+input GetWishInput {
+  wishID: ID!
+}
+type GetWishResponseSuccess {
+  wish: Wish!
+}
+union GetWishResponse =
+    GetWishResponseSuccess
+  | ResponseError
+
 
 # --- Queries
 type Query {
@@ -205,6 +216,7 @@ type Query {
   fetchRecentNotifications(input: FetchRecentNotificationsInput!): FetchRecentNotificationsResponse!
   # wishlist
   listWishlist(input: ListWishlistInput!): ListWishlistResponse!
+  getWish(input: GetWishInput!): GetWishResponse!
 }
 
 # --- modifyProfile
@@ -407,6 +419,14 @@ type Wish {
   galleryMediaSet: [MediaSet!]!
   stickerMediaSet: MediaSet!
   isFavorite: Boolean!
+  createdAt: DateString!
+  author: WishAuthor
+}
+type WishAuthor {
+  id: UserID!
+  username: String!
+  avatar: String!
+  displayName: String!
 }
 input CreateWishInput {
   wishTitle: String!
@@ -415,6 +435,7 @@ input CreateWishInput {
   cookiePrice: Int!
   wishGraphics: [String!]
   stickerGraphic: String
+  isFavorite: Boolean
 }
 type CreateWishResponseSuccess {
   wish: Wish!
@@ -422,6 +443,26 @@ type CreateWishResponseSuccess {
 union CreateWishResponse =
     CreateWishResponseSuccess
   | ResponseError
+
+
+# --- update wish
+input UpdateWishInput {
+  wishID: ID!
+  wishTitle: String
+  stickerTitle: String
+  description: String
+  cookiePrice: Int
+  wishGraphics: [String!]
+  stickerGraphic: String
+  isFavorite: Boolean
+}
+type UpdateWishResponseSuccess {
+  wish: Wish!
+}
+union UpdateWishResponse =
+    UpdateWishResponseSuccess
+  | ResponseError
+
 
 # --- Mutations
 type Mutation {
@@ -440,6 +481,7 @@ type Mutation {
   modifyStory(input: ModifyStoryInput!): ModifyStoryResponse!
   # wishlist
   createWish(input: CreateWishInput!): CreateWishResponse!
+  updateWish(input: UpdateWishInput!): UpdateWishResponse!
 }
 
 

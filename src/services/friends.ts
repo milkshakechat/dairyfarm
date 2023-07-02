@@ -442,7 +442,7 @@ export const getPublicProfile = async ({
       console.log(`Will keep trying, with username next`);
     }
   }
-  if (username) {
+  if (username && username.toLowerCase() !== "user") {
     const matchingUsers = await listFirestoreDocs<User_Firestore>({
       where: {
         field: "username",

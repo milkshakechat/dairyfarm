@@ -66,6 +66,7 @@ export type CreateStoryResponseSuccess = {
 export type CreateWishInput = {
   cookiePrice: Scalars['Int']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
+  isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
   stickerGraphic?: InputMaybe<Scalars['String']['input']>;
   stickerTitle?: InputMaybe<Scalars['String']['input']>;
   wishGraphics?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -181,6 +182,17 @@ export type GetStoryResponse = GetStoryResponseSuccess | ResponseError;
 export type GetStoryResponseSuccess = {
   __typename?: 'GetStoryResponseSuccess';
   story: Story;
+};
+
+export type GetWishInput = {
+  wishID: Scalars['ID']['input'];
+};
+
+export type GetWishResponse = GetWishResponseSuccess | ResponseError;
+
+export type GetWishResponseSuccess = {
+  __typename?: 'GetWishResponseSuccess';
+  wish: Wish;
 };
 
 export enum LanguageEnum {
@@ -300,6 +312,7 @@ export type Mutation = {
   sendFriendRequest: SendFriendRequestResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
+  updateWish: UpdateWishResponse;
 };
 
 
@@ -352,6 +365,11 @@ export type MutationUpdatePushTokenArgs = {
   input: UpdatePushTokenInput;
 };
 
+
+export type MutationUpdateWishArgs = {
+  input: UpdateWishInput;
+};
+
 export type NotificationGql = {
   __typename?: 'NotificationGql';
   createdAt: Scalars['DateString']['output'];
@@ -391,6 +409,7 @@ export type Query = {
   fetchStoryFeed: FetchStoryFeedResponse;
   getMyProfile: GetMyProfileResponse;
   getStory: GetStoryResponse;
+  getWish: GetWishResponse;
   listChatRooms: ListChatRoomsResponse;
   listContacts: ListContactsResponse;
   listWishlist: ListWishlistResponse;
@@ -426,6 +445,11 @@ export type QueryFetchStoryFeedArgs = {
 
 export type QueryGetStoryArgs = {
   input: GetStoryInput;
+};
+
+
+export type QueryGetWishArgs = {
+  input: GetWishInput;
 };
 
 
@@ -562,6 +586,24 @@ export type UpdatePushTokenResponseSuccess = {
   status: Scalars['String']['output'];
 };
 
+export type UpdateWishInput = {
+  cookiePrice?: InputMaybe<Scalars['Int']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
+  stickerGraphic?: InputMaybe<Scalars['String']['input']>;
+  stickerTitle?: InputMaybe<Scalars['String']['input']>;
+  wishGraphics?: InputMaybe<Array<Scalars['String']['input']>>;
+  wishID: Scalars['ID']['input'];
+  wishTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateWishResponse = ResponseError | UpdateWishResponseSuccess;
+
+export type UpdateWishResponseSuccess = {
+  __typename?: 'UpdateWishResponseSuccess';
+  wish: Wish;
+};
+
 export type User = {
   __typename?: 'User';
   avatar: Scalars['String']['output'];
@@ -601,7 +643,9 @@ export type ViewPublicProfileResponseSuccess = {
 
 export type Wish = {
   __typename?: 'Wish';
+  author?: Maybe<WishAuthor>;
   cookiePrice: Scalars['Int']['output'];
+  createdAt: Scalars['DateString']['output'];
   creatorID: Scalars['ID']['output'];
   description: Scalars['String']['output'];
   galleryMediaSet: Array<MediaSet>;
@@ -611,6 +655,14 @@ export type Wish = {
   stickerTitle: Scalars['String']['output'];
   thumbnail: Scalars['String']['output'];
   wishTitle: Scalars['String']['output'];
+};
+
+export type WishAuthor = {
+  __typename?: 'WishAuthor';
+  avatar: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
+  id: Scalars['UserID']['output'];
+  username: Scalars['String']['output'];
 };
 
 
@@ -692,6 +744,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   FetchStoryFeedResponse: ( FetchStoryFeedResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
+  GetWishResponse: ( GetWishResponseSuccess ) | ( ResponseError );
   ListChatRoomsResponse: ( ListChatRoomsResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ListWishlistResponse: ( ListWishlistResponseSuccess ) | ( ResponseError );
@@ -703,6 +756,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
+  UpdateWishResponse: ( ResponseError ) | ( UpdateWishResponseSuccess );
   ViewPublicProfileResponse: ( ResponseError ) | ( ViewPublicProfileResponseSuccess );
 };
 
@@ -746,6 +800,9 @@ export type ResolversTypes = {
   GetStoryInput: GetStoryInput;
   GetStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetStoryResponse']>;
   GetStoryResponseSuccess: ResolverTypeWrapper<GetStoryResponseSuccess>;
+  GetWishInput: GetWishInput;
+  GetWishResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetWishResponse']>;
+  GetWishResponseSuccess: ResolverTypeWrapper<GetWishResponseSuccess>;
   GroupChatID: ResolverTypeWrapper<Scalars['GroupChatID']['output']>;
   HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -801,12 +858,16 @@ export type ResolversTypes = {
   UpdatePushTokenInput: UpdatePushTokenInput;
   UpdatePushTokenResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdatePushTokenResponse']>;
   UpdatePushTokenResponseSuccess: ResolverTypeWrapper<UpdatePushTokenResponseSuccess>;
+  UpdateWishInput: UpdateWishInput;
+  UpdateWishResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateWishResponse']>;
+  UpdateWishResponseSuccess: ResolverTypeWrapper<UpdateWishResponseSuccess>;
   User: ResolverTypeWrapper<User>;
   UserID: ResolverTypeWrapper<Scalars['UserID']['output']>;
   ViewPublicProfileInput: ViewPublicProfileInput;
   ViewPublicProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ViewPublicProfileResponse']>;
   ViewPublicProfileResponseSuccess: ResolverTypeWrapper<ViewPublicProfileResponseSuccess>;
   Wish: ResolverTypeWrapper<Wish>;
+  WishAuthor: ResolverTypeWrapper<WishAuthor>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -846,6 +907,9 @@ export type ResolversParentTypes = {
   GetStoryInput: GetStoryInput;
   GetStoryResponse: ResolversUnionTypes<ResolversParentTypes>['GetStoryResponse'];
   GetStoryResponseSuccess: GetStoryResponseSuccess;
+  GetWishInput: GetWishInput;
+  GetWishResponse: ResolversUnionTypes<ResolversParentTypes>['GetWishResponse'];
+  GetWishResponseSuccess: GetWishResponseSuccess;
   GroupChatID: Scalars['GroupChatID']['output'];
   HexColorCode: Scalars['HexColorCode']['output'];
   ID: Scalars['ID']['output'];
@@ -897,12 +961,16 @@ export type ResolversParentTypes = {
   UpdatePushTokenInput: UpdatePushTokenInput;
   UpdatePushTokenResponse: ResolversUnionTypes<ResolversParentTypes>['UpdatePushTokenResponse'];
   UpdatePushTokenResponseSuccess: UpdatePushTokenResponseSuccess;
+  UpdateWishInput: UpdateWishInput;
+  UpdateWishResponse: ResolversUnionTypes<ResolversParentTypes>['UpdateWishResponse'];
+  UpdateWishResponseSuccess: UpdateWishResponseSuccess;
   User: User;
   UserID: Scalars['UserID']['output'];
   ViewPublicProfileInput: ViewPublicProfileInput;
   ViewPublicProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ViewPublicProfileResponse'];
   ViewPublicProfileResponseSuccess: ViewPublicProfileResponseSuccess;
   Wish: Wish;
+  WishAuthor: WishAuthor;
 };
 
 export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatRoom'] = ResolversParentTypes['ChatRoom']> = {
@@ -1029,6 +1097,15 @@ export type GetStoryResponseSuccessResolvers<ContextType = any, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GetWishResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetWishResponse'] = ResolversParentTypes['GetWishResponse']> = {
+  __resolveType: TypeResolveFn<'GetWishResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type GetWishResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['GetWishResponseSuccess'] = ResolversParentTypes['GetWishResponseSuccess']> = {
+  wish?: Resolver<ResolversTypes['Wish'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface GroupChatIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['GroupChatID'], any> {
   name: 'GroupChatID';
 }
@@ -1120,6 +1197,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
+  updateWish?: Resolver<ResolversTypes['UpdateWishResponse'], ParentType, ContextType, RequireFields<MutationUpdateWishArgs, 'input'>>;
 };
 
 export type NotificationGqlResolvers<ContextType = any, ParentType extends ResolversParentTypes['NotificationGql'] = ResolversParentTypes['NotificationGql']> = {
@@ -1158,6 +1236,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   fetchStoryFeed?: Resolver<ResolversTypes['FetchStoryFeedResponse'], ParentType, ContextType, RequireFields<QueryFetchStoryFeedArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   getStory?: Resolver<ResolversTypes['GetStoryResponse'], ParentType, ContextType, RequireFields<QueryGetStoryArgs, 'input'>>;
+  getWish?: Resolver<ResolversTypes['GetWishResponse'], ParentType, ContextType, RequireFields<QueryGetWishArgs, 'input'>>;
   listChatRooms?: Resolver<ResolversTypes['ListChatRoomsResponse'], ParentType, ContextType>;
   listContacts?: Resolver<ResolversTypes['ListContactsResponse'], ParentType, ContextType, RequireFields<QueryListContactsArgs, 'input'>>;
   listWishlist?: Resolver<ResolversTypes['ListWishlistResponse'], ParentType, ContextType, RequireFields<QueryListWishlistArgs, 'input'>>;
@@ -1255,6 +1334,15 @@ export type UpdatePushTokenResponseSuccessResolvers<ContextType = any, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdateWishResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdateWishResponse'] = ResolversParentTypes['UpdateWishResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'UpdateWishResponseSuccess', ParentType, ContextType>;
+};
+
+export type UpdateWishResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdateWishResponseSuccess'] = ResolversParentTypes['UpdateWishResponseSuccess']> = {
+  wish?: Resolver<ResolversTypes['Wish'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1294,7 +1382,9 @@ export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentT
 };
 
 export type WishResolvers<ContextType = any, ParentType extends ResolversParentTypes['Wish'] = ResolversParentTypes['Wish']> = {
+  author?: Resolver<Maybe<ResolversTypes['WishAuthor']>, ParentType, ContextType>;
   cookiePrice?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
   creatorID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   galleryMediaSet?: Resolver<Array<ResolversTypes['MediaSet']>, ParentType, ContextType>;
@@ -1304,6 +1394,14 @@ export type WishResolvers<ContextType = any, ParentType extends ResolversParentT
   stickerTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   wishTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type WishAuthorResolvers<ContextType = any, ParentType extends ResolversParentTypes['WishAuthor'] = ResolversParentTypes['WishAuthor']> = {
+  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1333,6 +1431,8 @@ export type Resolvers<ContextType = any> = {
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GetStoryResponse?: GetStoryResponseResolvers<ContextType>;
   GetStoryResponseSuccess?: GetStoryResponseSuccessResolvers<ContextType>;
+  GetWishResponse?: GetWishResponseResolvers<ContextType>;
+  GetWishResponseSuccess?: GetWishResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
   HexColorCode?: GraphQLScalarType;
   ListChatRoomsResponse?: ListChatRoomsResponseResolvers<ContextType>;
@@ -1371,10 +1471,13 @@ export type Resolvers<ContextType = any> = {
   UpdateChatSettingsResponseSuccess?: UpdateChatSettingsResponseSuccessResolvers<ContextType>;
   UpdatePushTokenResponse?: UpdatePushTokenResponseResolvers<ContextType>;
   UpdatePushTokenResponseSuccess?: UpdatePushTokenResponseSuccessResolvers<ContextType>;
+  UpdateWishResponse?: UpdateWishResponseResolvers<ContextType>;
+  UpdateWishResponseSuccess?: UpdateWishResponseSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserID?: GraphQLScalarType;
   ViewPublicProfileResponse?: ViewPublicProfileResponseResolvers<ContextType>;
   ViewPublicProfileResponseSuccess?: ViewPublicProfileResponseSuccessResolvers<ContextType>;
   Wish?: WishResolvers<ContextType>;
+  WishAuthor?: WishAuthorResolvers<ContextType>;
 };
 

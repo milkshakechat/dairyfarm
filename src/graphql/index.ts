@@ -9,6 +9,7 @@ import * as SubscriptionResolvers from "@/graphql/subscriptions";
 // import * as SubscriptionResponses from "@/graphql/subscriptions/responses";
 import { CustomStoryResolvers } from "./queries/lib/story.queries";
 import { CustomProfileResolvers } from "./queries/lib/profile.queries";
+import { CustomWishResolvers } from "./queries/lib/wish.queries";
 
 // const typeDefs = readFileSync("src/graphql/schema.graphql", "utf8");
 // Define the directory where the .graphql files are
@@ -35,6 +36,7 @@ const resolvers: Resolvers = {
   // custom type resolvers
   ...CustomProfileResolvers,
   ...CustomStoryResolvers,
+  ...CustomWishResolvers,
 };
 
 export const schema = createSchema({ typeDefs, resolvers });
