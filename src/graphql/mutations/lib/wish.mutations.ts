@@ -2,8 +2,10 @@ import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   CreateWishResponse,
   MutationCreateWishArgs,
+  MutationUpdateWishArgs,
+  UpdateWishResponse,
 } from "@/graphql/types/resolvers-types";
-import { createWishFirestore } from "@/services/wish";
+import { createWishFirestore, updateWishFirestore } from "@/services/wish";
 import { GraphQLResolveInfo } from "graphql";
 
 export const createWish = async (
@@ -22,6 +24,22 @@ export const createWish = async (
   };
 };
 
+export const updateWish = async (
+  _parent: any,
+  args: MutationUpdateWishArgs,
+  _context: any,
+  _info: any
+): Promise<UpdateWishResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const wish = await updateWishFirestore(args.input, userID);
+  return {
+    wish,
+  };
+};
+
 export const responses = {
   CreateWishResponse: {
     __resolveType(
@@ -31,6 +49,21 @@ export const responses = {
     ) {
       if ("wish" in obj) {
         return "CreateWishResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  UpdateWishResponse: {
+    __resolveType(
+      obj: UpdateWishResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("wish" in obj) {
+        return "UpdateWishResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

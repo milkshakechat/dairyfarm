@@ -3,3 +3,4 @@ export { responses as ProfileQueryResponses } from "@/graphql/queries/lib/profil
 export { responses as FriendQueryResponses } from "@/graphql/queries/lib/friend.queries";
 export { responses as ChatQueryResponses } from "@/graphql/queries/lib/chat.queries";
 export { responses as StoryQueryResponses } from "@/graphql/queries/lib/story.queries";
+export { responses as WishQueryResponses } from "@/graphql/queries/lib/wish.queries";
