@@ -61,7 +61,7 @@
     "@google-cloud/secret-manager": "^4.2.2",
     "@google-cloud/storage": "^6.9.5",
     "@google-cloud/video-transcoder": "^2.6.0",
-    "@milkshakechat/helpers": "^1.0.94",
+    "@milkshakechat/helpers": "^1.0.97",
     "axios": "^1.4.0",
     "build": "^0.1.4",
     "cors": "^2.8.5",

@@ -9,6 +9,7 @@ import {
   MediaSet,
   UserID,
   User_Firestore,
+  WishBuyFrequency,
   WishID,
   Wish_Firestore,
   getCompressedStickerUrl,
@@ -106,6 +107,7 @@ export const createWishFirestore = async (
     isFavorite: input.isFavorite || false,
     deleted: false,
     createdAt: createFirestoreTimestamp(),
+    buyFrequency: input.buyFrequency as unknown as WishBuyFrequency,
   };
   const wish = await createFirestoreDoc<WishID, Wish_Firestore>({
     id: id as WishID,
@@ -222,6 +224,9 @@ export const updateWishFirestore = async (
   }
   if (input.isFavorite !== undefined) {
     updateData.isFavorite = input.isFavorite || false;
+  }
+  if (input.buyFrequency) {
+    updateData.buyFrequency = input.buyFrequency as unknown as WishBuyFrequency;
   }
   if (input.stickerGraphic) {
     const stickerAssetID = extractAssetIDFromWishUrl(

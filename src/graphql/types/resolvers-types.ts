@@ -64,6 +64,7 @@ export type CreateStoryResponseSuccess = {
 };
 
 export type CreateWishInput = {
+  buyFrequency?: InputMaybe<WishBuyFrequency>;
   cookiePrice: Scalars['Int']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
@@ -587,6 +588,7 @@ export type UpdatePushTokenResponseSuccess = {
 };
 
 export type UpdateWishInput = {
+  buyFrequency?: InputMaybe<WishBuyFrequency>;
   cookiePrice?: InputMaybe<Scalars['Int']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
@@ -644,6 +646,7 @@ export type ViewPublicProfileResponseSuccess = {
 export type Wish = {
   __typename?: 'Wish';
   author?: Maybe<WishAuthor>;
+  buyFrequency: WishBuyFrequency;
   cookiePrice: Scalars['Int']['output'];
   createdAt: Scalars['DateString']['output'];
   creatorID: Scalars['ID']['output'];
@@ -664,6 +667,12 @@ export type WishAuthor = {
   id: Scalars['UserID']['output'];
   username: Scalars['String']['output'];
 };
+
+export enum WishBuyFrequency {
+  Monthly = 'MONTHLY',
+  OneTime = 'ONE_TIME',
+  Weekly = 'WEEKLY'
+}
 
 
 
@@ -868,6 +877,7 @@ export type ResolversTypes = {
   ViewPublicProfileResponseSuccess: ResolverTypeWrapper<ViewPublicProfileResponseSuccess>;
   Wish: ResolverTypeWrapper<Wish>;
   WishAuthor: ResolverTypeWrapper<WishAuthor>;
+  WishBuyFrequency: WishBuyFrequency;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -1383,6 +1393,7 @@ export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentT
 
 export type WishResolvers<ContextType = any, ParentType extends ResolversParentTypes['Wish'] = ResolversParentTypes['Wish']> = {
   author?: Resolver<Maybe<ResolversTypes['WishAuthor']>, ParentType, ContextType>;
+  buyFrequency?: Resolver<ResolversTypes['WishBuyFrequency'], ParentType, ContextType>;
   cookiePrice?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
   creatorID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

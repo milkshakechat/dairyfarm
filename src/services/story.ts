@@ -194,7 +194,7 @@ export const fetchStoryFeedFirestore = async ({
   const now = admin.firestore.Timestamp.now();
   const stories = await listFirestoreDocs<Story_Firestore>({
     where: {
-      field: "expiryDate",
+      field: "expiresAt",
       operator: ">",
       value: now,
     },
