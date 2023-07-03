@@ -408,6 +408,11 @@ type MediaSet {
   medium: String!
   large: String
 }
+enum WishBuyFrequency {
+  ONE_TIME
+  MONTHLY
+  WEEKLY 
+}
 type Wish {
   id: ID!
   creatorID: ID!
@@ -421,6 +426,7 @@ type Wish {
   isFavorite: Boolean!
   createdAt: DateString!
   author: WishAuthor
+  buyFrequency: WishBuyFrequency!
 }
 type WishAuthor {
   id: UserID!
@@ -436,6 +442,7 @@ input CreateWishInput {
   wishGraphics: [String!]
   stickerGraphic: String
   isFavorite: Boolean
+  buyFrequency: WishBuyFrequency
 }
 type CreateWishResponseSuccess {
   wish: Wish!
@@ -455,6 +462,7 @@ input UpdateWishInput {
   wishGraphics: [String!]
   stickerGraphic: String
   isFavorite: Boolean
+  buyFrequency: WishBuyFrequency
 }
 type UpdateWishResponseSuccess {
   wish: Wish!
