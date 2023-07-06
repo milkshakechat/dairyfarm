@@ -102,6 +102,7 @@ export const getUserIDFromAuthToken = async ({
   try {
     const idToken = getTokenFromBearer(authorization);
     if (!idToken) {
+      console.log(`No user auth token found in Bearer Auth`, idToken);
       return null;
     }
     const decodedToken = await getAuth().verifyIdToken(idToken);
