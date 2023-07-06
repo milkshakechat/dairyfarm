@@ -66,7 +66,9 @@ type ViewPublicProfileResponseSuccess {
   username: String!
   avatar: String
   displayName: String
+  bio: String
   stories: [Story!]!
+  privacyMode: PrivacyModeEnum!
 }
 union ViewPublicProfileResponse =
     ViewPublicProfileResponseSuccess

@@ -1,4 +1,4 @@
-import { authGuardHTTP } from "@/graphql/authGuard";
+import { authGuardHTTP, getUserIDFromAuthToken } from "@/graphql/authGuard";
 import {
   DemoQueryResponse,
   QueryDemoQueryArgs,
@@ -16,9 +16,12 @@ export const viewPublicProfile = async (
   _context: any,
   _info: any
 ) => {
+  const selfUserID = await getUserIDFromAuthToken({ _context });
+  console.log(`selfUserID`, selfUserID);
   const publicProfile = await getPublicProfile({
     username: input.username as Username,
     userID: input.userID,
+    requesterID: selfUserID,
   });
   return publicProfile;
 };

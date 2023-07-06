@@ -637,8 +637,10 @@ export type ViewPublicProfileResponse = ResponseError | ViewPublicProfileRespons
 export type ViewPublicProfileResponseSuccess = {
   __typename?: 'ViewPublicProfileResponseSuccess';
   avatar?: Maybe<Scalars['String']['output']>;
+  bio?: Maybe<Scalars['String']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
   id: Scalars['UserID']['output'];
+  privacyMode: PrivacyModeEnum;
   stories: Array<Story>;
   username: Scalars['String']['output'];
 };
@@ -1384,8 +1386,10 @@ export type ViewPublicProfileResponseResolvers<ContextType = any, ParentType ext
 
 export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ViewPublicProfileResponseSuccess'] = ResolversParentTypes['ViewPublicProfileResponseSuccess']> = {
   avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  privacyMode?: Resolver<ResolversTypes['PrivacyModeEnum'], ParentType, ContextType>;
   stories?: Resolver<Array<ResolversTypes['Story']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
