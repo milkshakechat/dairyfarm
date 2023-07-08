@@ -167,6 +167,13 @@ export enum FriendshipStatus {
   SentRequest = 'SENT_REQUEST'
 }
 
+export enum GenderEnum {
+  Female = 'female',
+  Male = 'male',
+  Other = 'other',
+  Unknown = 'unknown'
+}
+
 export type GetMyProfileResponse = GetMyProfileResponseSuccess | ResponseError;
 
 export type GetMyProfileResponseSuccess = {
@@ -272,6 +279,8 @@ export type ModifyProfileInput = {
   avatar?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
   displayName?: InputMaybe<Scalars['String']['input']>;
+  gender?: InputMaybe<GenderEnum>;
+  interestedIn?: InputMaybe<Array<GenderEnum>>;
   language?: InputMaybe<LanguageEnum>;
   link?: InputMaybe<Scalars['String']['input']>;
   privacyMode?: InputMaybe<PrivacyModeEnum>;
@@ -614,7 +623,9 @@ export type User = {
   disabled: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
   email: Scalars['String']['output'];
+  gender: GenderEnum;
   id: Scalars['UserID']['output'];
+  interestedIn: Array<GenderEnum>;
   isCreator: Scalars['Boolean']['output'];
   isPaidChat: Scalars['Boolean']['output'];
   language: LanguageEnum;
@@ -806,6 +817,7 @@ export type ResolversTypes = {
   FetchStoryFeedResponseSuccess: ResolverTypeWrapper<FetchStoryFeedResponseSuccess>;
   FriendshipAction: FriendshipAction;
   FriendshipStatus: FriendshipStatus;
+  GenderEnum: GenderEnum;
   GetMyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMyProfileResponse']>;
   GetMyProfileResponseSuccess: ResolverTypeWrapper<GetMyProfileResponseSuccess>;
   GetStoryInput: GetStoryInput;
@@ -1362,7 +1374,9 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   disabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  gender?: Resolver<ResolversTypes['GenderEnum'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
+  interestedIn?: Resolver<Array<ResolversTypes['GenderEnum']>, ParentType, ContextType>;
   isCreator?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isPaidChat?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   language?: Resolver<ResolversTypes['LanguageEnum'], ParentType, ContextType>;
