@@ -9,6 +9,7 @@ import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
 import { initFirebase } from "@/services/firebase";
 import config from "@/config.env";
+import { initStripe } from "./services/stripe";
 
 const SOCKETS_PORT = process.env.PORT || 8080;
 
@@ -90,6 +91,7 @@ useServer(
 );
 
 initFirebase();
+initStripe();
 
 server.listen(SOCKETS_PORT, () => {
   console.log(`Listening on PORT ${SOCKETS_PORT}/graphql`);
