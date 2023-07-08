@@ -86,3 +86,12 @@ export const getFCMServerKey = async () => {
   });
   return fcmServerKey;
 };
+
+export const getStripeSecret = async () => {
+  const stripeSecret = await accessSecretVersion({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.STRIPE_SERVER_KEY.secretId,
+    versionId: config.SECRETS.STRIPE_SERVER_KEY.versionId,
+  });
+  return stripeSecret;
+};

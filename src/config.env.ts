@@ -23,6 +23,10 @@ const devConfig: ConfigEnv = {
       secretId: "fcm-server-key",
       versionId: "latest",
     },
+    STRIPE_SERVER_KEY: {
+      secretId: "stripe-private-key",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -63,6 +67,10 @@ const stagingConfig: ConfigEnv = {
     },
     FCM_SERVER_KEY: {
       secretId: "fcm-server-key",
+      versionId: "latest",
+    },
+    STRIPE_SERVER_KEY: {
+      secretId: "stripe-private-key",
       versionId: "latest",
     },
   },
@@ -111,6 +119,10 @@ const prodConfig: ConfigEnv = {
       secretId: "fcm-server-key",
       versionId: "latest",
     },
+    STRIPE_SERVER_KEY: {
+      secretId: "stripe-private-key",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -142,6 +154,7 @@ interface ConfigEnv {
     FIREBASE_CONFIG: SecretConfig;
     SENDBIRD_API: SecretConfig;
     FCM_SERVER_KEY: SecretConfig;
+    STRIPE_SERVER_KEY: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;
