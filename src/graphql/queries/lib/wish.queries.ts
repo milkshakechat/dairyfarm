@@ -26,7 +26,7 @@ export const listWishlist = async (
   _info: any
 ): Promise<ListWishlistResponseSuccess> => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
-  console.log(`listWishlist...`);
+
   if (!userID) {
     throw new Error("No userID found");
   }
@@ -49,7 +49,7 @@ export const getWish = async (
   _info: any
 ): Promise<GetWishResponseSuccess> => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
-  console.log(`getWish...`);
+
   if (!userID) {
     throw new Error("No userID found");
   }

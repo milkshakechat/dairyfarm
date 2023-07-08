@@ -409,161 +409,200 @@ export const getPublicProfile = async ({
   // handle the case where its full anon
   if (!requesterID) {
     console.log(`Its an anon request`);
+    try {
+      const matchedUser = await retrieveUserBasedOnIdOrUsername({
+        username,
+        userID,
+      });
+      if (matchedUser.privacyMode === privacyModeEnum.hidden) {
+        // allow hidden user to be found by userID but not username
+        if (matchedUser.id === userID) {
+          return {
+            id: matchedUser.id,
+            username: matchedUser.username,
+            avatar: matchedUser.avatar,
+            displayName: matchedUser.displayName,
+            bio: matchedUser.bio,
+            stories: [],
+            privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
+          };
+        }
+        // hide user if only provided username
+        return UNKNOWN_USER;
+      }
+      if (matchedUser.privacyMode === privacyModeEnum.private) {
+        const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+          where1: {
+            field: "userID",
+            operator: "==",
+            value: matchedUser.id,
+          },
+          where2: {
+            field: "pinned",
+            operator: "==",
+            value: true,
+          },
+          collection: FirestoreCollection.STORIES,
+        });
+        return {
+          id: matchedUser.id,
+          username: matchedUser.username,
+          avatar: matchedUser.avatar,
+          displayName: matchedUser.displayName,
+          bio: matchedUser.bio,
+          stories: stories
+            .filter((s) => !s.deleted && s.showcase)
+            .map((s) => convertStoryToGraphQL(s)),
+          privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
+        };
+      }
+      if (matchedUser.privacyMode === privacyModeEnum.public) {
+        const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+          where1: {
+            field: "userID",
+            operator: "==",
+            value: matchedUser.id,
+          },
+          where2: {
+            field: "showcase",
+            operator: "==",
+            value: true,
+          },
+          collection: FirestoreCollection.STORIES,
+        });
+        return {
+          id: matchedUser.id,
+          username: matchedUser.username,
+          avatar: matchedUser.avatar,
+          displayName: matchedUser.displayName,
+          bio: matchedUser.bio,
+          stories: stories
+            .filter((s) => !s.deleted)
+            .map((s) => convertStoryToGraphQL(s)),
+          privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
+        };
+      }
+      return UNKNOWN_USER;
+    } catch (e) {
+      return UNKNOWN_USER;
+    }
+  }
+  console.log(`Its an authenticated request from ${requesterID}`);
+  try {
+    // handle the case where theres a user
     const matchedUser = await retrieveUserBasedOnIdOrUsername({
       username,
       userID,
     });
-    if (matchedUser.privacyMode === privacyModeEnum.hidden) {
-      // allow hidden user to be found by userID but not username
-      if (matchedUser.id === userID) {
-        return {
-          id: matchedUser.id,
-          username: matchedUser.username,
-          avatar: matchedUser.avatar,
-          displayName: matchedUser.displayName,
-          bio: matchedUser.bio,
-          stories: [],
-          privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
-        };
-      }
-      // hide user if only provided username
-      return UNKNOWN_USER;
-    }
-    if (matchedUser.privacyMode === privacyModeEnum.private) {
-      return {
-        id: matchedUser.id,
-        username: matchedUser.username,
-        avatar: matchedUser.avatar,
-        displayName: matchedUser.displayName,
-        bio: matchedUser.bio,
-        stories: [],
-        privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
-      };
-    }
-    if (matchedUser.privacyMode === privacyModeEnum.public) {
-      const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
-        where1: {
-          field: "userID",
-          operator: "==",
-          value: matchedUser.id,
-        },
-        where2: {
-          field: "showcase",
-          operator: "==",
-          value: true,
-        },
-        collection: FirestoreCollection.STORIES,
-      });
-      return {
-        id: matchedUser.id,
-        username: matchedUser.username,
-        avatar: matchedUser.avatar,
-        displayName: matchedUser.displayName,
-        bio: matchedUser.bio,
-        stories: stories
-          .filter((s) => !s.deleted)
-          .map((s) => convertStoryToGraphQL(s)),
-        privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
-      };
-    }
-    return UNKNOWN_USER;
-  }
-  console.log(`Its an authenticated request from ${requesterID}`);
-  // handle the case where theres a user
-  const matchedUser = await retrieveUserBasedOnIdOrUsername({
-    username,
-    userID,
-  });
-  const friendships = await checkExistingFriendship({
-    to: matchedUser.id,
-    from: requesterID,
-  });
-  const friendship = friendships[0];
-  console.log(`Found ${friendships.length} friendship logs`, friendship);
-  // not friends
-  if (!friendship || friendship.status !== FriendshipStatus.ACCEPTED) {
-    if (matchedUser.privacyMode === privacyModeEnum.hidden) {
-      // allow hidden user to be found by userID but not username
-      if (matchedUser.id === userID) {
-        return {
-          id: matchedUser.id,
-          username: matchedUser.username,
-          avatar: matchedUser.avatar,
-          displayName: matchedUser.displayName,
-          bio: matchedUser.bio,
-          stories: [],
-          privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
-        };
-      }
-      return UNKNOWN_USER;
-    }
-    if (matchedUser.privacyMode === privacyModeEnum.private) {
-      return {
-        id: matchedUser.id,
-        username: matchedUser.username,
-        avatar: matchedUser.avatar,
-        displayName: matchedUser.displayName,
-        bio: matchedUser.bio,
-        stories: [],
-        privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
-      };
-    }
-    if (matchedUser.privacyMode === privacyModeEnum.public) {
-      const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
-        where1: {
-          field: "userID",
-          operator: "==",
-          value: matchedUser.id,
-        },
-        where2: {
-          field: "showcase",
-          operator: "==",
-          value: true,
-        },
-        collection: FirestoreCollection.STORIES,
-      });
-      return {
-        id: matchedUser.id,
-        username: matchedUser.username,
-        avatar: matchedUser.avatar,
-        displayName: matchedUser.displayName,
-        bio: matchedUser.bio,
-        stories: stories
-          .filter((s) => !s.deleted)
-          .map((s) => convertStoryToGraphQL(s)),
-        privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
-      };
-    }
-    return UNKNOWN_USER;
-  }
-  // are friends
-  if (friendship.status === FriendshipStatus.ACCEPTED) {
-    const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
-      where1: {
-        field: "userID",
-        operator: "==",
-        value: matchedUser.id,
-      },
-      where2: {
-        field: "showcase",
-        operator: "==",
-        value: true,
-      },
-      collection: FirestoreCollection.STORIES,
+    const friendships = await checkExistingFriendship({
+      to: matchedUser.id,
+      from: requesterID,
     });
-    return {
-      id: matchedUser.id,
-      username: matchedUser.username,
-      avatar: matchedUser.avatar,
-      displayName: matchedUser.displayName,
-      bio: matchedUser.bio,
-      stories: stories
-        .filter((s) => !s.deleted)
-        .map((s) => convertStoryToGraphQL(s)),
-      privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
-    };
+    const friendship = friendships[0];
+    console.log(`Found ${friendships.length} friendship logs`, friendship);
+    // not friends
+    if (!friendship || friendship.status !== FriendshipStatus.ACCEPTED) {
+      if (matchedUser.privacyMode === privacyModeEnum.hidden) {
+        // allow hidden user to be found by userID but not username
+        if (matchedUser.id === userID) {
+          return {
+            id: matchedUser.id,
+            username: matchedUser.username,
+            avatar: matchedUser.avatar,
+            displayName: matchedUser.displayName,
+            bio: matchedUser.bio,
+            stories: [],
+            privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
+          };
+        }
+        return UNKNOWN_USER;
+      }
+      if (matchedUser.privacyMode === privacyModeEnum.private) {
+        const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+          where1: {
+            field: "userID",
+            operator: "==",
+            value: matchedUser.id,
+          },
+          where2: {
+            field: "pinned",
+            operator: "==",
+            value: true,
+          },
+          collection: FirestoreCollection.STORIES,
+        });
+        return {
+          id: matchedUser.id,
+          username: matchedUser.username,
+          avatar: matchedUser.avatar,
+          displayName: matchedUser.displayName,
+          bio: matchedUser.bio,
+          stories: stories
+            .filter((s) => !s.deleted && s.showcase)
+            .map((s) => convertStoryToGraphQL(s)),
+          privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
+        };
+      }
+      if (matchedUser.privacyMode === privacyModeEnum.public) {
+        const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+          where1: {
+            field: "userID",
+            operator: "==",
+            value: matchedUser.id,
+          },
+          where2: {
+            field: "showcase",
+            operator: "==",
+            value: true,
+          },
+          collection: FirestoreCollection.STORIES,
+        });
+        return {
+          id: matchedUser.id,
+          username: matchedUser.username,
+          avatar: matchedUser.avatar,
+          displayName: matchedUser.displayName,
+          bio: matchedUser.bio,
+          stories: stories
+            .filter((s) => !s.deleted)
+            .map((s) => convertStoryToGraphQL(s)),
+          privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
+        };
+      }
+      return UNKNOWN_USER;
+    }
+    // are friends
+    if (friendship.status === FriendshipStatus.ACCEPTED) {
+      const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+        where1: {
+          field: "userID",
+          operator: "==",
+          value: matchedUser.id,
+        },
+        where2: {
+          field: "showcase",
+          operator: "==",
+          value: true,
+        },
+        collection: FirestoreCollection.STORIES,
+      });
+      return {
+        id: matchedUser.id,
+        username: matchedUser.username,
+        avatar: matchedUser.avatar,
+        displayName: matchedUser.displayName,
+        bio: matchedUser.bio,
+        stories: stories
+          .filter((s) => !s.deleted)
+          .map((s) => convertStoryToGraphQL(s)),
+        privacyMode: matchedUser.privacyMode as unknown as PrivacyModeEnum,
+      };
+    }
+    return UNKNOWN_USER;
+  } catch (e) {
+    console.log(e);
+    return UNKNOWN_USER;
   }
-  return UNKNOWN_USER;
 };
 
 const retrieveUserBasedOnIdOrUsername = async ({

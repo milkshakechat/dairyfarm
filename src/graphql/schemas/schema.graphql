@@ -16,6 +16,13 @@ enum LanguageEnum {
   korean
 }
 
+enum GenderEnum {
+  male
+  female
+  other
+  unknown
+}
+
 type User {
   id: UserID!
   email: String!
@@ -34,6 +41,8 @@ type User {
   language: LanguageEnum!
   sendBirdAccessToken: String
   stories: [Story!]!
+  gender: GenderEnum!
+  interestedIn: [GenderEnum!]!
 }
 
 # --- getMyProfile
@@ -231,6 +240,8 @@ input ModifyProfileInput {
   privacyMode: PrivacyModeEnum
   themeColor: HexColorCode
   language: LanguageEnum
+  gender: GenderEnum
+  interestedIn: [GenderEnum!]
 }
 type ModifyProfileResponseSuccess {
   user: User!

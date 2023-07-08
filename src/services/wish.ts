@@ -4,6 +4,7 @@ import {
 } from "@/graphql/types/resolvers-types";
 import {
   FirestoreCollection,
+  FriendshipStatus,
   Friendship_Firestore,
   ImageResizeOption,
   MediaSet,
@@ -143,6 +144,10 @@ export const listWishlistFirestore = async ({
     if (!friendship) {
       throw new Error(`You are not friends with user ${targetUserID}`);
     }
+    if (friendship.status !== FriendshipStatus.ACCEPTED) {
+      console.log(`You are not friends with user ${targetUserID}`);
+      return [];
+    }
   }
   const wishlist = await listFirestoreDocs<Wish_Firestore>({
     where: {
@@ -189,6 +194,9 @@ export const getWishFirestore = async ({
   });
   const friendship = friendships[0];
   if (!friendship) {
+    throw new Error(`You are not friends with user ${wish.creatorID}`);
+  }
+  if (friendship.status !== FriendshipStatus.ACCEPTED) {
     throw new Error(`You are not friends with user ${wish.creatorID}`);
   }
   return wish;
