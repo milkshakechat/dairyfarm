@@ -8,6 +8,7 @@ import {
   Wish,
   WishAuthor,
   WishBuyFrequency,
+  WishlistVisibility,
 } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
 import { sendPushNotification } from "@/services/push";
@@ -38,6 +39,7 @@ export const listWishlist = async (
     wishlist: wishlist.map((w) => ({
       ...w,
       buyFrequency: w.buyFrequency as unknown as WishBuyFrequency,
+      visibility: w.visibility as unknown as WishlistVisibility,
     })),
   };
 };
@@ -61,6 +63,7 @@ export const getWish = async (
     wish: {
       ...wish,
       buyFrequency: wish.buyFrequency as unknown as WishBuyFrequency,
+      visibility: wish.visibility as unknown as WishlistVisibility,
     },
   };
 };

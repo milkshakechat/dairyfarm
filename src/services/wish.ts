@@ -13,6 +13,7 @@ import {
   WishBuyFrequency,
   WishID,
   Wish_Firestore,
+  WishlistVisibility,
   getCompressedStickerUrl,
   getCompressedWishlistGraphicUrl,
   placeholderImageThumbnail,
@@ -109,6 +110,9 @@ export const createWishFirestore = async (
     deleted: false,
     createdAt: createFirestoreTimestamp(),
     buyFrequency: input.buyFrequency as unknown as WishBuyFrequency,
+    visibility:
+      (input.visibility as unknown as WishlistVisibility) ||
+      WishlistVisibility.FRIENDS_ONLY,
   };
   const wish = await createFirestoreDoc<WishID, Wish_Firestore>({
     id: id as WishID,
@@ -122,9 +126,26 @@ export const listWishlistFirestore = async ({
   targetUserID,
   requesterUserID,
 }: {
-  targetUserID: UserID;
+  targetUserID?: UserID;
   requesterUserID: UserID;
 }) => {
+  if (!targetUserID) {
+    const marketplaceWishes =
+      await listFirestoreDocsDoubleWhere<Wish_Firestore>({
+        where1: {
+          field: "visibility",
+          operator: "==",
+          value: WishlistVisibility.PUBLIC_MARKETPLACE,
+        },
+        where2: {
+          field: "deleted",
+          operator: "==",
+          value: false,
+        },
+        collection: FirestoreCollection.WISH,
+      });
+    return marketplaceWishes;
+  }
   if (targetUserID !== requesterUserID) {
     const friendships =
       await listFirestoreDocsDoubleWhere<Friendship_Firestore>({
@@ -176,6 +197,10 @@ export const getWishFirestore = async ({
   }
   // handle case where user the creator of this wish
   if (wish.creatorID === requesterUserID) {
+    return wish;
+  }
+  // handle case where its a public marketplace wish
+  if (wish.visibility === WishlistVisibility.PUBLIC_MARKETPLACE) {
     return wish;
   }
   // handle case where user is not the creator of this wish
@@ -235,6 +260,9 @@ export const updateWishFirestore = async (
   }
   if (input.buyFrequency) {
     updateData.buyFrequency = input.buyFrequency as unknown as WishBuyFrequency;
+  }
+  if (input.visibility) {
+    updateData.visibility = input.visibility as unknown as WishlistVisibility;
   }
   if (input.stickerGraphic) {
     const stickerAssetID = extractAssetIDFromWishUrl(

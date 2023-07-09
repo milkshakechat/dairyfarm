@@ -70,6 +70,7 @@ export type CreateWishInput = {
   isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
   stickerGraphic?: InputMaybe<Scalars['String']['input']>;
   stickerTitle?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<WishlistVisibility>;
   wishGraphics?: InputMaybe<Array<Scalars['String']['input']>>;
   wishTitle: Scalars['String']['input'];
 };
@@ -234,7 +235,7 @@ export type ListContactsResponseSuccess = {
 };
 
 export type ListWishlistInput = {
-  userID: Scalars['UserID']['input'];
+  userID?: InputMaybe<Scalars['UserID']['input']>;
 };
 
 export type ListWishlistResponse = ListWishlistResponseSuccess | ResponseError;
@@ -603,6 +604,7 @@ export type UpdateWishInput = {
   isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
   stickerGraphic?: InputMaybe<Scalars['String']['input']>;
   stickerTitle?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<WishlistVisibility>;
   wishGraphics?: InputMaybe<Array<Scalars['String']['input']>>;
   wishID: Scalars['ID']['input'];
   wishTitle?: InputMaybe<Scalars['String']['input']>;
@@ -670,6 +672,7 @@ export type Wish = {
   stickerMediaSet: MediaSet;
   stickerTitle: Scalars['String']['output'];
   thumbnail: Scalars['String']['output'];
+  visibility: WishlistVisibility;
   wishTitle: Scalars['String']['output'];
 };
 
@@ -685,6 +688,12 @@ export enum WishBuyFrequency {
   Monthly = 'MONTHLY',
   OneTime = 'ONE_TIME',
   Weekly = 'WEEKLY'
+}
+
+export enum WishlistVisibility {
+  FriendsOnly = 'FRIENDS_ONLY',
+  Hidden = 'HIDDEN',
+  PublicMarketplace = 'PUBLIC_MARKETPLACE'
 }
 
 
@@ -892,6 +901,7 @@ export type ResolversTypes = {
   Wish: ResolverTypeWrapper<Wish>;
   WishAuthor: ResolverTypeWrapper<WishAuthor>;
   WishBuyFrequency: WishBuyFrequency;
+  WishlistVisibility: WishlistVisibility;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -1422,6 +1432,7 @@ export type WishResolvers<ContextType = any, ParentType extends ResolversParentT
   stickerMediaSet?: Resolver<ResolversTypes['MediaSet'], ParentType, ContextType>;
   stickerTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  visibility?: Resolver<ResolversTypes['WishlistVisibility'], ParentType, ContextType>;
   wishTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
