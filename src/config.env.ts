@@ -45,6 +45,12 @@ const devConfig: ConfigEnv = {
   GRAPHQL: {
     CORS_ORIGINS: "*",
   },
+  STRIPE: {
+    merchantOnboardingSuccessUrl:
+      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
+    merchantOnboardingFailureUrl:
+      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
+  },
 };
 const stagingConfig: ConfigEnv = {
   GCLOUD: {
@@ -94,6 +100,12 @@ const stagingConfig: ConfigEnv = {
       "https://milkshake-dev-faf77.web.app/",
     ],
   },
+  STRIPE: {
+    merchantOnboardingSuccessUrl:
+      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
+    merchantOnboardingFailureUrl:
+      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
+  },
 };
 
 const prodConfig: ConfigEnv = {
@@ -141,6 +153,12 @@ const prodConfig: ConfigEnv = {
   GRAPHQL: {
     CORS_ORIGINS: ["https://milkshake.chat"],
   },
+  STRIPE: {
+    merchantOnboardingSuccessUrl:
+      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
+    merchantOnboardingFailureUrl:
+      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
+  },
 };
 
 interface ConfigEnv {
@@ -172,6 +190,10 @@ interface ConfigEnv {
   };
   GRAPHQL: {
     CORS_ORIGINS: string | string[];
+  };
+  STRIPE: {
+    merchantOnboardingSuccessUrl: string;
+    merchantOnboardingFailureUrl: string;
   };
 }
 
