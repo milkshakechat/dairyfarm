@@ -5,6 +5,7 @@ import {
   MutationUpdateWishArgs,
   UpdateWishResponse,
   WishBuyFrequency,
+  WishlistVisibility,
 } from "@/graphql/types/resolvers-types";
 import { createWishFirestore, updateWishFirestore } from "@/services/wish";
 import { GraphQLResolveInfo } from "graphql";
@@ -24,6 +25,7 @@ export const createWish = async (
     wish: {
       ...wish,
       buyFrequency: wish.buyFrequency as unknown as WishBuyFrequency,
+      visibility: wish.visibility as unknown as WishlistVisibility,
     },
   };
 };
@@ -43,6 +45,7 @@ export const updateWish = async (
     wish: {
       ...wish,
       buyFrequency: wish.buyFrequency as unknown as WishBuyFrequency,
+      visibility: wish.visibility as unknown as WishlistVisibility,
     },
   };
 };
