@@ -204,6 +204,34 @@ union GetWishResponse =
     GetWishResponseSuccess
   | ResponseError
 
+# --- check merchant status
+input CheckMerchantStatusInput {
+  getControlPanel: Boolean
+}
+type MerchantOnboardingStatusSummary {
+  userID: ID!
+  walletID: ID!
+  name: String!
+  email: String!
+  hasMerchantPrivilege: Boolean!
+  stripeAccountID: ID
+  stripePortalUrl: String
+  anythingDue: Boolean!
+  anythingErrors: Boolean!
+  capabilities: MerchantOnboardingStatusCapabilities!
+}
+type MerchantOnboardingStatusCapabilities {
+  card_payments: String
+  transfers: String
+  charges_enabled: Boolean!
+  payouts_enabled: Boolean!
+}
+type CheckMerchantStatusResponseSuccess {
+  summary: MerchantOnboardingStatusSummary!
+}
+union CheckMerchantStatusResponse =
+    CheckMerchantStatusResponseSuccess
+  | ResponseError
 
 # --- Queries
 type Query {
@@ -228,6 +256,8 @@ type Query {
   # wishlist
   listWishlist(input: ListWishlistInput!): ListWishlistResponse!
   getWish(input: GetWishInput!): GetWishResponse!
+  # merchant
+  checkMerchantStatus(input: CheckMerchantStatusInput!): CheckMerchantStatusResponse!
 }
 
 # --- modifyProfile
@@ -492,6 +522,13 @@ union UpdateWishResponse =
     UpdateWishResponseSuccess
   | ResponseError
 
+# --- request merchant onboarding
+type RequestMerchantOnboardingResponseSuccess {
+  registrationUrl: String!
+}
+union RequestMerchantOnboardingResponse =
+    RequestMerchantOnboardingResponseSuccess
+  | ResponseError
 
 # --- Mutations
 type Mutation {
@@ -511,6 +548,8 @@ type Mutation {
   # wishlist
   createWish(input: CreateWishInput!): CreateWishResponse!
   updateWish(input: UpdateWishInput!): UpdateWishResponse!
+  # merchant
+  requestMerchantOnboarding: RequestMerchantOnboardingResponse!
 }
 
 

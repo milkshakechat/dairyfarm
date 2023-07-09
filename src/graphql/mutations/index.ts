@@ -15,3 +15,4 @@ export {
   modifyStory,
 } from "@/graphql/mutations/lib/story.mutations";
 export { createWish, updateWish } from "@/graphql/mutations/lib/wish.mutations";
+export { requestMerchantOnboarding } from "@/graphql/mutations/lib/merchant.mutations";

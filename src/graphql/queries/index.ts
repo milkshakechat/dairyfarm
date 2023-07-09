@@ -13,3 +13,4 @@ export {
 } from "@/graphql/queries/lib/chat.queries";
 export { getStory, fetchStoryFeed } from "@/graphql/queries/lib/story.queries";
 export { listWishlist, getWish } from "@/graphql/queries/lib/wish.queries";
+export { checkMerchantStatus } from "@/graphql/queries/lib/merchant.queries";

@@ -31,6 +31,17 @@ export type ChatRoom = {
   sendBirdParticipants: Array<Scalars['UserID']['output']>;
 };
 
+export type CheckMerchantStatusInput = {
+  getControlPanel?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type CheckMerchantStatusResponse = CheckMerchantStatusResponseSuccess | ResponseError;
+
+export type CheckMerchantStatusResponseSuccess = {
+  __typename?: 'CheckMerchantStatusResponseSuccess';
+  summary: MerchantOnboardingStatusSummary;
+};
+
 export type CheckUsernameAvailableInput = {
   username: Scalars['String']['input'];
 };
@@ -276,6 +287,28 @@ export type MediaSet = {
   small: Scalars['String']['output'];
 };
 
+export type MerchantOnboardingStatusCapabilities = {
+  __typename?: 'MerchantOnboardingStatusCapabilities';
+  card_payments?: Maybe<Scalars['String']['output']>;
+  charges_enabled: Scalars['Boolean']['output'];
+  payouts_enabled: Scalars['Boolean']['output'];
+  transfers?: Maybe<Scalars['String']['output']>;
+};
+
+export type MerchantOnboardingStatusSummary = {
+  __typename?: 'MerchantOnboardingStatusSummary';
+  anythingDue: Scalars['Boolean']['output'];
+  anythingErrors: Scalars['Boolean']['output'];
+  capabilities: MerchantOnboardingStatusCapabilities;
+  email: Scalars['String']['output'];
+  hasMerchantPrivilege: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  stripeAccountID?: Maybe<Scalars['ID']['output']>;
+  stripePortalUrl?: Maybe<Scalars['String']['output']>;
+  userID: Scalars['ID']['output'];
+  walletID: Scalars['ID']['output'];
+};
+
 export type ModifyProfileInput = {
   avatar?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
@@ -319,6 +352,7 @@ export type Mutation = {
   markNotificationsAsRead: MarkNotificationsAsReadResponse;
   modifyProfile: ModifyProfileResponse;
   modifyStory: ModifyStoryResponse;
+  requestMerchantOnboarding: RequestMerchantOnboardingResponse;
   revokePushTokens: RevokePushTokensResponse;
   sendFriendRequest: SendFriendRequestResponse;
   updateChatSettings: UpdateChatSettingsResponse;
@@ -412,6 +446,7 @@ export type PushConfig = {
 
 export type Query = {
   __typename?: 'Query';
+  checkMerchantStatus: CheckMerchantStatusResponse;
   checkUsernameAvailable: CheckUsernameAvailableResponse;
   demoPing: Ping;
   demoQuery: DemoQueryResponse;
@@ -426,6 +461,11 @@ export type Query = {
   listWishlist: ListWishlistResponse;
   ping: Ping;
   viewPublicProfile: ViewPublicProfileResponse;
+};
+
+
+export type QueryCheckMerchantStatusArgs = {
+  input: CheckMerchantStatusInput;
 };
 
 
@@ -476,6 +516,13 @@ export type QueryListWishlistArgs = {
 
 export type QueryViewPublicProfileArgs = {
   input: ViewPublicProfileInput;
+};
+
+export type RequestMerchantOnboardingResponse = RequestMerchantOnboardingResponseSuccess | ResponseError;
+
+export type RequestMerchantOnboardingResponseSuccess = {
+  __typename?: 'RequestMerchantOnboardingResponseSuccess';
+  registrationUrl: Scalars['String']['output'];
 };
 
 export type ResponseError = {
@@ -765,6 +812,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  CheckMerchantStatusResponse: ( CheckMerchantStatusResponseSuccess ) | ( ResponseError );
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
   CreateStoryResponse: ( CreateStoryResponseSuccess ) | ( ResponseError );
   CreateWishResponse: ( CreateWishResponseSuccess ) | ( ResponseError );
@@ -783,6 +831,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   MarkNotificationsAsReadResponse: ( MarkNotificationsAsReadResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   ModifyStoryResponse: ( ModifyStoryResponseSuccess ) | ( ResponseError );
+  RequestMerchantOnboardingResponse: ( RequestMerchantOnboardingResponseSuccess ) | ( ResponseError );
   RevokePushTokensResponse: ( ResponseError ) | ( RevokePushTokensResponseSuccess );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
@@ -796,6 +845,9 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ChatRoom: ResolverTypeWrapper<ChatRoom>;
+  CheckMerchantStatusInput: CheckMerchantStatusInput;
+  CheckMerchantStatusResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckMerchantStatusResponse']>;
+  CheckMerchantStatusResponseSuccess: ResolverTypeWrapper<CheckMerchantStatusResponseSuccess>;
   CheckUsernameAvailableInput: CheckUsernameAvailableInput;
   CheckUsernameAvailableResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckUsernameAvailableResponse']>;
   CheckUsernameAvailableResponseSuccess: ResolverTypeWrapper<CheckUsernameAvailableResponseSuccess>;
@@ -855,6 +907,8 @@ export type ResolversTypes = {
   MarkNotificationsAsReadResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['MarkNotificationsAsReadResponse']>;
   MarkNotificationsAsReadResponseSuccess: ResolverTypeWrapper<MarkNotificationsAsReadResponseSuccess>;
   MediaSet: ResolverTypeWrapper<MediaSet>;
+  MerchantOnboardingStatusCapabilities: ResolverTypeWrapper<MerchantOnboardingStatusCapabilities>;
+  MerchantOnboardingStatusSummary: ResolverTypeWrapper<MerchantOnboardingStatusSummary>;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ModifyProfileResponse']>;
   ModifyProfileResponseSuccess: ResolverTypeWrapper<ModifyProfileResponseSuccess>;
@@ -868,6 +922,8 @@ export type ResolversTypes = {
   PushConfig: ResolverTypeWrapper<PushConfig>;
   PushToken: ResolverTypeWrapper<Scalars['PushToken']['output']>;
   Query: ResolverTypeWrapper<{}>;
+  RequestMerchantOnboardingResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RequestMerchantOnboardingResponse']>;
+  RequestMerchantOnboardingResponseSuccess: ResolverTypeWrapper<RequestMerchantOnboardingResponseSuccess>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
   RevokePushTokensResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RevokePushTokensResponse']>;
   RevokePushTokensResponseSuccess: ResolverTypeWrapper<RevokePushTokensResponseSuccess>;
@@ -908,6 +964,9 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   ChatRoom: ChatRoom;
+  CheckMerchantStatusInput: CheckMerchantStatusInput;
+  CheckMerchantStatusResponse: ResolversUnionTypes<ResolversParentTypes>['CheckMerchantStatusResponse'];
+  CheckMerchantStatusResponseSuccess: CheckMerchantStatusResponseSuccess;
   CheckUsernameAvailableInput: CheckUsernameAvailableInput;
   CheckUsernameAvailableResponse: ResolversUnionTypes<ResolversParentTypes>['CheckUsernameAvailableResponse'];
   CheckUsernameAvailableResponseSuccess: CheckUsernameAvailableResponseSuccess;
@@ -963,6 +1022,8 @@ export type ResolversParentTypes = {
   MarkNotificationsAsReadResponse: ResolversUnionTypes<ResolversParentTypes>['MarkNotificationsAsReadResponse'];
   MarkNotificationsAsReadResponseSuccess: MarkNotificationsAsReadResponseSuccess;
   MediaSet: MediaSet;
+  MerchantOnboardingStatusCapabilities: MerchantOnboardingStatusCapabilities;
+  MerchantOnboardingStatusSummary: MerchantOnboardingStatusSummary;
   ModifyProfileInput: ModifyProfileInput;
   ModifyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ModifyProfileResponse'];
   ModifyProfileResponseSuccess: ModifyProfileResponseSuccess;
@@ -975,6 +1036,8 @@ export type ResolversParentTypes = {
   PushConfig: PushConfig;
   PushToken: Scalars['PushToken']['output'];
   Query: {};
+  RequestMerchantOnboardingResponse: ResolversUnionTypes<ResolversParentTypes>['RequestMerchantOnboardingResponse'];
+  RequestMerchantOnboardingResponseSuccess: RequestMerchantOnboardingResponseSuccess;
   ResponseError: ResponseError;
   RevokePushTokensResponse: ResolversUnionTypes<ResolversParentTypes>['RevokePushTokensResponse'];
   RevokePushTokensResponseSuccess: RevokePushTokensResponseSuccess;
@@ -1013,6 +1076,15 @@ export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversPar
   pushConfig?: Resolver<Maybe<ResolversTypes['PushConfig']>, ParentType, ContextType>;
   sendBirdChannelURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sendBirdParticipants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CheckMerchantStatusResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckMerchantStatusResponse'] = ResolversParentTypes['CheckMerchantStatusResponse']> = {
+  __resolveType: TypeResolveFn<'CheckMerchantStatusResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type CheckMerchantStatusResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CheckMerchantStatusResponseSuccess'] = ResolversParentTypes['CheckMerchantStatusResponseSuccess']> = {
+  summary?: Resolver<ResolversTypes['MerchantOnboardingStatusSummary'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1201,6 +1273,28 @@ export type MediaSetResolvers<ContextType = any, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MerchantOnboardingStatusCapabilitiesResolvers<ContextType = any, ParentType extends ResolversParentTypes['MerchantOnboardingStatusCapabilities'] = ResolversParentTypes['MerchantOnboardingStatusCapabilities']> = {
+  card_payments?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  charges_enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  payouts_enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  transfers?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MerchantOnboardingStatusSummaryResolvers<ContextType = any, ParentType extends ResolversParentTypes['MerchantOnboardingStatusSummary'] = ResolversParentTypes['MerchantOnboardingStatusSummary']> = {
+  anythingDue?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  anythingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  capabilities?: Resolver<ResolversTypes['MerchantOnboardingStatusCapabilities'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasMerchantPrivilege?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  stripeAccountID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  stripePortalUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  userID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  walletID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ModifyProfileResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ModifyProfileResponse'] = ResolversParentTypes['ModifyProfileResponse']> = {
   __resolveType: TypeResolveFn<'ModifyProfileResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -1227,6 +1321,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   markNotificationsAsRead?: Resolver<ResolversTypes['MarkNotificationsAsReadResponse'], ParentType, ContextType, RequireFields<MutationMarkNotificationsAsReadArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
   modifyStory?: Resolver<ResolversTypes['ModifyStoryResponse'], ParentType, ContextType, RequireFields<MutationModifyStoryArgs, 'input'>>;
+  requestMerchantOnboarding?: Resolver<ResolversTypes['RequestMerchantOnboardingResponse'], ParentType, ContextType>;
   revokePushTokens?: Resolver<ResolversTypes['RevokePushTokensResponse'], ParentType, ContextType>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
@@ -1262,6 +1357,7 @@ export interface PushTokenScalarConfig extends GraphQLScalarTypeConfig<Resolvers
 }
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  checkMerchantStatus?: Resolver<ResolversTypes['CheckMerchantStatusResponse'], ParentType, ContextType, RequireFields<QueryCheckMerchantStatusArgs, 'input'>>;
   checkUsernameAvailable?: Resolver<ResolversTypes['CheckUsernameAvailableResponse'], ParentType, ContextType, RequireFields<QueryCheckUsernameAvailableArgs, 'input'>>;
   demoPing?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   demoQuery?: Resolver<ResolversTypes['DemoQueryResponse'], ParentType, ContextType, RequireFields<QueryDemoQueryArgs, 'input'>>;
@@ -1276,6 +1372,15 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   listWishlist?: Resolver<ResolversTypes['ListWishlistResponse'], ParentType, ContextType, RequireFields<QueryListWishlistArgs, 'input'>>;
   ping?: Resolver<ResolversTypes['Ping'], ParentType, ContextType>;
   viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
+};
+
+export type RequestMerchantOnboardingResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['RequestMerchantOnboardingResponse'] = ResolversParentTypes['RequestMerchantOnboardingResponse']> = {
+  __resolveType: TypeResolveFn<'RequestMerchantOnboardingResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type RequestMerchantOnboardingResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['RequestMerchantOnboardingResponseSuccess'] = ResolversParentTypes['RequestMerchantOnboardingResponseSuccess']> = {
+  registrationUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ResponseErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['ResponseError'] = ResolversParentTypes['ResponseError']> = {
@@ -1447,6 +1552,8 @@ export type WishAuthorResolvers<ContextType = any, ParentType extends ResolversP
 
 export type Resolvers<ContextType = any> = {
   ChatRoom?: ChatRoomResolvers<ContextType>;
+  CheckMerchantStatusResponse?: CheckMerchantStatusResponseResolvers<ContextType>;
+  CheckMerchantStatusResponseSuccess?: CheckMerchantStatusResponseSuccessResolvers<ContextType>;
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
@@ -1486,6 +1593,8 @@ export type Resolvers<ContextType = any> = {
   MarkNotificationsAsReadResponse?: MarkNotificationsAsReadResponseResolvers<ContextType>;
   MarkNotificationsAsReadResponseSuccess?: MarkNotificationsAsReadResponseSuccessResolvers<ContextType>;
   MediaSet?: MediaSetResolvers<ContextType>;
+  MerchantOnboardingStatusCapabilities?: MerchantOnboardingStatusCapabilitiesResolvers<ContextType>;
+  MerchantOnboardingStatusSummary?: MerchantOnboardingStatusSummaryResolvers<ContextType>;
   ModifyProfileResponse?: ModifyProfileResponseResolvers<ContextType>;
   ModifyProfileResponseSuccess?: ModifyProfileResponseSuccessResolvers<ContextType>;
   ModifyStoryResponse?: ModifyStoryResponseResolvers<ContextType>;
@@ -1496,6 +1605,8 @@ export type Resolvers<ContextType = any> = {
   PushConfig?: PushConfigResolvers<ContextType>;
   PushToken?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
+  RequestMerchantOnboardingResponse?: RequestMerchantOnboardingResponseResolvers<ContextType>;
+  RequestMerchantOnboardingResponseSuccess?: RequestMerchantOnboardingResponseSuccessResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
   RevokePushTokensResponse?: RevokePushTokensResponseResolvers<ContextType>;
   RevokePushTokensResponseSuccess?: RevokePushTokensResponseSuccessResolvers<ContextType>;
