@@ -100,20 +100,26 @@ export const notifyAcceptFriendRequest = async ({
   recipientUserID: UserID;
   senderUserID: UserID;
 }) => {
-  const recipient = await getFirestoreDoc<UserID, User_Firestore>({
-    collection: FirestoreCollection.USERS,
-    id: recipientUserID,
-  });
+  const [recipient, sender] = await Promise.all([
+    getFirestoreDoc<UserID, User_Firestore>({
+      collection: FirestoreCollection.USERS,
+      id: recipientUserID,
+    }),
+    getFirestoreDoc<UserID, User_Firestore>({
+      collection: FirestoreCollection.USERS,
+      id: senderUserID,
+    }),
+  ]);
   const { language } = recipient;
   const res = await sendNotificationToUser({
     recipientUserID,
     notification: {
       data: {
-        title: `@${recipient.username} accepted friend request`,
+        title: `@${sender.username} accepted friend request`,
         body: "Send them a welcome message!",
-        route: `/user?user=${recipientUserID}`,
-        image: recipient.avatar,
-        icon: recipient.avatar,
+        route: `/user?user=${sender.id}`,
+        image: sender.avatar,
+        icon: sender.avatar,
       },
     },
     shouldPush: true,

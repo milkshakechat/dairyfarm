@@ -8,6 +8,7 @@ import {
   Wish,
   WishAuthor,
   WishBuyFrequency,
+  WishTypeEnum,
   WishlistVisibility,
 } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
@@ -19,6 +20,7 @@ import {
   User_Firestore,
 } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
+import { wishToGQL } from "../../../services/wish";
 
 export const listWishlist = async (
   _parent: any,
@@ -36,11 +38,7 @@ export const listWishlist = async (
     requesterUserID: userID,
   });
   return {
-    wishlist: wishlist.map((w) => ({
-      ...w,
-      buyFrequency: w.buyFrequency as unknown as WishBuyFrequency,
-      visibility: w.visibility as unknown as WishlistVisibility,
-    })),
+    wishlist: wishlist.map((w) => wishToGQL(w)),
   };
 };
 
@@ -64,6 +62,7 @@ export const getWish = async (
       ...wish,
       buyFrequency: wish.buyFrequency as unknown as WishBuyFrequency,
       visibility: wish.visibility as unknown as WishlistVisibility,
+      wishType: wish.wishType as unknown as WishTypeEnum,
     },
   };
 };

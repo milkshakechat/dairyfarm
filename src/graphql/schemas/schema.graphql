@@ -214,7 +214,7 @@ type MerchantOnboardingStatusSummary {
   name: String!
   email: String!
   hasMerchantPrivilege: Boolean!
-  stripeAccountID: ID
+  stripeMerchantID: ID
   stripePortalUrl: String
   anythingDue: Boolean!
   anythingErrors: Boolean!
@@ -455,11 +455,16 @@ enum WishBuyFrequency {
   ONE_TIME
   MONTHLY
   WEEKLY 
+  DAILY
 }
 enum WishlistVisibility {
   PUBLIC_MARKETPLACE
   FRIENDS_ONLY
   HIDDEN
+}
+enum WishTypeEnum {
+  EVENT
+  GIFT
 }
 type Wish {
   id: ID!
@@ -476,6 +481,9 @@ type Wish {
   author: WishAuthor
   buyFrequency: WishBuyFrequency!
   visibility: WishlistVisibility!
+  wishType: WishTypeEnum!
+  countdownDate: DateString
+  externalURL: String
 }
 type WishAuthor {
   id: UserID!
@@ -493,6 +501,9 @@ input CreateWishInput {
   isFavorite: Boolean
   buyFrequency: WishBuyFrequency
   visibility: WishlistVisibility
+  wishType: WishTypeEnum!
+  countdownDate: DateString
+  externalURL: String
 }
 type CreateWishResponseSuccess {
   wish: Wish!
@@ -514,6 +525,9 @@ input UpdateWishInput {
   isFavorite: Boolean
   buyFrequency: WishBuyFrequency
   visibility: WishlistVisibility
+  wishType: WishTypeEnum
+  countdownDate: DateString
+  externalURL: String
 }
 type UpdateWishResponseSuccess {
   wish: Wish!
@@ -529,6 +543,18 @@ type RequestMerchantOnboardingResponseSuccess {
 union RequestMerchantOnboardingResponse =
     RequestMerchantOnboardingResponseSuccess
   | ResponseError
+
+# --- create buy checkout
+# type CreateBuyIntentInput {
+#   wishIDs: ID!
+#   autoCashCharge: Int
+# }
+# type CreateBuyIntentResponseSuccess {
+#   checkoutToken: String!
+# }
+# union CreateBuyIntentResponse =
+#     CreateBuyIntentResponseSuccess
+#   | ResponseError
 
 # --- Mutations
 type Mutation {
@@ -550,6 +576,8 @@ type Mutation {
   updateWish(input: UpdateWishInput!): UpdateWishResponse!
   # merchant
   requestMerchantOnboarding: RequestMerchantOnboardingResponse!
+  # shopping
+  # createBuyIntent(input: CreateBuyIntentInput!): CreateBuyIntentResponse!
 }
 
 
