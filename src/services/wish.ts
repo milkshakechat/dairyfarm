@@ -1,6 +1,10 @@
 import {
   CreateWishInput,
   UpdateWishInput,
+  Wish,
+  WishBuyFrequency as WishBuyFrequencyGQL,
+  WishlistVisibility as WishlistVisibilityGQL,
+  WishTypeEnum as WishTypeEnumGQL,
 } from "@/graphql/types/resolvers-types";
 import {
   FirestoreCollection,
@@ -10,8 +14,9 @@ import {
   MediaSet,
   UserID,
   User_Firestore,
-  WishBuyFrequency,
   WishID,
+  WishBuyFrequency,
+  WishTypeEnum,
   Wish_Firestore,
   WishlistVisibility,
   getCompressedStickerUrl,
@@ -23,6 +28,7 @@ import {
 import {
   createFirestoreDoc,
   createFirestoreTimestamp,
+  decodeFirestoreTimestamp,
   getFirestoreDoc,
   listFirestoreDocs,
   listFirestoreDocsDoubleWhere,
@@ -36,6 +42,18 @@ const extractAssetIDFromWishUrl = (
   slug: "wishlist%2F" | "sticker%2F"
 ) => {
   return url.split(slug).pop()?.split(".").shift();
+};
+
+export const wishToGQL = (wish: Wish_Firestore) => {
+  return {
+    ...wish,
+    countdownDate: wish.countdownDate
+      ? decodeFirestoreTimestamp(wish.countdownDate).toISOString()
+      : undefined,
+    buyFrequency: wish.buyFrequency as unknown as WishBuyFrequencyGQL,
+    visibility: wish.visibility as unknown as WishlistVisibilityGQL,
+    wishType: wish.wishType as unknown as WishTypeEnumGQL,
+  };
 };
 
 export const createWishFirestore = async (
@@ -109,6 +127,11 @@ export const createWishFirestore = async (
     isFavorite: input.isFavorite || false,
     deleted: false,
     createdAt: createFirestoreTimestamp(),
+    wishType: input.wishType as unknown as WishTypeEnum,
+    countdownDate: input.countdownDate
+      ? createFirestoreTimestamp(new Date(input.countdownDate))
+      : undefined,
+    externalURL: input.externalURL || "",
     buyFrequency: input.buyFrequency as unknown as WishBuyFrequency,
     visibility:
       (input.visibility as unknown as WishlistVisibility) ||
@@ -197,11 +220,11 @@ export const getWishFirestore = async ({
   }
   // handle case where user the creator of this wish
   if (wish.creatorID === requesterUserID) {
-    return wish;
+    return wishToGQL(wish);
   }
   // handle case where its a public marketplace wish
   if (wish.visibility === WishlistVisibility.PUBLIC_MARKETPLACE) {
-    return wish;
+    return wishToGQL(wish);
   }
   // handle case where user is not the creator of this wish
   const friendships = await listFirestoreDocsDoubleWhere<Friendship_Firestore>({
@@ -224,7 +247,7 @@ export const getWishFirestore = async ({
   if (friendship.status !== FriendshipStatus.ACCEPTED) {
     throw new Error(`You are not friends with user ${wish.creatorID}`);
   }
-  return wish;
+  return wishToGQL(wish);
 };
 
 export const updateWishFirestore = async (
@@ -322,10 +345,21 @@ export const updateWishFirestore = async (
     updateData.galleryMediaSet = finalSaveGraphicsSet;
     updateData.thumbnail = finalSaveGraphicsSet[0].small;
   }
+  if (input.wishType) {
+    updateData.wishType = input.wishType as unknown as WishTypeEnum;
+  }
+  if (input.countdownDate) {
+    updateData.countdownDate = createFirestoreTimestamp(
+      new Date(input.countdownDate)
+    );
+  }
+  if (input.externalURL) {
+    updateData.externalURL = input.externalURL;
+  }
   const updatedWish = await updateFirestoreDoc<WishID, Wish_Firestore>({
     id: input.wishID as WishID,
     payload: updateData,
     collection: FirestoreCollection.WISH,
   });
-  return updatedWish;
+  return wishToGQL(updatedWish);
 };

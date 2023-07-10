@@ -3,7 +3,8 @@ import Stripe from "stripe";
 import config from "@/config.env";
 import {
   FirestoreCollection,
-  StripeAccountID,
+  StripeCustomerID,
+  StripeMerchantID,
   UserID,
   User_Firestore,
   WalletID,
@@ -28,6 +29,44 @@ export const createCustomerStripe = async () => {
   console.log("customer", customer);
 };
 
+export const createBuyIntent = async ({
+  stripeCustomerID,
+  amount,
+  currency = "usd",
+  description = "",
+  recieptEmail = undefined,
+}: {
+  stripeCustomerID: StripeCustomerID;
+  amount: number;
+  currency?: string; // iso code
+  description?: string;
+  recieptEmail?: string;
+}) => {
+  const paymentIntent = await stripe.paymentIntents.create({
+    customer: stripeCustomerID,
+    setup_future_usage: "off_session",
+    amount,
+    currency,
+    description,
+    receipt_email: recieptEmail,
+    automatic_payment_methods: {
+      enabled: true,
+    },
+  });
+  return paymentIntent.client_secret;
+};
+
+export const createChargeStripe = async () => {
+  // `source` is obtained with Stripe.js; see https://stripe.com/docs/payments/accept-a-payment-charges#web-create-token
+  const charge = await stripe.charges.create({
+    amount: 100,
+    currency: "usd",
+    source: "tok_mastercard",
+    description:
+      "My First Test Charge (created for API docs at https://www.stripe.com/docs/api)",
+  });
+};
+
 export const createMerchantOnboardingStripe = async ({
   userID,
 }: {
@@ -43,9 +82,9 @@ export const createMerchantOnboardingStripe = async ({
     id: user.mainWalletID,
     collection: FirestoreCollection.WALLETS,
   });
-  if (existingWallet.stripeAccountID) {
+  if (existingWallet.stripeMerchantID) {
     throw new Error(
-      `User ${userID} already has a stripe account ${existingWallet.stripeAccountID}. It is linked to wallet ${user.mainWalletID}`
+      `User ${userID} already has a stripe account ${existingWallet.stripeMerchantID}. It is linked to wallet ${user.mainWalletID}`
     );
   }
   // only allow if user has merchant privilege
@@ -79,7 +118,7 @@ export const createMerchantOnboardingStripe = async ({
   await updateFirestoreDoc<WalletID, Wallet_Firestore>({
     id: user.mainWalletID,
     payload: {
-      stripeAccountID: STRIPE_CONNECTED_ACCOUNT_ID as StripeAccountID,
+      stripeMerchantID: STRIPE_CONNECTED_ACCOUNT_ID as StripeMerchantID,
     },
     collection: FirestoreCollection.WALLETS,
   });
@@ -97,7 +136,7 @@ interface MerchantOnboardingStatusSummary {
   name: string;
   email: string;
   hasMerchantPrivilege: boolean;
-  stripeAccountID?: StripeAccountID;
+  stripeMerchantID?: StripeMerchantID;
   stripePortalUrl?: string;
   anythingDue: boolean;
   anythingErrors: boolean;
@@ -125,7 +164,7 @@ export const checkMerchantOnboardingStatus = async ({
     id: user.mainWalletID,
     collection: FirestoreCollection.WALLETS,
   });
-  if (!existingWallet || !existingWallet.stripeAccountID) {
+  if (!existingWallet || !existingWallet.stripeMerchantID) {
     console.log(
       `User ${userID} does not have a stripe account. It is linked to wallet ${user.mainWalletID}`
     );
@@ -146,7 +185,7 @@ export const checkMerchantOnboardingStatus = async ({
     };
   }
   const account = await stripe.accounts.retrieve(
-    existingWallet.stripeAccountID
+    existingWallet.stripeMerchantID
   );
   const anythingCurrentlyDue =
     account.requirements &&
@@ -185,7 +224,7 @@ export const checkMerchantOnboardingStatus = async ({
   let registrationUrl: string | undefined;
   if (getControlPanel || anythingDue || anythingErrors) {
     const accountLink = await stripe.accountLinks.create({
-      account: existingWallet.stripeAccountID,
+      account: existingWallet.stripeMerchantID,
       refresh_url: config.STRIPE.merchantOnboardingFailureUrl,
       return_url: config.STRIPE.merchantOnboardingSuccessUrl,
       type: "account_onboarding",
@@ -199,7 +238,7 @@ export const checkMerchantOnboardingStatus = async ({
     name: account.business_profile?.name || `Milkshake Merchant User ${userID}`,
     email: account.email || "",
     hasMerchantPrivilege: existingWallet.hasMerchantPrivilege,
-    stripeAccountID: existingWallet.stripeAccountID,
+    stripeMerchantID: existingWallet.stripeMerchantID,
     stripePortalUrl: registrationUrl,
     anythingDue,
     anythingErrors,

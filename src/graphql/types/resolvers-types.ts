@@ -77,13 +77,16 @@ export type CreateStoryResponseSuccess = {
 export type CreateWishInput = {
   buyFrequency?: InputMaybe<WishBuyFrequency>;
   cookiePrice: Scalars['Int']['input'];
+  countdownDate?: InputMaybe<Scalars['DateString']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  externalURL?: InputMaybe<Scalars['String']['input']>;
   isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
   stickerGraphic?: InputMaybe<Scalars['String']['input']>;
   stickerTitle?: InputMaybe<Scalars['String']['input']>;
   visibility?: InputMaybe<WishlistVisibility>;
   wishGraphics?: InputMaybe<Array<Scalars['String']['input']>>;
   wishTitle: Scalars['String']['input'];
+  wishType: WishTypeEnum;
 };
 
 export type CreateWishResponse = CreateWishResponseSuccess | ResponseError;
@@ -303,7 +306,7 @@ export type MerchantOnboardingStatusSummary = {
   email: Scalars['String']['output'];
   hasMerchantPrivilege: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
-  stripeAccountID?: Maybe<Scalars['ID']['output']>;
+  stripeMerchantID?: Maybe<Scalars['ID']['output']>;
   stripePortalUrl?: Maybe<Scalars['String']['output']>;
   userID: Scalars['ID']['output'];
   walletID: Scalars['ID']['output'];
@@ -647,7 +650,9 @@ export type UpdatePushTokenResponseSuccess = {
 export type UpdateWishInput = {
   buyFrequency?: InputMaybe<WishBuyFrequency>;
   cookiePrice?: InputMaybe<Scalars['Int']['input']>;
+  countdownDate?: InputMaybe<Scalars['DateString']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  externalURL?: InputMaybe<Scalars['String']['input']>;
   isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
   stickerGraphic?: InputMaybe<Scalars['String']['input']>;
   stickerTitle?: InputMaybe<Scalars['String']['input']>;
@@ -655,6 +660,7 @@ export type UpdateWishInput = {
   wishGraphics?: InputMaybe<Array<Scalars['String']['input']>>;
   wishID: Scalars['ID']['input'];
   wishTitle?: InputMaybe<Scalars['String']['input']>;
+  wishType?: InputMaybe<WishTypeEnum>;
 };
 
 export type UpdateWishResponse = ResponseError | UpdateWishResponseSuccess;
@@ -710,9 +716,11 @@ export type Wish = {
   author?: Maybe<WishAuthor>;
   buyFrequency: WishBuyFrequency;
   cookiePrice: Scalars['Int']['output'];
+  countdownDate?: Maybe<Scalars['DateString']['output']>;
   createdAt: Scalars['DateString']['output'];
   creatorID: Scalars['ID']['output'];
   description: Scalars['String']['output'];
+  externalURL?: Maybe<Scalars['String']['output']>;
   galleryMediaSet: Array<MediaSet>;
   id: Scalars['ID']['output'];
   isFavorite: Scalars['Boolean']['output'];
@@ -721,6 +729,7 @@ export type Wish = {
   thumbnail: Scalars['String']['output'];
   visibility: WishlistVisibility;
   wishTitle: Scalars['String']['output'];
+  wishType: WishTypeEnum;
 };
 
 export type WishAuthor = {
@@ -732,9 +741,15 @@ export type WishAuthor = {
 };
 
 export enum WishBuyFrequency {
+  Daily = 'DAILY',
   Monthly = 'MONTHLY',
   OneTime = 'ONE_TIME',
   Weekly = 'WEEKLY'
+}
+
+export enum WishTypeEnum {
+  Event = 'EVENT',
+  Gift = 'GIFT'
 }
 
 export enum WishlistVisibility {
@@ -957,6 +972,7 @@ export type ResolversTypes = {
   Wish: ResolverTypeWrapper<Wish>;
   WishAuthor: ResolverTypeWrapper<WishAuthor>;
   WishBuyFrequency: WishBuyFrequency;
+  WishTypeEnum: WishTypeEnum;
   WishlistVisibility: WishlistVisibility;
 };
 
@@ -1288,7 +1304,7 @@ export type MerchantOnboardingStatusSummaryResolvers<ContextType = any, ParentTy
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasMerchantPrivilege?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  stripeAccountID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  stripeMerchantID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   stripePortalUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   userID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   walletID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1528,9 +1544,11 @@ export type WishResolvers<ContextType = any, ParentType extends ResolversParentT
   author?: Resolver<Maybe<ResolversTypes['WishAuthor']>, ParentType, ContextType>;
   buyFrequency?: Resolver<ResolversTypes['WishBuyFrequency'], ParentType, ContextType>;
   cookiePrice?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countdownDate?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
   creatorID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  externalURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   galleryMediaSet?: Resolver<Array<ResolversTypes['MediaSet']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isFavorite?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1539,6 +1557,7 @@ export type WishResolvers<ContextType = any, ParentType extends ResolversParentT
   thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   visibility?: Resolver<ResolversTypes['WishlistVisibility'], ParentType, ContextType>;
   wishTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wishType?: Resolver<ResolversTypes['WishTypeEnum'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
