@@ -117,7 +117,7 @@ export const notifyAcceptFriendRequest = async ({
       data: {
         title: `@${sender.username} accepted friend request`,
         body: "Send them a welcome message!",
-        route: `/user?user=${sender.id}`,
+        route: `/${sender.username}`,
         image: sender.avatar,
         icon: sender.avatar,
       },
