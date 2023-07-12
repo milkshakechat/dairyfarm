@@ -544,17 +544,22 @@ union RequestMerchantOnboardingResponse =
     RequestMerchantOnboardingResponseSuccess
   | ResponseError
 
-# --- create buy checkout
-# type CreateBuyIntentInput {
-#   wishIDs: ID!
-#   autoCashCharge: Int
-# }
-# type CreateBuyIntentResponseSuccess {
-#   checkoutToken: String!
-# }
-# union CreateBuyIntentResponse =
-#     CreateBuyIntentResponseSuccess
-#   | ResponseError
+# --- create payment intent
+type CreatePaymentIntentInput {
+  wishlist: [WishSuggest!]!
+  note: String
+}
+type WishSuggest {
+  wishID: ID!
+  suggestedAmount: Int
+  suggestedFrequency: WishBuyFrequency
+}
+type CreatePaymentIntentResponseSuccess {
+  checkoutToken: String!
+}
+union CreatePaymentIntentResponse =
+    CreatePaymentIntentResponseSuccess
+  | ResponseError
 
 # --- Mutations
 type Mutation {
@@ -577,7 +582,7 @@ type Mutation {
   # merchant
   requestMerchantOnboarding: RequestMerchantOnboardingResponse!
   # shopping
-  # createBuyIntent(input: CreateBuyIntentInput!): CreateBuyIntentResponse!
+  # createPaymentIntent(input: CreatePaymentIntentInput!): CreatePaymentIntentResponse!
 }
 
 
