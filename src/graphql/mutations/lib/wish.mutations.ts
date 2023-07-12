@@ -1,6 +1,8 @@
 import { authGuardHTTP } from "@/graphql/authGuard";
 import {
+  CreatePaymentIntentResponse,
   CreateWishResponse,
+  // MutationCreatePaymentIntentArgs,
   MutationCreateWishArgs,
   MutationUpdateWishArgs,
   UpdateWishResponse,
@@ -8,6 +10,7 @@ import {
   WishTypeEnum,
   WishlistVisibility,
 } from "@/graphql/types/resolvers-types";
+import { createPaymentIntentForWishes } from "@/services/stripe";
 import { createWishFirestore, updateWishFirestore } from "@/services/wish";
 import { GraphQLResolveInfo } from "graphql";
 
@@ -52,6 +55,26 @@ export const updateWish = async (
     },
   };
 };
+
+// export const createPaymentIntent = async (
+//   _parent: any,
+//   args: MutationCreatePaymentIntentArgs,
+//   _context: any,
+//   _info: any
+// ): Promise<CreatePaymentIntentResponse> => {
+//   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+//   if (!userID) {
+//     throw Error("No user ID found");
+//   }
+//   const checkoutToken = await createPaymentIntentForWishes({
+//     wishlist: args.input.wishlist,
+//     userID,
+//     note: args.input.note || "",
+//   });
+//   return {
+//     checkoutToken,
+//   };
+// };
 
 export const responses = {
   CreateWishResponse: {

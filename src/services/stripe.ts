@@ -9,8 +9,18 @@ import {
   User_Firestore,
   WalletID,
   Wallet_Firestore,
+  WishBuyFrequency,
+  WishID,
+  Wish_Firestore,
+  cookieToUSD,
 } from "@milkshakechat/helpers";
 import { getFirestoreDoc, updateFirestoreDoc } from "./firestore";
+import { v4 as uuidv4 } from "uuid";
+import {
+  CreatePaymentIntentInput,
+  WishBuyFrequency as WishBuyFrequencyGQL,
+  WishSuggest,
+} from "@/graphql/types/resolvers-types";
 
 let stripe: Stripe;
 
@@ -29,7 +39,164 @@ export const createCustomerStripe = async () => {
   console.log("customer", customer);
 };
 
-export const createBuyIntent = async ({
+/**
+ * ===== Stripe Billing Cycle vs Cookies =====
+ *
+ * - 1. One time charge
+ * - 2. Recurring charge
+ *
+ * 1. One time charge
+ * 1a. First check Cookie Jar balance to see if that can pay it in full [cookie_jar - full_pricee]
+ * 1b. If insufficient, charge the full amount to credit card [cookie_jar net zero change]
+ *
+ * 2. Recurring charge
+ * 2. Maintain a single "Customer Subscription" at $0 (aka. MBC - Main Billing Cycle)
+ * 2a. Calculate the prorated cost of subscription until MBC date. Charge that prorated amount to credit card at same time as the one-time purchases
+ * 2b. Add each recurring product to the MBC for total $A aggregate price
+ * 2c. At month start, charge $A aggregate price to credit card regardless of Cookie Jar balance [cookie_jar net zero change]
+ *
+ * In summary, for every checkout:
+ * - charge credit card NOW for all one-time + prorated subscriptions
+ * - charge main billing cycle LATER for full cost of subscriptions
+ *
+ * The customer will see 1 charge NOW, and 1 aggregated charge LATER for monthly payments
+ *
+ *
+ * ===== Main Billing Cycle (MBC) =====
+ *
+ * The main billing cycle is as follows:
+ * - invoice 1st day of month (for all recurring)
+ * - invoice 15th day of month (for all recurring except monthly)
+ *
+ * when prorating subscriptions, the prorating will be to the next closest invoice (either 1st of 15th)
+ * however if its a monthly sub, then it can only prorate to the invoice on 1st day of month
+ *
+ * This implies that there are only 3 dates in which customers credit cards will be charged:
+ * - 1st day of month
+ * - 15th day of month
+ * - Any day if one-time purchase
+ */
+
+function getNextBillingDate(now: Date): Date {
+  if (now.getDate() < 15) {
+    return new Date(now.getFullYear(), now.getMonth(), 15);
+  } else {
+    return new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  }
+}
+
+export const createPaymentIntentForWishes = async ({
+  wishlist,
+  userID,
+  note = "",
+}: {
+  wishlist: WishSuggest[];
+  userID: UserID;
+  note?: string;
+}) => {
+  const cardChargeID = uuidv4();
+  const [customer, ...wishes] = await Promise.all([
+    await getFirestoreDoc<UserID, User_Firestore>({
+      id: userID,
+      collection: FirestoreCollection.WISH,
+    }),
+    ...wishlist.map(async (w) => {
+      const wish = await getFirestoreDoc<WishID, Wish_Firestore>({
+        id: w.wishID as WishID,
+        collection: FirestoreCollection.WISH,
+      });
+      return {
+        wish,
+        suggestedAmount: w.suggestedAmount,
+        suggestedFrequency: w.suggestedFrequency,
+      };
+    }),
+  ]);
+  const wallet = await getFirestoreDoc<WalletID, Wallet_Firestore>({
+    id: customer.mainWalletID,
+    collection: FirestoreCollection.WALLETS,
+  });
+  const cookieBalance = wallet.cookieBalanceSnapshot;
+
+  // 1. One-time charges
+  const oneTimeWishes = wishes.filter((w) => {
+    if (w.suggestedFrequency === WishBuyFrequencyGQL.OneTime) return true;
+    if (
+      !w.suggestedFrequency &&
+      w.wish.buyFrequency === WishBuyFrequency.ONE_TIME
+    )
+      return true;
+    return false;
+  });
+  const totalCookiesCostForOneTimePayments = oneTimeWishes.reduce(
+    (acc, curr) => {
+      const { wish, suggestedAmount } = curr;
+      const incr = suggestedAmount ? suggestedAmount : wish.cookiePrice;
+      return acc + incr;
+    },
+    0
+  );
+
+  let oneTimeTotalUSD = 0;
+  let proratedTotalUSD = 0;
+
+  // spend existing cookies first for one-time charges
+  if (totalCookiesCostForOneTimePayments < cookieBalance) {
+    // deduct from cookie jar if can pay in full
+    // be sure to log journal entry to show how payment was made
+  } else {
+    // else charge full amount to card
+    const totalPriceUSD = parseInt(
+      `${cookieToUSD(totalCookiesCostForOneTimePayments) * 100}`
+    );
+    oneTimeTotalUSD += totalPriceUSD;
+    // be sure to log journal entry to show how payment was made
+  }
+
+  const now = new Date();
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const daysInMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0
+  ).getDate();
+  const daysUntilNextCycle = Math.ceil(
+    (nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  // 2. Recurring Subscriptions
+  // 2a. Charge once for prorated subscriptions
+  const subscriptions = wishes.filter((w) => {
+    if (
+      w.suggestedFrequency &&
+      w.suggestedFrequency !== WishBuyFrequencyGQL.OneTime
+    )
+      return true;
+    if (
+      !w.suggestedFrequency &&
+      w.wish.buyFrequency !== WishBuyFrequency.ONE_TIME
+    )
+      return true;
+    return false;
+  });
+  const prorated = subscriptions.map((sub) => {
+    const cookies = sub.suggestedAmount || sub.wish.cookiePrice;
+    const dailyRate = cookieToUSD(cookies) / daysInMonth;
+    const proratedPriceUSD = Math.ceil(dailyRate * daysUntilNextCycle);
+    proratedTotalUSD += proratedPriceUSD;
+    return {
+      ...sub,
+      proratedBilled: proratedPriceUSD,
+    };
+  });
+  const totalChargedNow = oneTimeTotalUSD + proratedTotalUSD;
+
+  // const totalChargedLater = prorated.map(sub => sub.suggestedAmount || sub.)
+  //
+  return "checkoutToken";
+};
+
+export const createPaymentIntent = async ({
   stripeCustomerID,
   amount,
   currency = "usd",
