@@ -51,6 +51,9 @@ const devConfig: ConfigEnv = {
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
   },
+  LEDGER: {
+    region: "ap-northeast-1",
+  },
 };
 const stagingConfig: ConfigEnv = {
   GCLOUD: {
@@ -106,6 +109,9 @@ const stagingConfig: ConfigEnv = {
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
   },
+  LEDGER: {
+    region: "ap-northeast-1",
+  },
 };
 
 const prodConfig: ConfigEnv = {
@@ -159,6 +165,9 @@ const prodConfig: ConfigEnv = {
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
   },
+  LEDGER: {
+    region: "ap-northeast-1",
+  },
 };
 
 interface ConfigEnv {
@@ -194,6 +203,9 @@ interface ConfigEnv {
   STRIPE: {
     merchantOnboardingSuccessUrl: string;
     merchantOnboardingFailureUrl: string;
+  };
+  LEDGER: {
+    region: string;
   };
 }
 
