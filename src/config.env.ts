@@ -53,6 +53,11 @@ const devConfig: ConfigEnv = {
   },
   LEDGER: {
     region: "ap-northeast-1",
+    name: "inapp-wallet-dev",
+    tables: {
+      WALLET: "wallets",
+      TRANSACTION: "transactions",
+    },
   },
 };
 const stagingConfig: ConfigEnv = {
@@ -111,6 +116,11 @@ const stagingConfig: ConfigEnv = {
   },
   LEDGER: {
     region: "ap-northeast-1",
+    name: "inapp-wallet-staging",
+    tables: {
+      WALLET: "wallets",
+      TRANSACTION: "transactions",
+    },
   },
 };
 
@@ -165,8 +175,14 @@ const prodConfig: ConfigEnv = {
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
   },
+
   LEDGER: {
     region: "ap-northeast-1",
+    name: "inapp-wallet-prod",
+    tables: {
+      WALLET: "wallets",
+      TRANSACTION: "transactions",
+    },
   },
 };
 
@@ -206,8 +222,18 @@ interface ConfigEnv {
   };
   LEDGER: {
     region: string;
+    name: string;
+    tables: {
+      [key in QuantumLedgerTables]: QuantumLedgerTable;
+    };
   };
 }
+
+export enum QuantumLedgerTables {
+  WALLET = "WALLET",
+  TRANSACTION = "TRANSACTION",
+}
+export type QuantumLedgerTable = string;
 
 export default (() => {
   // console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
