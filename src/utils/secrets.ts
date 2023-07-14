@@ -1,6 +1,7 @@
 import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import { GoogleAuth } from "google-auth-library";
 import config from "@/config.env";
+import crypto from "crypto";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -104,4 +105,11 @@ export const getStripeSecret = async () => {
     versionId: config.SECRETS.STRIPE_SERVER_KEY.versionId,
   });
   return stripeSecret;
+};
+
+// used for cross-cloud api communication
+export const generate256BitKey = async () => {
+  let key = crypto.randomBytes(32).toString("base64");
+  console.log(`key === ${key}`);
+  return key;
 };
