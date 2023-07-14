@@ -8,7 +8,6 @@ import {
   UserID,
   User_Firestore,
   WalletID,
-  Wallet_Firestore,
   WishBuyFrequency,
   WishID,
   Wish_Firestore,
@@ -77,14 +76,6 @@ export const createCustomerStripe = async () => {
  * - Any day if one-time purchase
  */
 
-function getNextBillingDate(now: Date): Date {
-  if (now.getDate() < 15) {
-    return new Date(now.getFullYear(), now.getMonth(), 15);
-  } else {
-    return new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  }
-}
-
 export const createPaymentIntentForWishes = async ({
   wishlist,
   userID,
@@ -94,104 +85,104 @@ export const createPaymentIntentForWishes = async ({
   userID: UserID;
   note?: string;
 }) => {
-  const cardChargeID = uuidv4();
-  const [customer, ...wishes] = await Promise.all([
-    await getFirestoreDoc<UserID, User_Firestore>({
-      id: userID,
-      collection: FirestoreCollection.WISH,
-    }),
-    ...wishlist.map(async (w) => {
-      const wish = await getFirestoreDoc<WishID, Wish_Firestore>({
-        id: w.wishID as WishID,
-        collection: FirestoreCollection.WISH,
-      });
-      return {
-        wish,
-        suggestedAmount: w.suggestedAmount,
-        suggestedFrequency: w.suggestedFrequency,
-      };
-    }),
-  ]);
-  const wallet = await getFirestoreDoc<WalletID, Wallet_Firestore>({
-    id: customer.mainWalletID,
-    collection: FirestoreCollection.WALLETS,
-  });
-  const cookieBalance = wallet.cookieBalanceSnapshot;
+  // const cardChargeID = uuidv4();
+  // const [customer, ...wishes] = await Promise.all([
+  //   await getFirestoreDoc<UserID, User_Firestore>({
+  //     id: userID,
+  //     collection: FirestoreCollection.USERS,
+  //   }),
+  //   ...wishlist.map(async (w) => {
+  //     const wish = await getFirestoreDoc<WishID, Wish_Firestore>({
+  //       id: w.wishID as WishID,
+  //       collection: FirestoreCollection.WISH,
+  //     });
+  //     return {
+  //       wish,
+  //       suggestedAmount: w.suggestedAmount,
+  //       suggestedFrequency: w.suggestedFrequency,
+  //     };
+  //   }),
+  // ]);
+  // const wallet = await getFirestoreDoc<WalletID, Wallet_Firestore>({
+  //   id: customer.mainWalletID,
+  //   collection: FirestoreCollection.WALLETS,
+  // });
+  // const cookieBalance = wallet.cookieBalanceSnapshot;
 
-  // 1. One-time charges
-  const oneTimeWishes = wishes.filter((w) => {
-    if (w.suggestedFrequency === WishBuyFrequencyGQL.OneTime) return true;
-    if (
-      !w.suggestedFrequency &&
-      w.wish.buyFrequency === WishBuyFrequency.ONE_TIME
-    )
-      return true;
-    return false;
-  });
-  const totalCookiesCostForOneTimePayments = oneTimeWishes.reduce(
-    (acc, curr) => {
-      const { wish, suggestedAmount } = curr;
-      const incr = suggestedAmount ? suggestedAmount : wish.cookiePrice;
-      return acc + incr;
-    },
-    0
-  );
+  // // 1. One-time charges
+  // const oneTimeWishes = wishes.filter((w) => {
+  //   if (w.suggestedFrequency === WishBuyFrequencyGQL.OneTime) return true;
+  //   if (
+  //     !w.suggestedFrequency &&
+  //     w.wish.buyFrequency === WishBuyFrequency.ONE_TIME
+  //   )
+  //     return true;
+  //   return false;
+  // });
+  // const totalCookiesCostForOneTimePayments = oneTimeWishes.reduce(
+  //   (acc, curr) => {
+  //     const { wish, suggestedAmount } = curr;
+  //     const incr = suggestedAmount ? suggestedAmount : wish.cookiePrice;
+  //     return acc + incr;
+  //   },
+  //   0
+  // );
 
-  let oneTimeTotalUSD = 0;
-  let proratedTotalUSD = 0;
+  // let oneTimeTotalUSD = 0;
+  // let proratedTotalUSD = 0;
 
-  // spend existing cookies first for one-time charges
-  if (totalCookiesCostForOneTimePayments < cookieBalance) {
-    // deduct from cookie jar if can pay in full
-    // be sure to log journal entry to show how payment was made
-  } else {
-    // else charge full amount to card
-    const totalPriceUSD = parseInt(
-      `${cookieToUSD(totalCookiesCostForOneTimePayments) * 100}`
-    );
-    oneTimeTotalUSD += totalPriceUSD;
-    // be sure to log journal entry to show how payment was made
-  }
+  // // spend existing cookies first for one-time charges
+  // if (totalCookiesCostForOneTimePayments < cookieBalance) {
+  //   // deduct from cookie jar if can pay in full
+  //   // be sure to log journal entry to show how payment was made
+  // } else {
+  //   // else charge full amount to card
+  //   const totalPriceUSD = parseInt(
+  //     `${cookieToUSD(totalCookiesCostForOneTimePayments) * 100}`
+  //   );
+  //   oneTimeTotalUSD += totalPriceUSD;
+  //   // be sure to log journal entry to show how payment was made
+  // }
 
-  const now = new Date();
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const daysInMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0
-  ).getDate();
-  const daysUntilNextCycle = Math.ceil(
-    (nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  // const now = new Date();
+  // const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  // const daysInMonth = new Date(
+  //   now.getFullYear(),
+  //   now.getMonth() + 1,
+  //   0
+  // ).getDate();
+  // const daysUntilNextCycle = Math.ceil(
+  //   (nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+  // );
 
-  // 2. Recurring Subscriptions
-  // 2a. Charge once for prorated subscriptions
-  const subscriptions = wishes.filter((w) => {
-    if (
-      w.suggestedFrequency &&
-      w.suggestedFrequency !== WishBuyFrequencyGQL.OneTime
-    )
-      return true;
-    if (
-      !w.suggestedFrequency &&
-      w.wish.buyFrequency !== WishBuyFrequency.ONE_TIME
-    )
-      return true;
-    return false;
-  });
-  const prorated = subscriptions.map((sub) => {
-    const cookies = sub.suggestedAmount || sub.wish.cookiePrice;
-    const dailyRate = cookieToUSD(cookies) / daysInMonth;
-    const proratedPriceUSD = Math.ceil(dailyRate * daysUntilNextCycle);
-    proratedTotalUSD += proratedPriceUSD;
-    return {
-      ...sub,
-      proratedBilled: proratedPriceUSD,
-    };
-  });
-  const totalChargedNow = oneTimeTotalUSD + proratedTotalUSD;
+  // // 2. Recurring Subscriptions
+  // // 2a. Charge once for prorated subscriptions
+  // const subscriptions = wishes.filter((w) => {
+  //   if (
+  //     w.suggestedFrequency &&
+  //     w.suggestedFrequency !== WishBuyFrequencyGQL.OneTime
+  //   )
+  //     return true;
+  //   if (
+  //     !w.suggestedFrequency &&
+  //     w.wish.buyFrequency !== WishBuyFrequency.ONE_TIME
+  //   )
+  //     return true;
+  //   return false;
+  // });
+  // const prorated = subscriptions.map((sub) => {
+  //   const cookies = sub.suggestedAmount || sub.wish.cookiePrice;
+  //   const dailyRate = cookieToUSD(cookies) / daysInMonth;
+  //   const proratedPriceUSD = Math.ceil(dailyRate * daysUntilNextCycle);
+  //   proratedTotalUSD += proratedPriceUSD;
+  //   return {
+  //     ...sub,
+  //     proratedBilled: proratedPriceUSD,
+  //   };
+  // });
+  // const totalChargedNow = oneTimeTotalUSD + proratedTotalUSD;
 
-  // const totalChargedLater = prorated.map(sub => sub.suggestedAmount || sub.)
+  // // const totalChargedLater = prorated.map(sub => sub.suggestedAmount || sub.)
   //
   return "checkoutToken";
 };
@@ -244,21 +235,14 @@ export const createMerchantOnboardingStripe = async ({
     id: userID,
     collection: FirestoreCollection.USERS,
   });
-  // check that they dont already have a stripe account
-  const existingWallet = await getFirestoreDoc<WalletID, Wallet_Firestore>({
-    id: user.mainWalletID,
-    collection: FirestoreCollection.WALLETS,
-  });
-  if (existingWallet.stripeMerchantID) {
+  if (user.stripeMetadata && user.stripeMetadata.stripeMerchantID) {
     throw new Error(
-      `User ${userID} already has a stripe account ${existingWallet.stripeMerchantID}. It is linked to wallet ${user.mainWalletID}`
+      `User ${userID} already has a stripe account ${user.stripeMetadata.stripeMerchantID}. It is linked to wallet ${user.mainWalletID}`
     );
   }
   // only allow if user has merchant privilege
-  if (!existingWallet.hasMerchantPrivilege) {
-    throw new Error(
-      `Wallet ${user.mainWalletID} does not have merchant privilege. It is linked to user ${userID}`
-    );
+  if (user.stripeMetadata && user.stripeMetadata?.hasMerchantPrivilege) {
+    throw new Error(`User ${user.id} does not have merchant privilege`);
   }
   // if new, proceed to create the stripe connect account for merchant
 
@@ -282,12 +266,15 @@ export const createMerchantOnboardingStripe = async ({
     console.log(e);
   }
   // Update the users Milkshake wallet with the associated stripe connect account
-  await updateFirestoreDoc<WalletID, Wallet_Firestore>({
-    id: user.mainWalletID,
+  await updateFirestoreDoc<UserID, User_Firestore>({
+    id: user.id,
     payload: {
-      stripeMerchantID: STRIPE_CONNECTED_ACCOUNT_ID as StripeMerchantID,
+      stripeMetadata: {
+        ...(user.stripeMetadata || { hasMerchantPrivilege: true }),
+        stripeMerchantID: STRIPE_CONNECTED_ACCOUNT_ID as StripeMerchantID,
+      },
     },
-    collection: FirestoreCollection.WALLETS,
+    collection: FirestoreCollection.USERS,
   });
   if (!registrationUrl) {
     throw new Error(
@@ -326,12 +313,7 @@ export const checkMerchantOnboardingStatus = async ({
     id: userID,
     collection: FirestoreCollection.USERS,
   });
-  // get their stripe account from wallet schema
-  const existingWallet = await getFirestoreDoc<WalletID, Wallet_Firestore>({
-    id: user.mainWalletID,
-    collection: FirestoreCollection.WALLETS,
-  });
-  if (!existingWallet || !existingWallet.stripeMerchantID) {
+  if (!user.stripeMetadata || !user.stripeMetadata.stripeMerchantID) {
     console.log(
       `User ${userID} does not have a stripe account. It is linked to wallet ${user.mainWalletID}`
     );
@@ -340,7 +322,7 @@ export const checkMerchantOnboardingStatus = async ({
       walletID: user.mainWalletID,
       name: "",
       email: "",
-      hasMerchantPrivilege: existingWallet.hasMerchantPrivilege,
+      hasMerchantPrivilege: user.stripeMetadata?.hasMerchantPrivilege || false,
       anythingDue: false,
       anythingErrors: false,
       capabilities: {
@@ -352,7 +334,7 @@ export const checkMerchantOnboardingStatus = async ({
     };
   }
   const account = await stripe.accounts.retrieve(
-    existingWallet.stripeMerchantID
+    user.stripeMetadata.stripeMerchantID
   );
   const anythingCurrentlyDue =
     account.requirements &&
@@ -391,7 +373,7 @@ export const checkMerchantOnboardingStatus = async ({
   let registrationUrl: string | undefined;
   if (getControlPanel || anythingDue || anythingErrors) {
     const accountLink = await stripe.accountLinks.create({
-      account: existingWallet.stripeMerchantID,
+      account: user.stripeMetadata.stripeMerchantID,
       refresh_url: config.STRIPE.merchantOnboardingFailureUrl,
       return_url: config.STRIPE.merchantOnboardingSuccessUrl,
       type: "account_onboarding",
@@ -404,8 +386,8 @@ export const checkMerchantOnboardingStatus = async ({
     walletID: user.mainWalletID,
     name: account.business_profile?.name || `Milkshake Merchant User ${userID}`,
     email: account.email || "",
-    hasMerchantPrivilege: existingWallet.hasMerchantPrivilege,
-    stripeMerchantID: existingWallet.stripeMerchantID,
+    hasMerchantPrivilege: user.stripeMetadata.hasMerchantPrivilege,
+    stripeMerchantID: user.stripeMetadata.stripeMerchantID,
     stripePortalUrl: registrationUrl,
     anythingDue,
     anythingErrors,
@@ -417,4 +399,21 @@ export const checkMerchantOnboardingStatus = async ({
     },
   };
   return summary;
+};
+
+export const createEmptySubscriptionStripe = async () => {
+  console.log("createEmptySubscriptionStripe...");
+  const product = await stripe.products.create({
+    name: "Milkshake Subscription - Monthly Main Billing Cycle",
+    type: "service",
+  });
+  console.log("product", product);
+  const price = await stripe.prices.create({
+    unit_amount: 0,
+    currency: "usd",
+    recurring: { interval: "month" },
+    product: product.id,
+  });
+  console.log("price", price);
+  return { product, price };
 };
