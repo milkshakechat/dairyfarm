@@ -11,6 +11,7 @@ import {
   updateWallet_QuantumLedger,
 } from "@/services/ledger";
 import { UserID, WalletType } from "@milkshakechat/helpers";
+import { generate256BitKey } from "@/utils/secrets";
 
 const run = async () => {
   console.log(`Running script ledger-sandbox...`);
@@ -23,6 +24,9 @@ const run = async () => {
   // create indexes
   await initQuantumLedger_Drivers();
   // await createTables_QuantumLedger();
+  await generate256BitKey(); // for cross-cloud api communication
+
+  // create wallets
   // await createWallet_QuantumLedger({
   //   userRelationshipHash: "___userRelationshipHash2",
   //   userID: "___userID" as UserID,
@@ -33,9 +37,9 @@ const run = async () => {
   // await getWallet_QuantumLedger({
   //   userRelationshipHash: "___userRelationshipHash2",
   // });
-  await updateWallet_QuantumLedger({
-    userRelationshipHash: "___userRelationshipHash2",
-    title: "___title2",
-  });
+  // await updateWallet_QuantumLedger({
+  //   userRelationshipHash: "___userRelationshipHash2",
+  //   title: "___title2",
+  // });
 };
 run();
