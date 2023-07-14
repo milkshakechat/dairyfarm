@@ -1,11 +1,41 @@
 // npx ts-node --project tsconfig.scripts.json -r tsconfig-paths/register ./src/scripts/ledger-sandbox.ts
 
 import { initFirebase } from "@/services/firebase";
-import { initQuantumLedger_AWS } from "@/services/ledger";
+import config from "@/config.env";
+import {
+  createLedger_startupScript,
+  createTables_QuantumLedger,
+  createWallet_QuantumLedger,
+  getWallet_QuantumLedger,
+  initQuantumLedger_Drivers,
+  updateWallet_QuantumLedger,
+} from "@/services/ledger";
+import { UserID, WalletType } from "@milkshakechat/helpers";
 
 const run = async () => {
   console.log(`Running script ledger-sandbox...`);
   // await initFirebase();
-  await initQuantumLedger_AWS();
+
+  // create ledgers
+  // await initQuantumLedger_AWS();
+  // await createLedger_startupScript();
+
+  // create indexes
+  await initQuantumLedger_Drivers();
+  // await createTables_QuantumLedger();
+  // await createWallet_QuantumLedger({
+  //   userRelationshipHash: "___userRelationshipHash2",
+  //   userID: "___userID" as UserID,
+  //   title: "___title",
+  //   note: "___note",
+  //   type: WalletType.TRADING,
+  // });
+  // await getWallet_QuantumLedger({
+  //   userRelationshipHash: "___userRelationshipHash2",
+  // });
+  await updateWallet_QuantumLedger({
+    userRelationshipHash: "___userRelationshipHash2",
+    title: "___title2",
+  });
 };
 run();

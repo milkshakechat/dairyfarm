@@ -57,7 +57,7 @@ export const accessLocalAWSKeyFile = async () => {
     "base64"
   ).toString("utf-8");
   const credentials = JSON.parse(base64KeyFile);
-  return credentials;
+  return credentials as { accessKey: string; secretKey: string };
 };
 
 export interface FirebaseConfig {
