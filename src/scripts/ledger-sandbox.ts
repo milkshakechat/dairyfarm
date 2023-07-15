@@ -5,11 +5,11 @@ import config from "@/config.env";
 import {
   createLedger_startupScript,
   createTables_QuantumLedger,
-  createWallet_QuantumLedger,
-  getWallet_QuantumLedger,
   initQuantumLedger_Drivers,
-  updateWallet_QuantumLedger,
-} from "@/services/ledger";
+  // createWallet_QuantumLedger,
+  // getWallet_QuantumLedger,
+  // updateWallet_QuantumLedger,
+} from "@/services/quantum";
 import { UserID, WalletType } from "@milkshakechat/helpers";
 import { generate256BitKey } from "@/utils/secrets";
 
@@ -22,11 +22,11 @@ const run = async () => {
   // await createLedger_startupScript();
 
   // create indexes
-  await initQuantumLedger_Drivers();
+  // await initQuantumLedger_Drivers();
   // await createTables_QuantumLedger();
-  await generate256BitKey(); // for cross-cloud api communication
+  // await generate256BitKey(); // for cross-cloud api communication
 
-  // create wallets
+  // create wallets locally
   // await createWallet_QuantumLedger({
   //   userRelationshipHash: "___userRelationshipHash2",
   //   userID: "___userID" as UserID,
@@ -41,5 +41,7 @@ const run = async () => {
   //   userRelationshipHash: "___userRelationshipHash2",
   //   title: "___title2",
   // });
+
+  // create wallets using the aws api gateway (wallet-gateway)
 };
 run();
