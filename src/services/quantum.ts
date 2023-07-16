@@ -7,6 +7,7 @@ import { accessLocalAWSKeyFile } from "@/utils/secrets";
 import config from "@/config.env";
 import { sleep } from "@/utils/utils";
 import { Agent } from "https";
+import { generateGlobalStoreAliasID } from "@milkshakechat/helpers";
 import { QLDBSessionClientConfig } from "@aws-sdk/client-qldb-session";
 import {
   QldbDriver,
@@ -128,6 +129,48 @@ export const initQuantumLedger_Drivers = async () => {
     console.log(tableNames);
   });
   return qldbDriver;
+};
+
+export const createGlobalStore_QuantumLedger = async ({
+  note = "",
+  balance,
+}: {
+  note?: string;
+  balance: number;
+}) => {
+  const walletAliasID = generateGlobalStoreAliasID();
+  console.log(`Creating global store with walletAliasID=${walletAliasID}`);
+  if (qldbDriver) {
+    await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
+      // Check if doc with match condition exists
+      // This is critical to make this transaction idempotent
+
+      const id = uuidv4();
+      const now = new Date().toISOString();
+      const doc: Record<string, any> = {
+        id: id,
+        walletAliasID,
+        ownerID: config.LEDGER.storeOwnerID,
+        title: `Global Store - ${walletAliasID}`,
+        note,
+        type: WalletType.STORE,
+        balance,
+        isLocked: false,
+        createdAt: now,
+      };
+      // Create a sample Ion doc
+      const ionDoc = load(dumpBinary(doc));
+      if (ionDoc !== null) {
+        const result = await txn.execute("INSERT INTO Wallets ?", ionDoc);
+        const insertedDocument = result.getResultList()[0];
+        console.log(
+          `Successfully inserted document into table: ${JSON.stringify(
+            insertedDocument
+          )}`
+        );
+      }
+    });
+  }
 };
 
 // export const createWallet_QuantumLedger = async ({

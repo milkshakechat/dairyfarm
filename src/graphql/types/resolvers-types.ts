@@ -317,12 +317,13 @@ export type MerchantOnboardingStatusSummary = {
   anythingErrors: Scalars['Boolean']['output'];
   capabilities: MerchantOnboardingStatusCapabilities;
   email: Scalars['String']['output'];
+  escrowWallet: Scalars['ID']['output'];
   hasMerchantPrivilege: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   stripeMerchantID?: Maybe<Scalars['ID']['output']>;
   stripePortalUrl?: Maybe<Scalars['String']['output']>;
+  tradingWallet: Scalars['ID']['output'];
   userID: Scalars['ID']['output'];
-  walletID: Scalars['ID']['output'];
 };
 
 export type ModifyProfileInput = {
@@ -1346,12 +1347,13 @@ export type MerchantOnboardingStatusSummaryResolvers<ContextType = any, ParentTy
   anythingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   capabilities?: Resolver<ResolversTypes['MerchantOnboardingStatusCapabilities'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  escrowWallet?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   hasMerchantPrivilege?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   stripeMerchantID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   stripePortalUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tradingWallet?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   userID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  walletID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
