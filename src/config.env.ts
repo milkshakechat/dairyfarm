@@ -1,4 +1,4 @@
-import { BucketDef, SecretConfig } from "@milkshakechat/helpers";
+import { BucketDef, SecretConfig, UserID } from "@milkshakechat/helpers";
 
 const devConfig: ConfigEnv = {
   GCLOUD: {
@@ -58,6 +58,7 @@ const devConfig: ConfigEnv = {
       WALLET: "wallets",
       TRANSACTION: "transactions",
     },
+    storeOwnerID: "store-owner" as UserID,
   },
 };
 const stagingConfig: ConfigEnv = {
@@ -121,6 +122,7 @@ const stagingConfig: ConfigEnv = {
       WALLET: "wallets",
       TRANSACTION: "transactions",
     },
+    storeOwnerID: "store-owner" as UserID,
   },
 };
 
@@ -183,6 +185,7 @@ const prodConfig: ConfigEnv = {
       WALLET: "wallets",
       TRANSACTION: "transactions",
     },
+    storeOwnerID: "store-owner" as UserID,
   },
 };
 
@@ -226,6 +229,7 @@ interface ConfigEnv {
     tables: {
       [key in QuantumLedgerTables]: QuantumLedgerTable;
     };
+    storeOwnerID: UserID;
   };
 }
 

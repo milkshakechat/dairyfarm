@@ -210,7 +210,8 @@ input CheckMerchantStatusInput {
 }
 type MerchantOnboardingStatusSummary {
   userID: ID!
-  walletID: ID!
+  tradingWallet: ID!
+  escrowWallet: ID!
   name: String!
   email: String!
   hasMerchantPrivilege: Boolean!

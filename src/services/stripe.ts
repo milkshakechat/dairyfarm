@@ -7,6 +7,7 @@ import {
   StripeMerchantID,
   UserID,
   User_Firestore,
+  WalletAliasID,
   WalletID,
   WishBuyFrequency,
   WishID,
@@ -237,7 +238,7 @@ export const createMerchantOnboardingStripe = async ({
   });
   if (user.stripeMetadata && user.stripeMetadata.stripeMerchantID) {
     throw new Error(
-      `User ${userID} already has a stripe account ${user.stripeMetadata.stripeMerchantID}. It is linked to wallet ${user.mainWalletID}`
+      `User ${userID} already has a stripe account ${user.stripeMetadata.stripeMerchantID}.`
     );
   }
   // only allow if user has merchant privilege
@@ -286,7 +287,8 @@ export const createMerchantOnboardingStripe = async ({
 
 interface MerchantOnboardingStatusSummary {
   userID: UserID;
-  walletID: WalletID;
+  tradingWallet: WalletAliasID;
+  escrowWallet: WalletAliasID;
   name: string;
   email: string;
   hasMerchantPrivilege: boolean;
@@ -314,12 +316,11 @@ export const checkMerchantOnboardingStatus = async ({
     collection: FirestoreCollection.USERS,
   });
   if (!user.stripeMetadata || !user.stripeMetadata.stripeMerchantID) {
-    console.log(
-      `User ${userID} does not have a stripe account. It is linked to wallet ${user.mainWalletID}`
-    );
+    console.log(`User ${userID} does not have a stripe account.`);
     return {
       userID: userID,
-      walletID: user.mainWalletID,
+      tradingWallet: user.tradingWallet,
+      escrowWallet: user.escrowWallet,
       name: "",
       email: "",
       hasMerchantPrivilege: user.stripeMetadata?.hasMerchantPrivilege || false,
@@ -383,7 +384,8 @@ export const checkMerchantOnboardingStatus = async ({
   }
   const summary: MerchantOnboardingStatusSummary = {
     userID,
-    walletID: user.mainWalletID,
+    tradingWallet: user.tradingWallet,
+    escrowWallet: user.escrowWallet,
     name: account.business_profile?.name || `Milkshake Merchant User ${userID}`,
     email: account.email || "",
     hasMerchantPrivilege: user.stripeMetadata.hasMerchantPrivilege,

@@ -3,6 +3,7 @@
 import { initFirebase } from "@/services/firebase";
 import config from "@/config.env";
 import {
+  createGlobalStore_QuantumLedger,
   createLedger_startupScript,
   createTables_QuantumLedger,
   initQuantumLedger_Drivers,
@@ -22,7 +23,11 @@ const run = async () => {
   // await createLedger_startupScript();
 
   // create indexes
-  // await initQuantumLedger_Drivers();
+  await initQuantumLedger_Drivers();
+  await createGlobalStore_QuantumLedger({
+    note: "Created from developer computer",
+    balance: 10000,
+  });
   // await createTables_QuantumLedger();
   // await generate256BitKey(); // for cross-cloud api communication
 
