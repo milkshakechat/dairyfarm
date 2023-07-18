@@ -5,7 +5,7 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 dotenv.config();
 
-async function accessSecretVersion({
+async function accessSecretVersionGCP({
   projectId,
   secretId,
   versionId,
@@ -71,7 +71,7 @@ export interface FirebaseConfig {
   measurementId: string;
 }
 export const getFirebaseConfig = async () => {
-  const firebaseConfig = await accessSecretVersion({
+  const firebaseConfig = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,
     secretId: config.SECRETS.FIREBASE_CONFIG.secretId,
     versionId: config.SECRETS.FIREBASE_CONFIG.versionId,
@@ -81,7 +81,7 @@ export const getFirebaseConfig = async () => {
 };
 
 export const getSendbirdSecret = async () => {
-  const sendbirdSecret = await accessSecretVersion({
+  const sendbirdSecret = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,
     secretId: config.SECRETS.SENDBIRD_API.secretId,
     versionId: config.SECRETS.SENDBIRD_API.versionId,
@@ -90,7 +90,7 @@ export const getSendbirdSecret = async () => {
 };
 
 export const getFCMServerKey = async () => {
-  const fcmServerKey = await accessSecretVersion({
+  const fcmServerKey = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,
     secretId: config.SECRETS.FCM_SERVER_KEY.secretId,
     versionId: config.SECRETS.FCM_SERVER_KEY.versionId,
@@ -99,7 +99,7 @@ export const getFCMServerKey = async () => {
 };
 
 export const getStripeSecret = async () => {
-  const stripeSecret = await accessSecretVersion({
+  const stripeSecret = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,
     secretId: config.SECRETS.STRIPE_SERVER_KEY.secretId,
     versionId: config.SECRETS.STRIPE_SERVER_KEY.versionId,
@@ -112,4 +112,13 @@ export const generate256BitKey = async () => {
   let key = crypto.randomBytes(32).toString("base64");
   console.log(`key === ${key}`);
   return key;
+};
+
+export const getXCloudAWSSecret = async () => {
+  const xcloudSecret = await accessSecretVersionGCP({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.XCLOUD_WALLET.secretId,
+    versionId: config.SECRETS.XCLOUD_WALLET.versionId,
+  });
+  return xcloudSecret;
 };

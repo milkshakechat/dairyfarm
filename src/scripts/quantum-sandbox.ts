@@ -1,4 +1,4 @@
-// npx ts-node --project tsconfig.scripts.json -r tsconfig-paths/register ./src/scripts/ledger-sandbox.ts
+// npx ts-node --project tsconfig.scripts.json -r tsconfig-paths/register ./src/scripts/quantum-sandbox.ts
 
 import { initFirebase } from "@/services/firebase";
 import config from "@/config.env";
@@ -7,16 +7,23 @@ import {
   createLedger_startupScript,
   createTables_QuantumLedger,
   initQuantumLedger_Drivers,
+  mockTransaction_Tx,
+  seedCookiesFromStore_Tx,
   // createWallet_QuantumLedger,
   // getWallet_QuantumLedger,
   // updateWallet_QuantumLedger,
 } from "@/services/quantum";
-import { UserID, WalletType } from "@milkshakechat/helpers";
+import {
+  PurchaseMainfestID,
+  UserID,
+  WalletAliasID,
+  WalletType,
+} from "@milkshakechat/helpers";
 import { generate256BitKey } from "@/utils/secrets";
 
 const run = async () => {
   console.log(`Running script ledger-sandbox...`);
-  // await initFirebase();
+  await initFirebase();
 
   // create ledgers
   // await initQuantumLedger_AWS();
@@ -28,7 +35,7 @@ const run = async () => {
   //   note: "Created from developer computer",
   //   balance: 10000,
   // });
-  await createTables_QuantumLedger();
+  // await createTables_QuantumLedger();
   // await generate256BitKey(); // for cross-cloud api communication
 
   // create wallets locally
@@ -47,6 +54,25 @@ const run = async () => {
   //   title: "___title2",
   // });
 
-  // create wallets using the aws api gateway (wallet-gateway)
+  // grant money to wallet as if a purchase
+  // await seedCookiesFromStore_Tx({
+  //   receivingWallet:
+  //     "AQ0zDkAcd9WUT4mJBYddwgAIm0A2_main-trading-wallet" as WalletAliasID,
+  //   amount: 45,
+  //   purchaseManifestID:
+  //     "purchase-AQ0zDkAcd9WUT4mJBYddwgAIm0A2_main-trading-wallet" as PurchaseMainfestID,
+  // });
+
+  const amount = 1;
+  await mockTransaction_Tx({
+    title: `Transfer ${amount} cookies`,
+    sendingWallet:
+      "AQ0zDkAcd9WUT4mJBYddwgAIm0A2_main-trading-wallet" as WalletAliasID,
+    receivingWallet:
+      "7N2FCKf8DcMzWNzQgUAFuRvygag1_main-escrow-wallet" as WalletAliasID,
+    amount,
+    purchaseManifestID:
+      "initial_gift_7N2FCKf8DcMzWNzQgUAFuRvygag1_main-trading-wallet" as PurchaseMainfestID,
+  });
 };
 run();

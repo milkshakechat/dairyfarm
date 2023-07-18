@@ -3,11 +3,17 @@ import {
   DescribeLedgerCommand,
   CreateLedgerCommand,
 } from "@aws-sdk/client-qldb";
-import { accessLocalAWSKeyFile } from "@/utils/secrets";
+import { accessLocalAWSKeyFile, getXCloudAWSSecret } from "@/utils/secrets";
 import config from "@/config.env";
 import { sleep } from "@/utils/utils";
 import { Agent } from "https";
-import { generateGlobalStoreAliasID } from "@milkshakechat/helpers";
+import {
+  PostTransactionXCloudRequestBody,
+  PurchaseMainfestID,
+  TransactionType,
+  WalletAliasID,
+  generateGlobalStoreAliasID,
+} from "@milkshakechat/helpers";
 import { QLDBSessionClientConfig } from "@aws-sdk/client-qldb-session";
 import {
   QldbDriver,
@@ -24,6 +30,7 @@ import {
 } from "@milkshakechat/helpers";
 import { v4 as uuidv4 } from "uuid";
 import { dom, load, dumpBinary } from "ion-js";
+import axios from "axios";
 
 /**
  * Use the quantumLedger SDK to create ledgers
@@ -137,39 +144,167 @@ export const createGlobalStore_QuantumLedger = async ({
   note?: string;
   balance: number;
 }) => {
-  const walletAliasID = generateGlobalStoreAliasID();
+  const walletAliasID = config.LEDGER.globalCookieStore.walletAliasID;
   console.log(`Creating global store with walletAliasID=${walletAliasID}`);
-  if (qldbDriver) {
-    await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
-      // Check if doc with match condition exists
-      // This is critical to make this transaction idempotent
+  // if (qldbDriver) {
+  //   await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
+  //     // Check if doc with match condition exists
+  //     // This is critical to make this transaction idempotent
+  //     const id = uuidv4();
+  //     const now = new Date().toISOString();
+  //     const doc: Record<string, any> = {
+  //       id: id,
+  //       walletAliasID,
+  //       ownerID: config.LEDGER.globalCookieStore.userID,
+  //       title: `Global Store - ${walletAliasID}`,
+  //       note,
+  //       type: WalletType.STORE,
+  //       balance,
+  //       isLocked: false,
+  //       createdAt: now,
+  //     };
+  //     // Create a sample Ion doc
+  //     const ionDoc = load(dumpBinary(doc));
+  //     if (ionDoc !== null) {
+  //       const result = await txn.execute("INSERT INTO Wallets ?", ionDoc);
+  //       const insertedDocument = result.getResultList()[0];
+  //       console.log(
+  //         `Successfully inserted document into table: ${JSON.stringify(
+  //           insertedDocument
+  //         )}`
+  //       );
+  //     }
+  //   });
+  // }
+  const xcloudSecret = await getXCloudAWSSecret();
+  const wallet = {
+    title: `Global Store - ${walletAliasID}`,
+    note,
+    userID: config.LEDGER.globalCookieStore.userID,
+    type: WalletType.STORE,
+    walletAliasID,
+  };
+  const data = await axios.post(
+    "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+    wallet,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: xcloudSecret,
+      },
+    }
+  );
+  console.log(data);
+};
 
-      const id = uuidv4();
-      const now = new Date().toISOString();
-      const doc: Record<string, any> = {
-        id: id,
-        walletAliasID,
-        ownerID: config.LEDGER.storeOwnerID,
-        title: `Global Store - ${walletAliasID}`,
-        note,
-        type: WalletType.STORE,
-        balance,
-        isLocked: false,
-        createdAt: now,
-      };
-      // Create a sample Ion doc
-      const ionDoc = load(dumpBinary(doc));
-      if (ionDoc !== null) {
-        const result = await txn.execute("INSERT INTO Wallets ?", ionDoc);
-        const insertedDocument = result.getResultList()[0];
-        console.log(
-          `Successfully inserted document into table: ${JSON.stringify(
-            insertedDocument
-          )}`
-        );
-      }
-    });
-  }
+export const seedCookiesFromStore_Tx = async ({
+  title = "Seed cookies from global store",
+  receivingWallet,
+  amount,
+  purchaseManifestID,
+}: {
+  receivingWallet: WalletAliasID;
+  amount: number;
+  title?: string;
+  purchaseManifestID: PurchaseMainfestID;
+}) => {
+  console.log("seedCookiesFromStore_Tx...");
+  const xcloudSecret = await getXCloudAWSSecret();
+
+  const transaction: PostTransactionXCloudRequestBody = {
+    title,
+    note: title,
+    purchaseManifestID,
+    attribution: "",
+    type: TransactionType.TOP_UP,
+    amount,
+    senderWallet: config.LEDGER.globalCookieStore.walletAliasID,
+    receiverWallet: receivingWallet,
+    explanations: [
+      {
+        walletAliasID: receivingWallet,
+        explanation: `Magically gifted ${amount} cookies by Global Store`,
+        amount,
+      },
+      {
+        walletAliasID: config.LEDGER.globalCookieStore.walletAliasID,
+        explanation: `Seed ${amount} cookies into user`,
+        amount: -amount,
+      },
+    ],
+    gotRecalled: false,
+    topUpMetadata: {
+      internalNote: "Developer top up",
+    },
+  };
+  console.log(`transaction`, transaction);
+  const data = await axios.post(
+    config.WALLET_GATEWAY.postTransaction.url,
+    transaction,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: xcloudSecret,
+      },
+    }
+  );
+  console.log(data);
+};
+
+export const mockTransaction_Tx = async ({
+  title,
+  sendingWallet,
+  receivingWallet,
+  amount,
+  purchaseManifestID,
+}: {
+  sendingWallet: WalletAliasID;
+  receivingWallet: WalletAliasID;
+  amount: number;
+  title: string;
+  purchaseManifestID: PurchaseMainfestID;
+}) => {
+  console.log("mockTransaction_Tx...");
+  const xcloudSecret = await getXCloudAWSSecret();
+
+  const transaction: PostTransactionXCloudRequestBody = {
+    title,
+    note: title,
+    purchaseManifestID,
+    attribution: "",
+    type: TransactionType.TRANSFER,
+    amount,
+    senderWallet: sendingWallet,
+    receiverWallet: receivingWallet,
+    explanations: [
+      {
+        walletAliasID: receivingWallet,
+        explanation: `Received ${amount} cookies from ${sendingWallet}`,
+        amount,
+      },
+      {
+        walletAliasID: sendingWallet,
+        explanation: `Sent ${amount} cookies to ${receivingWallet}`,
+        amount: -amount,
+      },
+    ],
+    gotRecalled: false,
+    transferMetadata: {
+      senderNote: "Developer testing",
+    },
+  };
+  console.log(`transaction`, transaction);
+  const data = await axios.post(
+    config.WALLET_GATEWAY.postTransaction.url,
+    transaction,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: xcloudSecret,
+      },
+    }
+  );
+  console.log(data);
 };
 
 // export const createWallet_QuantumLedger = async ({
