@@ -24,11 +24,11 @@ const run = async () => {
 
   // create indexes
   await initQuantumLedger_Drivers();
-  await createGlobalStore_QuantumLedger({
-    note: "Created from developer computer",
-    balance: 10000,
-  });
-  // await createTables_QuantumLedger();
+  // await createGlobalStore_QuantumLedger({
+  //   note: "Created from developer computer",
+  //   balance: 10000,
+  // });
+  await createTables_QuantumLedger();
   // await generate256BitKey(); // for cross-cloud api communication
 
   // create wallets locally

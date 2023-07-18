@@ -85,10 +85,9 @@ export const createTables_QuantumLedger = async () => {
 
   await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
     await txn.execute(`CREATE INDEX ON Wallets (id)`);
-    await txn.execute(`CREATE INDEX ON Wallets (ownerID)`);
-    await txn.execute(`CREATE INDEX ON Wallets (userRelationshipHash)`);
+    await txn.execute(`CREATE INDEX ON Wallets (docId)`);
+    await txn.execute(`CREATE INDEX ON Wallets (walletAliasID)`);
     await txn.execute(`CREATE INDEX ON Transactions (id)`);
-    await txn.execute(`CREATE INDEX ON Transactions (userRelationshipHash)`);
   });
 };
 
