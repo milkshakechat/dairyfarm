@@ -38,7 +38,7 @@ GCP_KEYFILE_BASE64=eyJ0eXBlIjoi....291bnQuY29tIn0=
 AWS_KEYFILE_BASE64=ayJ0eXBlIjoi....291bnQuY29tIn0=
 ```
 
-Then `secrets.ts:accessSecretVersion` will be able to read from the secret manager. Those secrets are listed here:
+Then `secrets.ts:accessSecretVersionGCP` will be able to read from the secret manager. Those secrets are listed here:
 
 - ㊙️ `firebase-init` is the firebase init json used for Firebase Admin SDK. Make sure you upload a json file.
 - 

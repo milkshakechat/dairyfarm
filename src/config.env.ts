@@ -1,4 +1,9 @@
-import { BucketDef, SecretConfig, UserID } from "@milkshakechat/helpers";
+import {
+  BucketDef,
+  SecretConfig,
+  UserID,
+  WalletAliasID,
+} from "@milkshakechat/helpers";
 
 const devConfig: ConfigEnv = {
   GCLOUD: {
@@ -25,6 +30,10 @@ const devConfig: ConfigEnv = {
     },
     STRIPE_SERVER_KEY: {
       secretId: "stripe-private-key",
+      versionId: "latest",
+    },
+    XCLOUD_WALLET: {
+      secretId: "xcloud-wallet-gateway-gcp-to-aws",
       versionId: "latest",
     },
   },
@@ -58,7 +67,21 @@ const devConfig: ConfigEnv = {
       WALLET: "wallets",
       TRANSACTION: "transactions",
     },
-    storeOwnerID: "store-owner" as UserID,
+    globalCookieStore: {
+      userID: "store-owner" as UserID,
+      walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
+    },
+  },
+  WALLET_GATEWAY: {
+    postTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
+    },
+    recallTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/recall",
+    },
+    cashoutTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/cashout",
+    },
   },
 };
 const stagingConfig: ConfigEnv = {
@@ -86,6 +109,10 @@ const stagingConfig: ConfigEnv = {
     },
     STRIPE_SERVER_KEY: {
       secretId: "stripe-private-key",
+      versionId: "latest",
+    },
+    XCLOUD_WALLET: {
+      secretId: "xcloud-wallet-gateway-gcp-to-aws",
       versionId: "latest",
     },
   },
@@ -122,7 +149,22 @@ const stagingConfig: ConfigEnv = {
       WALLET: "wallets",
       TRANSACTION: "transactions",
     },
-    storeOwnerID: "store-owner" as UserID,
+
+    globalCookieStore: {
+      userID: "store-owner" as UserID,
+      walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
+    },
+  },
+  WALLET_GATEWAY: {
+    postTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
+    },
+    recallTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/recall",
+    },
+    cashoutTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/cashout",
+    },
   },
 };
 
@@ -153,6 +195,10 @@ const prodConfig: ConfigEnv = {
       secretId: "stripe-private-key",
       versionId: "latest",
     },
+    XCLOUD_WALLET: {
+      secretId: "xcloud-wallet-gateway-gcp-to-aws",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -177,7 +223,6 @@ const prodConfig: ConfigEnv = {
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
   },
-
   LEDGER: {
     region: "ap-northeast-1",
     name: "inapp-wallet-prod",
@@ -185,7 +230,22 @@ const prodConfig: ConfigEnv = {
       WALLET: "wallets",
       TRANSACTION: "transactions",
     },
-    storeOwnerID: "store-owner" as UserID,
+
+    globalCookieStore: {
+      userID: "store-owner" as UserID,
+      walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
+    },
+  },
+  WALLET_GATEWAY: {
+    postTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
+    },
+    recallTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/recall",
+    },
+    cashoutTransaction: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/cashout",
+    },
   },
 };
 
@@ -201,6 +261,7 @@ interface ConfigEnv {
     SENDBIRD_API: SecretConfig;
     FCM_SERVER_KEY: SecretConfig;
     STRIPE_SERVER_KEY: SecretConfig;
+    XCLOUD_WALLET: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;
@@ -229,7 +290,21 @@ interface ConfigEnv {
     tables: {
       [key in QuantumLedgerTables]: QuantumLedgerTable;
     };
-    storeOwnerID: UserID;
+    globalCookieStore: {
+      userID: UserID;
+      walletAliasID: WalletAliasID;
+    };
+  };
+  WALLET_GATEWAY: {
+    postTransaction: {
+      url: string;
+    };
+    recallTransaction: {
+      url: string;
+    };
+    cashoutTransaction: {
+      url: string;
+    };
   };
 }
 

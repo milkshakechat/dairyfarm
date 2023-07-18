@@ -20,6 +20,7 @@ export type Scalars = {
   PushToken: { input: any; output: any; }
   SendBirdInternalUserID: { input: any; output: any; }
   UserID: { input: any; output: any; }
+  WalletAliasID: { input: any; output: any; }
 };
 
 export type ChatRoom = {
@@ -692,6 +693,7 @@ export type User = {
   disabled: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
   email: Scalars['String']['output'];
+  escrowWallet?: Maybe<Scalars['WalletAliasID']['output']>;
   gender: GenderEnum;
   id: Scalars['UserID']['output'];
   interestedIn: Array<GenderEnum>;
@@ -704,6 +706,7 @@ export type User = {
   sendBirdAccessToken?: Maybe<Scalars['String']['output']>;
   stories: Array<Story>;
   themeColor: Scalars['HexColorCode']['output'];
+  tradingWallet?: Maybe<Scalars['WalletAliasID']['output']>;
   username: Scalars['String']['output'];
 };
 
@@ -994,6 +997,7 @@ export type ResolversTypes = {
   ViewPublicProfileInput: ViewPublicProfileInput;
   ViewPublicProfileResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ViewPublicProfileResponse']>;
   ViewPublicProfileResponseSuccess: ResolverTypeWrapper<ViewPublicProfileResponseSuccess>;
+  WalletAliasID: ResolverTypeWrapper<Scalars['WalletAliasID']['output']>;
   Wish: ResolverTypeWrapper<Wish>;
   WishAuthor: ResolverTypeWrapper<WishAuthor>;
   WishBuyFrequency: WishBuyFrequency;
@@ -1111,6 +1115,7 @@ export type ResolversParentTypes = {
   ViewPublicProfileInput: ViewPublicProfileInput;
   ViewPublicProfileResponse: ResolversUnionTypes<ResolversParentTypes>['ViewPublicProfileResponse'];
   ViewPublicProfileResponseSuccess: ViewPublicProfileResponseSuccess;
+  WalletAliasID: Scalars['WalletAliasID']['output'];
   Wish: Wish;
   WishAuthor: WishAuthor;
   WishSuggest: WishSuggest;
@@ -1551,6 +1556,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   disabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  escrowWallet?: Resolver<Maybe<ResolversTypes['WalletAliasID']>, ParentType, ContextType>;
   gender?: Resolver<ResolversTypes['GenderEnum'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['UserID'], ParentType, ContextType>;
   interestedIn?: Resolver<Array<ResolversTypes['GenderEnum']>, ParentType, ContextType>;
@@ -1563,6 +1569,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   sendBirdAccessToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stories?: Resolver<Array<ResolversTypes['Story']>, ParentType, ContextType>;
   themeColor?: Resolver<ResolversTypes['HexColorCode'], ParentType, ContextType>;
+  tradingWallet?: Resolver<Maybe<ResolversTypes['WalletAliasID']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -1585,6 +1592,10 @@ export type ViewPublicProfileResponseSuccessResolvers<ContextType = any, ParentT
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface WalletAliasIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['WalletAliasID'], any> {
+  name: 'WalletAliasID';
+}
 
 export type WishResolvers<ContextType = any, ParentType extends ResolversParentTypes['Wish'] = ResolversParentTypes['Wish']> = {
   author?: Resolver<Maybe<ResolversTypes['WishAuthor']>, ParentType, ContextType>;
@@ -1703,6 +1714,7 @@ export type Resolvers<ContextType = any> = {
   UserID?: GraphQLScalarType;
   ViewPublicProfileResponse?: ViewPublicProfileResponseResolvers<ContextType>;
   ViewPublicProfileResponseSuccess?: ViewPublicProfileResponseSuccessResolvers<ContextType>;
+  WalletAliasID?: GraphQLScalarType;
   Wish?: WishResolvers<ContextType>;
   WishAuthor?: WishAuthorResolvers<ContextType>;
   WishSuggest?: WishSuggestResolvers<ContextType>;
