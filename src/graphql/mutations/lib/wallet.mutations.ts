@@ -4,6 +4,8 @@ import {
   MutationRecallTransactionArgs,
   MutationSendTransferArgs,
   RecallTransactionResponse,
+  MutationCreatePaymentIntentArgs,
+  CreatePaymentIntentResponse,
 } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
 import { getXCloudAWSSecret } from "@/utils/secrets";
@@ -23,6 +25,7 @@ import axios from "axios";
 import { GraphQLResolveInfo } from "graphql";
 import { v4 as uuidv4 } from "uuid";
 import config from "@/config.env";
+import { createPaymentIntentForWish } from "@/services/stripe";
 
 export const sendTransfer = async (
   _parent: any,
@@ -163,6 +166,31 @@ export const recallTransaction = async (
   };
 };
 
+export const createPaymentIntent = async (
+  _parent: any,
+  args: MutationCreatePaymentIntentArgs,
+  _context: any,
+  _info: any
+): Promise<CreatePaymentIntentResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const { checkoutToken, referenceID } = await createPaymentIntentForWish({
+    wishSuggest: args.input.wishSuggest,
+    userID,
+    note: args.input.note || "",
+    attribution: args.input.attribution || "",
+    promoCode: args.input.promoCode || "",
+  });
+  console.log(`checkoutToken = ${checkoutToken}`);
+  console.log(`referenceID = ${referenceID}`);
+  return {
+    checkoutToken,
+    referenceID,
+  };
+};
+
 export const responses = {
   SendTransferResponse: {
     __resolveType(
@@ -189,6 +217,21 @@ export const responses = {
       console.log(obj);
       if ("referenceID" in obj) {
         return "RecallTransactionResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  CreatePaymentIntentResponse: {
+    __resolveType(
+      obj: CreatePaymentIntentResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("referenceID" in obj) {
+        return "CreatePaymentIntentResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

@@ -64,16 +64,18 @@ export type Contact = {
 };
 
 export type CreatePaymentIntentInput = {
-  __typename?: 'CreatePaymentIntentInput';
-  note?: Maybe<Scalars['String']['output']>;
-  wishlist: Array<WishSuggest>;
+  attribution?: InputMaybe<Scalars['String']['input']>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  promoCode?: InputMaybe<Scalars['String']['input']>;
+  wishSuggest: WishSuggest;
 };
 
 export type CreatePaymentIntentResponse = CreatePaymentIntentResponseSuccess | ResponseError;
 
 export type CreatePaymentIntentResponseSuccess = {
   __typename?: 'CreatePaymentIntentResponseSuccess';
-  checkoutToken: Scalars['String']['output'];
+  checkoutToken?: Maybe<Scalars['String']['output']>;
+  referenceID: Scalars['String']['output'];
 };
 
 export type CreateStoryInput = {
@@ -363,6 +365,7 @@ export type ModifyStoryResponseSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createPaymentIntent: CreatePaymentIntentResponse;
   createStory: CreateStoryResponse;
   createWish: CreateWishResponse;
   demoMutation: DemoMutationResponse;
@@ -378,6 +381,11 @@ export type Mutation = {
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
   updateWish: UpdateWishResponse;
+};
+
+
+export type MutationCreatePaymentIntentArgs = {
+  input: CreatePaymentIntentInput;
 };
 
 
@@ -802,10 +810,9 @@ export enum WishBuyFrequency {
 }
 
 export type WishSuggest = {
-  __typename?: 'WishSuggest';
-  suggestedAmount?: Maybe<Scalars['Int']['output']>;
-  suggestedFrequency?: Maybe<WishBuyFrequency>;
-  wishID: Scalars['ID']['output'];
+  suggestedAmount?: InputMaybe<Scalars['Int']['input']>;
+  suggestedFrequency?: InputMaybe<WishBuyFrequency>;
+  wishID: Scalars['ID']['input'];
 };
 
 export enum WishTypeEnum {
@@ -931,7 +938,7 @@ export type ResolversTypes = {
   CheckUsernameAvailableResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckUsernameAvailableResponse']>;
   CheckUsernameAvailableResponseSuccess: ResolverTypeWrapper<CheckUsernameAvailableResponseSuccess>;
   Contact: ResolverTypeWrapper<Contact>;
-  CreatePaymentIntentInput: ResolverTypeWrapper<CreatePaymentIntentInput>;
+  CreatePaymentIntentInput: CreatePaymentIntentInput;
   CreatePaymentIntentResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreatePaymentIntentResponse']>;
   CreatePaymentIntentResponseSuccess: ResolverTypeWrapper<CreatePaymentIntentResponseSuccess>;
   CreateStoryInput: CreateStoryInput;
@@ -1046,7 +1053,7 @@ export type ResolversTypes = {
   Wish: ResolverTypeWrapper<Wish>;
   WishAuthor: ResolverTypeWrapper<WishAuthor>;
   WishBuyFrequency: WishBuyFrequency;
-  WishSuggest: ResolverTypeWrapper<WishSuggest>;
+  WishSuggest: WishSuggest;
   WishTypeEnum: WishTypeEnum;
   WishlistVisibility: WishlistVisibility;
 };
@@ -1208,18 +1215,13 @@ export type ContactResolvers<ContextType = any, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type CreatePaymentIntentInputResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatePaymentIntentInput'] = ResolversParentTypes['CreatePaymentIntentInput']> = {
-  note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  wishlist?: Resolver<Array<ResolversTypes['WishSuggest']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type CreatePaymentIntentResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatePaymentIntentResponse'] = ResolversParentTypes['CreatePaymentIntentResponse']> = {
   __resolveType: TypeResolveFn<'CreatePaymentIntentResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
 
 export type CreatePaymentIntentResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatePaymentIntentResponseSuccess'] = ResolversParentTypes['CreatePaymentIntentResponseSuccess']> = {
-  checkoutToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  checkoutToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1432,6 +1434,7 @@ export type ModifyStoryResponseSuccessResolvers<ContextType = any, ParentType ex
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createPaymentIntent?: Resolver<ResolversTypes['CreatePaymentIntentResponse'], ParentType, ContextType, RequireFields<MutationCreatePaymentIntentArgs, 'input'>>;
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
   createWish?: Resolver<ResolversTypes['CreateWishResponse'], ParentType, ContextType, RequireFields<MutationCreateWishArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
@@ -1697,13 +1700,6 @@ export type WishAuthorResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type WishSuggestResolvers<ContextType = any, ParentType extends ResolversParentTypes['WishSuggest'] = ResolversParentTypes['WishSuggest']> = {
-  suggestedAmount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  suggestedFrequency?: Resolver<Maybe<ResolversTypes['WishBuyFrequency']>, ParentType, ContextType>;
-  wishID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type Resolvers<ContextType = any> = {
   ChatRoom?: ChatRoomResolvers<ContextType>;
   CheckMerchantStatusResponse?: CheckMerchantStatusResponseResolvers<ContextType>;
@@ -1711,7 +1707,6 @@ export type Resolvers<ContextType = any> = {
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
-  CreatePaymentIntentInput?: CreatePaymentIntentInputResolvers<ContextType>;
   CreatePaymentIntentResponse?: CreatePaymentIntentResponseResolvers<ContextType>;
   CreatePaymentIntentResponseSuccess?: CreatePaymentIntentResponseSuccessResolvers<ContextType>;
   CreateStoryResponse?: CreateStoryResponseResolvers<ContextType>;
@@ -1792,6 +1787,5 @@ export type Resolvers<ContextType = any> = {
   WalletAliasID?: GraphQLScalarType;
   Wish?: WishResolvers<ContextType>;
   WishAuthor?: WishAuthorResolvers<ContextType>;
-  WishSuggest?: WishSuggestResolvers<ContextType>;
 };
 

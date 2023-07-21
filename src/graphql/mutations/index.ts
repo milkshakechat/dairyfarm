@@ -17,6 +17,7 @@ export {
 export { createWish, updateWish } from "@/graphql/mutations/lib/wish.mutations";
 export { requestMerchantOnboarding } from "@/graphql/mutations/lib/merchant.mutations";
 export {
+  createPaymentIntent,
   sendTransfer,
   recallTransaction,
 } from "@/graphql/mutations/lib/wallet.mutations";

@@ -548,17 +548,20 @@ union RequestMerchantOnboardingResponse =
   | ResponseError
 
 # --- create payment intent
-type CreatePaymentIntentInput {
-  wishlist: [WishSuggest!]!
+input CreatePaymentIntentInput {
+  wishSuggest: WishSuggest!
   note: String
+  attribution: String
+  promoCode: String
 }
-type WishSuggest {
+input WishSuggest {
   wishID: ID!
   suggestedAmount: Int
   suggestedFrequency: WishBuyFrequency
 }
 type CreatePaymentIntentResponseSuccess {
-  checkoutToken: String!
+  checkoutToken: String
+  referenceID: String!
 }
 union CreatePaymentIntentResponse =
     CreatePaymentIntentResponseSuccess
@@ -611,7 +614,8 @@ type Mutation {
   # merchant
   requestMerchantOnboarding: RequestMerchantOnboardingResponse!
   # shopping
-  # createPaymentIntent(input: CreatePaymentIntentInput!): CreatePaymentIntentResponse!
+  createPaymentIntent(input: CreatePaymentIntentInput!): CreatePaymentIntentResponse!
+  # money transfer
   sendTransfer(input: SendTransferInput!): SendTransferResponse!
   recallTransaction(input: RecallTransactionInput!): RecallTransactionResponse!
   # cashOutTransaction(input: CashOutTransactionInput!): CashOutTransactionResponse!

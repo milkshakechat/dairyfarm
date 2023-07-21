@@ -24,6 +24,7 @@ import {
   placeholderImageThumbnail,
   placeholderSticker,
   placeholderWishlistGraphic,
+  StripeProductID,
 } from "@milkshakechat/helpers";
 import {
   createFirestoreDoc,
@@ -36,6 +37,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import config from "@/config.env";
 import { updateFirestoreDoc } from "@/services/firestore";
+import { createStripeProduct } from "./stripe";
 
 const extractAssetIDFromWishUrl = (
   url: string,
@@ -64,7 +66,7 @@ export const createWishFirestore = async (
     id: userID,
     collection: FirestoreCollection.USERS,
   });
-  const id = uuidv4();
+  const id = uuidv4() as WishID;
   const galleryMediaSet: MediaSet[] =
     input.wishGraphics && input.wishGraphics.length > 0
       ? input.wishGraphics.map((url) => {
@@ -114,8 +116,11 @@ export const createWishFirestore = async (
         small: placeholderSticker,
         medium: placeholderSticker,
       };
+  const stripeProduct = await createStripeProduct({
+    wishID: id,
+  });
   const wishData: Wish_Firestore = {
-    id: id as WishID,
+    id,
     creatorID: userID,
     wishTitle: input.wishTitle,
     stickerTitle: input.stickerTitle || input.wishTitle,
@@ -136,6 +141,7 @@ export const createWishFirestore = async (
     visibility:
       (input.visibility as unknown as WishlistVisibility) ||
       WishlistVisibility.FRIENDS_ONLY,
+    stripeProductID: stripeProduct.id as StripeProductID,
   };
   const wish = await createFirestoreDoc<WishID, Wish_Firestore>({
     id: id as WishID,
