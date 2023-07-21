@@ -234,6 +234,7 @@ export const savePaymentMethod = async (
     const res = await attachPaymentMethodToUser({
       userID,
       paymentMethodID: args.input.paymentMethodID,
+      isDefault: true,
     });
     return {
       paymentMethodID: res.id,

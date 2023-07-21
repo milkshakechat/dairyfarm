@@ -45,6 +45,8 @@ import { _postTransaction } from "./quantum";
 
 let stripe: Stripe;
 
+const MINIMUM_STRIPE_CHARGE = 33; // $0.33 USD
+
 export const initStripe = async () => {
   const privateKey = await getStripeSecret();
   stripe = new Stripe(privateKey, {
@@ -157,10 +159,13 @@ export const createPaymentIntentForWish = async ({
   const desc = `@${customer.username} paid ${price} cookies ${frequency} for "${wish.wishTitle}" from @${seller.username}. Original terms were ${wish.cookiePrice} cookies ${wish.buyFrequency}. BuyerUserID=${customer.id} and SellerUserID=${seller.id}.`;
   console.log(desc);
 
+  const title = `"${wish.wishTitle}" - ${price} Cookies / $${cookieToUSD(
+    price
+  )} USD ${WishBuyFrequencyPrettyPrint(frequency)}`;
+  console.log(`title = ${title}`);
+
   const { purchaseManifest, stripePrice } = await createPurchaseManifest({
-    title: `"${
-      wish.wishTitle
-    }" - ${price} cookies ${WishBuyFrequencyPrettyPrint(frequency)}`,
+    title,
     note: desc,
     wishID: wish.id,
     buyerUserID: userID,
@@ -248,7 +253,10 @@ export const createPaymentIntentForWish = async ({
     if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
       const paymentIntent = await createPaymentIntentStripe({
         stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
-        amount: totalPriceUSD,
+        amount:
+          totalPriceUSD > MINIMUM_STRIPE_CHARGE
+            ? totalPriceUSD
+            : MINIMUM_STRIPE_CHARGE,
         description: desc,
         recieptEmail: customer.email,
       });
@@ -289,8 +297,15 @@ export const createPaymentIntentForWish = async ({
     // 2a. Charge once for prorated subscriptions
 
     const subscriptionPrice = wishSuggest.suggestedAmount || wish.cookiePrice;
-    const dailyRate = cookieToUSD(subscriptionPrice) / daysInMonth;
-
+    const proratedMonthlyPrice = convertFrequencySubscriptionToMonthly({
+      amount: subscriptionPrice,
+      frequency,
+    });
+    console.log(
+      `subscriptionPrice= ${subscriptionPrice}, proratedMonthlyPrice=${proratedMonthlyPrice}`
+    );
+    const dailyRate = (cookieToUSD(proratedMonthlyPrice) / daysInMonth) * 100;
+    console.log(`dailyRate=${dailyRate}`);
     const totalChargedNowSub = Math.ceil(dailyRate * daysUntilNextCycle);
     console.log(`totalChargedNowSub=${totalChargedNowSub}`);
 
@@ -299,7 +314,10 @@ export const createPaymentIntentForWish = async ({
     if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
       const paymentIntent = await createPaymentIntentStripe({
         stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
-        amount: totalChargedNowSub,
+        amount:
+          totalChargedNowSub > MINIMUM_STRIPE_CHARGE
+            ? totalChargedNowSub
+            : MINIMUM_STRIPE_CHARGE,
         description: desc,
         recieptEmail: customer.email,
       });
@@ -343,18 +361,25 @@ export const createPaymentIntentStripe = async ({
   description?: string;
   recieptEmail?: string;
 }) => {
-  console.log(`createPaymentIntentStripe...`);
-  const paymentIntent = await stripe.paymentIntents.create({
+  console.log(
+    `createPaymentIntentStripe... for stripeCustomerID ${stripeCustomerID}`
+  );
+  const intent = {
     customer: stripeCustomerID,
     setup_future_usage: "off_session",
-    amount,
+    amount: amount > MINIMUM_STRIPE_CHARGE ? amount : MINIMUM_STRIPE_CHARGE,
     currency,
     description,
     receipt_email: recieptEmail,
     automatic_payment_methods: {
       enabled: true,
     },
-  });
+  };
+  console.log(`intent = ${JSON.stringify(intent)}`);
+  const paymentIntent = await stripe.paymentIntents.create(
+    // @ts-ignore
+    intent
+  );
   console.log(`paymentIntent`, paymentIntent);
   return paymentIntent;
 };
