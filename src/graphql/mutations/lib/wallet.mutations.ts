@@ -6,6 +6,10 @@ import {
   RecallTransactionResponse,
   MutationCreatePaymentIntentArgs,
   CreatePaymentIntentResponse,
+  CreateSetupIntentResponse,
+  MutationSavePaymentMethodArgs,
+  SavePaymentMethodResponse,
+  StatusCode,
 } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
 import { getXCloudAWSSecret } from "@/utils/secrets";
@@ -25,7 +29,11 @@ import axios from "axios";
 import { GraphQLResolveInfo } from "graphql";
 import { v4 as uuidv4 } from "uuid";
 import config from "@/config.env";
-import { createPaymentIntentForWish } from "@/services/stripe";
+import {
+  attachPaymentMethodToUser,
+  createPaymentIntentForWish,
+  createSetupIntentStripe,
+} from "@/services/stripe";
 
 export const sendTransfer = async (
   _parent: any,
@@ -191,6 +199,58 @@ export const createPaymentIntent = async (
   };
 };
 
+export const createSetupIntent = async (
+  _parent: any,
+  args: any,
+  _context: any,
+  _info: any
+): Promise<CreateSetupIntentResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const setupIntent = await createSetupIntentStripe({
+    userID,
+  });
+  if (!setupIntent.client_secret) {
+    throw Error("No client secret found");
+  }
+  return {
+    clientSecret: setupIntent.client_secret,
+  };
+};
+
+export const savePaymentMethod = async (
+  _parent: any,
+  args: MutationSavePaymentMethodArgs,
+  _context: any,
+  _info: any
+): Promise<SavePaymentMethodResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  try {
+    const res = await attachPaymentMethodToUser({
+      userID,
+      paymentMethodID: args.input.paymentMethodID,
+    });
+    return {
+      paymentMethodID: res.id,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      error: {
+        code: StatusCode.ServerError,
+        message:
+          (e as any).message ||
+          `An error occurred attaching the payment to user ${userID}`,
+      },
+    };
+  }
+};
+
 export const responses = {
   SendTransferResponse: {
     __resolveType(
@@ -232,6 +292,36 @@ export const responses = {
     ) {
       if ("referenceID" in obj) {
         return "CreatePaymentIntentResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  CreateSetupIntentResponse: {
+    __resolveType(
+      obj: CreateSetupIntentResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("clientSecret" in obj) {
+        return "CreateSetupIntentResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  SavePaymentMethodResponse: {
+    __resolveType(
+      obj: SavePaymentMethodResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("paymentMethodID" in obj) {
+        return "SavePaymentMethodResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

@@ -11,6 +11,8 @@ import {
   PurchaseMainfest_Firestore,
   StripeCustomerID,
   StripeMerchantID,
+  StripePaymentIntentID,
+  StripePaymentMethodID,
   StripePriceID,
   StripeProductID,
   StripeSubscriptionID,
@@ -21,6 +23,7 @@ import {
   WalletAliasID,
   WalletID,
   WishBuyFrequency,
+  WishBuyFrequencyPrettyPrint,
   WishID,
   Wish_Firestore,
   cookieToUSD,
@@ -155,6 +158,9 @@ export const createPaymentIntentForWish = async ({
   console.log(desc);
 
   const { purchaseManifest, stripePrice } = await createPurchaseManifest({
+    title: `"${
+      wish.wishTitle
+    }" - ${price} cookies ${WishBuyFrequencyPrettyPrint(frequency)}`,
     note: desc,
     wishID: wish.id,
     buyerUserID: userID,
@@ -240,16 +246,23 @@ export const createPaymentIntentForWish = async ({
       customer.stripeMetadata?.stripeCustomerID
     );
     if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
-      const checkoutToken = await createPaymentIntentStripe({
+      const paymentIntent = await createPaymentIntentStripe({
         stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
         amount: totalPriceUSD,
         description: desc,
         recieptEmail: customer.email,
       });
+      await updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+        id: purchaseManifest.id,
+        payload: {
+          stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
+        },
+        collection: FirestoreCollection.PURCHASE_MANIFESTS,
+      });
       // post transaction for cookie jar topup
       // post transaction for sale
       return {
-        checkoutToken,
+        checkoutToken: paymentIntent.client_secret,
         referenceID,
       };
     } else {
@@ -284,11 +297,18 @@ export const createPaymentIntentForWish = async ({
     // charge card on "subscriptionPrice"
     // add to subscription on "totalChargedLaterSub"
     if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
-      const checkoutToken = await createPaymentIntentStripe({
+      const paymentIntent = await createPaymentIntentStripe({
         stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
         amount: totalChargedNowSub,
         description: desc,
         recieptEmail: customer.email,
+      });
+      await updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+        id: purchaseManifest.id,
+        payload: {
+          stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
+        },
+        collection: FirestoreCollection.PURCHASE_MANIFESTS,
       });
       // post transaction for cookie jar topup
       // post transaction for sale
@@ -299,7 +319,7 @@ export const createPaymentIntentForWish = async ({
         });
       }
       return {
-        checkoutToken,
+        checkoutToken: paymentIntent.client_secret,
         referenceID,
       };
     } else {
@@ -336,7 +356,7 @@ export const createPaymentIntentStripe = async ({
     },
   });
   console.log(`paymentIntent`, paymentIntent);
-  return paymentIntent.client_secret;
+  return paymentIntent;
 };
 
 export const createChargeStripe = async () => {
@@ -395,7 +415,9 @@ export const createMerchantOnboardingStripe = async ({
     id: user.id,
     payload: {
       stripeMetadata: {
-        ...(user.stripeMetadata || { hasMerchantPrivilege: true }),
+        ...(user.stripeMetadata || {
+          hasMerchantPrivilege: true,
+        }),
         stripeMerchantID: STRIPE_CONNECTED_ACCOUNT_ID as StripeMerchantID,
       },
     },
@@ -545,6 +567,7 @@ export const createEmptySubscriptionStripe = async () => {
 };
 
 export const createPurchaseManifest = async (args: {
+  title: string;
   note: string;
   wishID: WishID;
   buyerUserID: UserID;
@@ -561,6 +584,7 @@ export const createPurchaseManifest = async (args: {
   console.log("createPurchaseManifest...");
   console.log(`stripeProductID = ${args.stripeProductID}`);
   const {
+    title,
     note,
     wishID,
     buyerUserID,
@@ -599,6 +623,7 @@ export const createPurchaseManifest = async (args: {
   const manifest: PurchaseMainfest_Firestore = {
     // basic info
     id,
+    title,
     note,
     createdAt: createFirestoreTimestamp(),
     wishID,
@@ -654,6 +679,9 @@ export const convertFrequencySubscriptionToMonthly = (args: {
       break;
     case WishBuyFrequency.MONTHLY:
       monthlyAmount = amount;
+      break;
+    case WishBuyFrequency.ONE_TIME:
+      monthlyAmount = 0;
       break;
     default:
       throw Error(`Invalid frequency ${frequency}`);
@@ -712,4 +740,72 @@ export const addItemToMainBillingCycle = async (args: {
   });
   console.log("subscriptionItem", subscriptionItem);
   return subscriptionItem;
+};
+
+export const createSetupIntentStripe = async ({
+  userID,
+}: {
+  userID: UserID;
+}) => {
+  const user = await getFirestoreDoc<UserID, User_Firestore>({
+    id: userID,
+    collection: FirestoreCollection.USERS,
+  });
+  if (!user) {
+    throw Error(`User ${userID} not found`);
+  }
+  if (!user.stripeMetadata || !user.stripeMetadata.stripeCustomerID) {
+    throw Error(`User ${userID} does not have stripe metadata`);
+  }
+  const setupIntent = await stripe.setupIntents.create({
+    customer: user.stripeMetadata.stripeCustomerID,
+  });
+  if (!setupIntent.client_secret) {
+    throw Error(`No client secret found for setup intent`);
+  }
+  return setupIntent;
+};
+
+export const attachPaymentMethodToUser = async (args: {
+  userID: UserID;
+  paymentMethodID: string;
+  isDefault?: boolean;
+}) => {
+  const user = await getFirestoreDoc<UserID, User_Firestore>({
+    id: args.userID,
+    collection: FirestoreCollection.USERS,
+  });
+  if (!user) {
+    throw Error(`User ${args.userID} not found`);
+  }
+  if (!user.stripeMetadata || !user.stripeMetadata.stripeCustomerID) {
+    throw Error(`User ${args.userID} does not have stripe metadata`);
+  }
+  const paymentMethod = await stripe.paymentMethods.attach(
+    args.paymentMethodID,
+    {
+      customer: user.stripeMetadata.stripeCustomerID,
+    }
+  );
+  if (args.isDefault) {
+    // Make this new payment method the default for this customer
+    await stripe.customers.update(user.stripeMetadata.stripeCustomerID, {
+      invoice_settings: {
+        default_payment_method: args.paymentMethodID,
+      },
+    });
+  }
+  await updateFirestoreDoc<UserID, User_Firestore>({
+    id: args.userID,
+    payload: {
+      stripeMetadata: {
+        ...(user.stripeMetadata || {
+          hasMerchantPrivilege: false,
+        }),
+        defaultPaymentMethodID: args.paymentMethodID as StripePaymentMethodID,
+      },
+    },
+    collection: FirestoreCollection.USERS,
+  });
+  return paymentMethod;
 };

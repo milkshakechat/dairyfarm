@@ -59,6 +59,8 @@ export const getMyProfile = async (
         ...user,
         // sendBirdAccessToken: sendbirdUser.access_token,
         createdAt: (user.createdAt as any).toDate(),
+        defaultPaymentMethodID:
+          user.stripeMetadata?.defaultPaymentMethodID || undefined,
       },
     };
   } catch (e) {

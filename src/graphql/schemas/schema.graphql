@@ -45,6 +45,7 @@ type User {
   interestedIn: [GenderEnum!]!
   tradingWallet: WalletAliasID
   escrowWallet: WalletAliasID
+  defaultPaymentMethodID: String
 }
 
 # --- getMyProfile
@@ -547,6 +548,26 @@ union RequestMerchantOnboardingResponse =
     RequestMerchantOnboardingResponseSuccess
   | ResponseError
 
+# --- create setup intent
+type CreateSetupIntentResponseSuccess {
+  clientSecret: String!
+}
+union CreateSetupIntentResponse =
+    CreateSetupIntentResponseSuccess
+  | ResponseError
+
+# --- save payment method
+input SavePaymentMethodInput {
+  paymentMethodID: String!
+}
+type SavePaymentMethodResponseSuccess {
+  paymentMethodID: String!
+}
+union SavePaymentMethodResponse =
+    SavePaymentMethodResponseSuccess
+  | ResponseError
+
+
 # --- create payment intent
 input CreatePaymentIntentInput {
   wishSuggest: WishSuggest!
@@ -614,6 +635,8 @@ type Mutation {
   # merchant
   requestMerchantOnboarding: RequestMerchantOnboardingResponse!
   # shopping
+  createSetupIntent: CreateSetupIntentResponse!
+  savePaymentMethod(input: SavePaymentMethodInput!): SavePaymentMethodResponse!
   createPaymentIntent(input: CreatePaymentIntentInput!): CreatePaymentIntentResponse!
   # money transfer
   sendTransfer(input: SendTransferInput!): SendTransferResponse!
