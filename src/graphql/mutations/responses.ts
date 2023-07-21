@@ -4,3 +4,4 @@ export { responses as FriendAndChatMutationResponses } from "@/graphql/mutations
 export { responses as StoryMutationResponses } from "@/graphql/mutations/lib/story.mutations";
 export { responses as WishMutationResponses } from "@/graphql/mutations/lib/wish.mutations";
 export { responses as MerchantMutationResponses } from "@/graphql/mutations/lib/merchant.mutations";
+export { responses as WalletMutationResponses } from "@/graphql/mutations/lib/wallet.mutations";

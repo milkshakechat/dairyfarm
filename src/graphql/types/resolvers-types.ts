@@ -370,9 +370,11 @@ export type Mutation = {
   markNotificationsAsRead: MarkNotificationsAsReadResponse;
   modifyProfile: ModifyProfileResponse;
   modifyStory: ModifyStoryResponse;
+  recallTransaction: RecallTransactionResponse;
   requestMerchantOnboarding: RequestMerchantOnboardingResponse;
   revokePushTokens: RevokePushTokensResponse;
   sendFriendRequest: SendFriendRequestResponse;
+  sendTransfer: SendTransferResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
   updateWish: UpdateWishResponse;
@@ -414,8 +416,18 @@ export type MutationModifyStoryArgs = {
 };
 
 
+export type MutationRecallTransactionArgs = {
+  input: RecallTransactionInput;
+};
+
+
 export type MutationSendFriendRequestArgs = {
   input: SendFriendRequestInput;
+};
+
+
+export type MutationSendTransferArgs = {
+  input: SendTransferInput;
 };
 
 
@@ -536,6 +548,18 @@ export type QueryViewPublicProfileArgs = {
   input: ViewPublicProfileInput;
 };
 
+export type RecallTransactionInput = {
+  recallerNote?: InputMaybe<Scalars['String']['input']>;
+  txMirrorID: Scalars['String']['input'];
+};
+
+export type RecallTransactionResponse = RecallTransactionResponseSuccess | ResponseError;
+
+export type RecallTransactionResponseSuccess = {
+  __typename?: 'RecallTransactionResponseSuccess';
+  referenceID: Scalars['String']['output'];
+};
+
 export type RequestMerchantOnboardingResponse = RequestMerchantOnboardingResponseSuccess | ResponseError;
 
 export type RequestMerchantOnboardingResponseSuccess = {
@@ -566,6 +590,19 @@ export type SendFriendRequestResponse = ResponseError | SendFriendRequestRespons
 export type SendFriendRequestResponseSuccess = {
   __typename?: 'SendFriendRequestResponseSuccess';
   status: FriendshipStatus;
+};
+
+export type SendTransferInput = {
+  amount: Scalars['Int']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  recipientID: Scalars['UserID']['input'];
+};
+
+export type SendTransferResponse = ResponseError | SendTransferResponseSuccess;
+
+export type SendTransferResponseSuccess = {
+  __typename?: 'SendTransferResponseSuccess';
+  referenceID: Scalars['String']['output'];
 };
 
 export type Status = {
@@ -871,9 +908,11 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   MarkNotificationsAsReadResponse: ( MarkNotificationsAsReadResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   ModifyStoryResponse: ( ModifyStoryResponseSuccess ) | ( ResponseError );
+  RecallTransactionResponse: ( RecallTransactionResponseSuccess ) | ( ResponseError );
   RequestMerchantOnboardingResponse: ( RequestMerchantOnboardingResponseSuccess ) | ( ResponseError );
   RevokePushTokensResponse: ( ResponseError ) | ( RevokePushTokensResponseSuccess );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
+  SendTransferResponse: ( ResponseError ) | ( SendTransferResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
   UpdateWishResponse: ( ResponseError ) | ( UpdateWishResponseSuccess );
@@ -965,6 +1004,9 @@ export type ResolversTypes = {
   PushConfig: ResolverTypeWrapper<PushConfig>;
   PushToken: ResolverTypeWrapper<Scalars['PushToken']['output']>;
   Query: ResolverTypeWrapper<{}>;
+  RecallTransactionInput: RecallTransactionInput;
+  RecallTransactionResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RecallTransactionResponse']>;
+  RecallTransactionResponseSuccess: ResolverTypeWrapper<RecallTransactionResponseSuccess>;
   RequestMerchantOnboardingResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RequestMerchantOnboardingResponse']>;
   RequestMerchantOnboardingResponseSuccess: ResolverTypeWrapper<RequestMerchantOnboardingResponseSuccess>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
@@ -974,6 +1016,9 @@ export type ResolversTypes = {
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendFriendRequestResponse']>;
   SendFriendRequestResponseSuccess: ResolverTypeWrapper<SendFriendRequestResponseSuccess>;
+  SendTransferInput: SendTransferInput;
+  SendTransferResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendTransferResponse']>;
+  SendTransferResponseSuccess: ResolverTypeWrapper<SendTransferResponseSuccess>;
   Status: ResolverTypeWrapper<Status>;
   StatusCode: StatusCode;
   Story: ResolverTypeWrapper<Story>;
@@ -1085,6 +1130,9 @@ export type ResolversParentTypes = {
   PushConfig: PushConfig;
   PushToken: Scalars['PushToken']['output'];
   Query: {};
+  RecallTransactionInput: RecallTransactionInput;
+  RecallTransactionResponse: ResolversUnionTypes<ResolversParentTypes>['RecallTransactionResponse'];
+  RecallTransactionResponseSuccess: RecallTransactionResponseSuccess;
   RequestMerchantOnboardingResponse: ResolversUnionTypes<ResolversParentTypes>['RequestMerchantOnboardingResponse'];
   RequestMerchantOnboardingResponseSuccess: RequestMerchantOnboardingResponseSuccess;
   ResponseError: ResponseError;
@@ -1094,6 +1142,9 @@ export type ResolversParentTypes = {
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolversUnionTypes<ResolversParentTypes>['SendFriendRequestResponse'];
   SendFriendRequestResponseSuccess: SendFriendRequestResponseSuccess;
+  SendTransferInput: SendTransferInput;
+  SendTransferResponse: ResolversUnionTypes<ResolversParentTypes>['SendTransferResponse'];
+  SendTransferResponseSuccess: SendTransferResponseSuccess;
   Status: Status;
   Story: Story;
   StoryAttachment: StoryAttachment;
@@ -1388,9 +1439,11 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   markNotificationsAsRead?: Resolver<ResolversTypes['MarkNotificationsAsReadResponse'], ParentType, ContextType, RequireFields<MutationMarkNotificationsAsReadArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
   modifyStory?: Resolver<ResolversTypes['ModifyStoryResponse'], ParentType, ContextType, RequireFields<MutationModifyStoryArgs, 'input'>>;
+  recallTransaction?: Resolver<ResolversTypes['RecallTransactionResponse'], ParentType, ContextType, RequireFields<MutationRecallTransactionArgs, 'input'>>;
   requestMerchantOnboarding?: Resolver<ResolversTypes['RequestMerchantOnboardingResponse'], ParentType, ContextType>;
   revokePushTokens?: Resolver<ResolversTypes['RevokePushTokensResponse'], ParentType, ContextType>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
+  sendTransfer?: Resolver<ResolversTypes['SendTransferResponse'], ParentType, ContextType, RequireFields<MutationSendTransferArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
   updateWish?: Resolver<ResolversTypes['UpdateWishResponse'], ParentType, ContextType, RequireFields<MutationUpdateWishArgs, 'input'>>;
@@ -1441,6 +1494,15 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   viewPublicProfile?: Resolver<ResolversTypes['ViewPublicProfileResponse'], ParentType, ContextType, RequireFields<QueryViewPublicProfileArgs, 'input'>>;
 };
 
+export type RecallTransactionResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['RecallTransactionResponse'] = ResolversParentTypes['RecallTransactionResponse']> = {
+  __resolveType: TypeResolveFn<'RecallTransactionResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type RecallTransactionResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['RecallTransactionResponseSuccess'] = ResolversParentTypes['RecallTransactionResponseSuccess']> = {
+  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type RequestMerchantOnboardingResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['RequestMerchantOnboardingResponse'] = ResolversParentTypes['RequestMerchantOnboardingResponse']> = {
   __resolveType: TypeResolveFn<'RequestMerchantOnboardingResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -1474,6 +1536,15 @@ export type SendFriendRequestResponseResolvers<ContextType = any, ParentType ext
 
 export type SendFriendRequestResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendFriendRequestResponseSuccess'] = ResolversParentTypes['SendFriendRequestResponseSuccess']> = {
   status?: Resolver<ResolversTypes['FriendshipStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SendTransferResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendTransferResponse'] = ResolversParentTypes['SendTransferResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'SendTransferResponseSuccess', ParentType, ContextType>;
+};
+
+export type SendTransferResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendTransferResponseSuccess'] = ResolversParentTypes['SendTransferResponseSuccess']> = {
+  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1691,6 +1762,8 @@ export type Resolvers<ContextType = any> = {
   PushConfig?: PushConfigResolvers<ContextType>;
   PushToken?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
+  RecallTransactionResponse?: RecallTransactionResponseResolvers<ContextType>;
+  RecallTransactionResponseSuccess?: RecallTransactionResponseSuccessResolvers<ContextType>;
   RequestMerchantOnboardingResponse?: RequestMerchantOnboardingResponseResolvers<ContextType>;
   RequestMerchantOnboardingResponseSuccess?: RequestMerchantOnboardingResponseSuccessResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
@@ -1699,6 +1772,8 @@ export type Resolvers<ContextType = any> = {
   SendBirdInternalUserID?: GraphQLScalarType;
   SendFriendRequestResponse?: SendFriendRequestResponseResolvers<ContextType>;
   SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;
+  SendTransferResponse?: SendTransferResponseResolvers<ContextType>;
+  SendTransferResponseSuccess?: SendTransferResponseSuccessResolvers<ContextType>;
   Status?: StatusResolvers<ContextType>;
   Story?: StoryResolvers<ContextType>;
   StoryAttachment?: StoryAttachmentResolvers<ContextType>;

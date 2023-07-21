@@ -63,16 +63,16 @@ const run = async () => {
   //     "purchase-AQ0zDkAcd9WUT4mJBYddwgAIm0A2_main-trading-wallet" as PurchaseMainfestID,
   // });
 
-  const amount = 1;
-  await mockTransaction_Tx({
-    title: `Transfer ${amount} cookies`,
-    sendingWallet:
-      "AQ0zDkAcd9WUT4mJBYddwgAIm0A2_main-trading-wallet" as WalletAliasID,
-    receivingWallet:
-      "7N2FCKf8DcMzWNzQgUAFuRvygag1_main-escrow-wallet" as WalletAliasID,
-    amount,
-    purchaseManifestID:
-      "initial_gift_7N2FCKf8DcMzWNzQgUAFuRvygag1_main-trading-wallet" as PurchaseMainfestID,
-  });
+  // const amount = 1;
+  // await mockTransaction_Tx({
+  //   title: `Transfer ${amount} cookies`,
+  //   sendingWallet:
+  //     "AQ0zDkAcd9WUT4mJBYddwgAIm0A2_main-trading-wallet" as WalletAliasID,
+  //   receivingWallet:
+  //     "7N2FCKf8DcMzWNzQgUAFuRvygag1_main-escrow-wallet" as WalletAliasID,
+  //   amount,
+  //   purchaseManifestID:
+  //     "initial_gift_7N2FCKf8DcMzWNzQgUAFuRvygag1_main-trading-wallet" as PurchaseMainfestID,
+  // });
 };
 run();
