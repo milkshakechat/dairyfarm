@@ -10,6 +10,7 @@ import { Agent } from "https";
 import {
   FirestoreCollection,
   PostTransactionXCloudRequestBody,
+  PostTransactionXCloudResponseBody,
   PurchaseMainfestID,
   TransactionType,
   WalletAliasID,
@@ -328,6 +329,21 @@ export const mockTransaction_Tx = async ({
     }
   );
   console.log(data);
+};
+
+export const _postTransaction = async (
+  transaction: PostTransactionXCloudRequestBody
+) => {
+  const xcloudSecret = await getXCloudAWSSecret();
+  console.log(`transaction`, transaction);
+  const { data }: { data: PostTransactionXCloudResponseBody } =
+    await axios.post(config.WALLET_GATEWAY.postTransaction.url, transaction, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: xcloudSecret,
+      },
+    });
+  return data.transaction;
 };
 
 // export const createWallet_QuantumLedger = async ({

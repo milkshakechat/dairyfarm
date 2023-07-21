@@ -45,6 +45,7 @@ type User {
   interestedIn: [GenderEnum!]!
   tradingWallet: WalletAliasID
   escrowWallet: WalletAliasID
+  defaultPaymentMethodID: String
 }
 
 # --- getMyProfile
@@ -547,18 +548,41 @@ union RequestMerchantOnboardingResponse =
     RequestMerchantOnboardingResponseSuccess
   | ResponseError
 
-# --- create payment intent
-type CreatePaymentIntentInput {
-  wishlist: [WishSuggest!]!
-  note: String
+# --- create setup intent
+type CreateSetupIntentResponseSuccess {
+  clientSecret: String!
 }
-type WishSuggest {
+union CreateSetupIntentResponse =
+    CreateSetupIntentResponseSuccess
+  | ResponseError
+
+# --- save payment method
+input SavePaymentMethodInput {
+  paymentMethodID: String!
+}
+type SavePaymentMethodResponseSuccess {
+  paymentMethodID: String!
+}
+union SavePaymentMethodResponse =
+    SavePaymentMethodResponseSuccess
+  | ResponseError
+
+
+# --- create payment intent
+input CreatePaymentIntentInput {
+  wishSuggest: WishSuggest!
+  note: String
+  attribution: String
+  promoCode: String
+}
+input WishSuggest {
   wishID: ID!
   suggestedAmount: Int
   suggestedFrequency: WishBuyFrequency
 }
 type CreatePaymentIntentResponseSuccess {
-  checkoutToken: String!
+  checkoutToken: String
+  referenceID: String!
 }
 union CreatePaymentIntentResponse =
     CreatePaymentIntentResponseSuccess
@@ -611,7 +635,10 @@ type Mutation {
   # merchant
   requestMerchantOnboarding: RequestMerchantOnboardingResponse!
   # shopping
-  # createPaymentIntent(input: CreatePaymentIntentInput!): CreatePaymentIntentResponse!
+  createSetupIntent: CreateSetupIntentResponse!
+  savePaymentMethod(input: SavePaymentMethodInput!): SavePaymentMethodResponse!
+  createPaymentIntent(input: CreatePaymentIntentInput!): CreatePaymentIntentResponse!
+  # money transfer
   sendTransfer(input: SendTransferInput!): SendTransferResponse!
   recallTransaction(input: RecallTransactionInput!): RecallTransactionResponse!
   # cashOutTransaction(input: CashOutTransactionInput!): CashOutTransactionResponse!

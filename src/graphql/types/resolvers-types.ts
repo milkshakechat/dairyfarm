@@ -64,16 +64,25 @@ export type Contact = {
 };
 
 export type CreatePaymentIntentInput = {
-  __typename?: 'CreatePaymentIntentInput';
-  note?: Maybe<Scalars['String']['output']>;
-  wishlist: Array<WishSuggest>;
+  attribution?: InputMaybe<Scalars['String']['input']>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  promoCode?: InputMaybe<Scalars['String']['input']>;
+  wishSuggest: WishSuggest;
 };
 
 export type CreatePaymentIntentResponse = CreatePaymentIntentResponseSuccess | ResponseError;
 
 export type CreatePaymentIntentResponseSuccess = {
   __typename?: 'CreatePaymentIntentResponseSuccess';
-  checkoutToken: Scalars['String']['output'];
+  checkoutToken?: Maybe<Scalars['String']['output']>;
+  referenceID: Scalars['String']['output'];
+};
+
+export type CreateSetupIntentResponse = CreateSetupIntentResponseSuccess | ResponseError;
+
+export type CreateSetupIntentResponseSuccess = {
+  __typename?: 'CreateSetupIntentResponseSuccess';
+  clientSecret: Scalars['String']['output'];
 };
 
 export type CreateStoryInput = {
@@ -363,6 +372,8 @@ export type ModifyStoryResponseSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createPaymentIntent: CreatePaymentIntentResponse;
+  createSetupIntent: CreateSetupIntentResponse;
   createStory: CreateStoryResponse;
   createWish: CreateWishResponse;
   demoMutation: DemoMutationResponse;
@@ -373,11 +384,17 @@ export type Mutation = {
   recallTransaction: RecallTransactionResponse;
   requestMerchantOnboarding: RequestMerchantOnboardingResponse;
   revokePushTokens: RevokePushTokensResponse;
+  savePaymentMethod: SavePaymentMethodResponse;
   sendFriendRequest: SendFriendRequestResponse;
   sendTransfer: SendTransferResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
   updateWish: UpdateWishResponse;
+};
+
+
+export type MutationCreatePaymentIntentArgs = {
+  input: CreatePaymentIntentInput;
 };
 
 
@@ -418,6 +435,11 @@ export type MutationModifyStoryArgs = {
 
 export type MutationRecallTransactionArgs = {
   input: RecallTransactionInput;
+};
+
+
+export type MutationSavePaymentMethodArgs = {
+  input: SavePaymentMethodInput;
 };
 
 
@@ -579,6 +601,17 @@ export type RevokePushTokensResponseSuccess = {
   status: Scalars['String']['output'];
 };
 
+export type SavePaymentMethodInput = {
+  paymentMethodID: Scalars['String']['input'];
+};
+
+export type SavePaymentMethodResponse = ResponseError | SavePaymentMethodResponseSuccess;
+
+export type SavePaymentMethodResponseSuccess = {
+  __typename?: 'SavePaymentMethodResponseSuccess';
+  paymentMethodID: Scalars['String']['output'];
+};
+
 export type SendFriendRequestInput = {
   note?: InputMaybe<Scalars['String']['input']>;
   recipientID: Scalars['UserID']['input'];
@@ -727,6 +760,7 @@ export type User = {
   avatar: Scalars['String']['output'];
   bio: Scalars['String']['output'];
   createdAt: Scalars['DateString']['output'];
+  defaultPaymentMethodID?: Maybe<Scalars['String']['output']>;
   disabled: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -802,10 +836,9 @@ export enum WishBuyFrequency {
 }
 
 export type WishSuggest = {
-  __typename?: 'WishSuggest';
-  suggestedAmount?: Maybe<Scalars['Int']['output']>;
-  suggestedFrequency?: Maybe<WishBuyFrequency>;
-  wishID: Scalars['ID']['output'];
+  suggestedAmount?: InputMaybe<Scalars['Int']['input']>;
+  suggestedFrequency?: InputMaybe<WishBuyFrequency>;
+  wishID: Scalars['ID']['input'];
 };
 
 export enum WishTypeEnum {
@@ -891,6 +924,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   CheckMerchantStatusResponse: ( CheckMerchantStatusResponseSuccess ) | ( ResponseError );
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
   CreatePaymentIntentResponse: ( CreatePaymentIntentResponseSuccess ) | ( ResponseError );
+  CreateSetupIntentResponse: ( CreateSetupIntentResponseSuccess ) | ( ResponseError );
   CreateStoryResponse: ( CreateStoryResponseSuccess ) | ( ResponseError );
   CreateWishResponse: ( CreateWishResponseSuccess ) | ( ResponseError );
   DemoMutationResponse: ( DemoMutationResponseSuccess ) | ( ResponseError );
@@ -911,6 +945,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   RecallTransactionResponse: ( RecallTransactionResponseSuccess ) | ( ResponseError );
   RequestMerchantOnboardingResponse: ( RequestMerchantOnboardingResponseSuccess ) | ( ResponseError );
   RevokePushTokensResponse: ( ResponseError ) | ( RevokePushTokensResponseSuccess );
+  SavePaymentMethodResponse: ( ResponseError ) | ( SavePaymentMethodResponseSuccess );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   SendTransferResponse: ( ResponseError ) | ( SendTransferResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
@@ -931,9 +966,11 @@ export type ResolversTypes = {
   CheckUsernameAvailableResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckUsernameAvailableResponse']>;
   CheckUsernameAvailableResponseSuccess: ResolverTypeWrapper<CheckUsernameAvailableResponseSuccess>;
   Contact: ResolverTypeWrapper<Contact>;
-  CreatePaymentIntentInput: ResolverTypeWrapper<CreatePaymentIntentInput>;
+  CreatePaymentIntentInput: CreatePaymentIntentInput;
   CreatePaymentIntentResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreatePaymentIntentResponse']>;
   CreatePaymentIntentResponseSuccess: ResolverTypeWrapper<CreatePaymentIntentResponseSuccess>;
+  CreateSetupIntentResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateSetupIntentResponse']>;
+  CreateSetupIntentResponseSuccess: ResolverTypeWrapper<CreateSetupIntentResponseSuccess>;
   CreateStoryInput: CreateStoryInput;
   CreateStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateStoryResponse']>;
   CreateStoryResponseSuccess: ResolverTypeWrapper<CreateStoryResponseSuccess>;
@@ -1012,6 +1049,9 @@ export type ResolversTypes = {
   ResponseError: ResolverTypeWrapper<ResponseError>;
   RevokePushTokensResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RevokePushTokensResponse']>;
   RevokePushTokensResponseSuccess: ResolverTypeWrapper<RevokePushTokensResponseSuccess>;
+  SavePaymentMethodInput: SavePaymentMethodInput;
+  SavePaymentMethodResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SavePaymentMethodResponse']>;
+  SavePaymentMethodResponseSuccess: ResolverTypeWrapper<SavePaymentMethodResponseSuccess>;
   SendBirdInternalUserID: ResolverTypeWrapper<Scalars['SendBirdInternalUserID']['output']>;
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendFriendRequestResponse']>;
@@ -1046,7 +1086,7 @@ export type ResolversTypes = {
   Wish: ResolverTypeWrapper<Wish>;
   WishAuthor: ResolverTypeWrapper<WishAuthor>;
   WishBuyFrequency: WishBuyFrequency;
-  WishSuggest: ResolverTypeWrapper<WishSuggest>;
+  WishSuggest: WishSuggest;
   WishTypeEnum: WishTypeEnum;
   WishlistVisibility: WishlistVisibility;
 };
@@ -1065,6 +1105,8 @@ export type ResolversParentTypes = {
   CreatePaymentIntentInput: CreatePaymentIntentInput;
   CreatePaymentIntentResponse: ResolversUnionTypes<ResolversParentTypes>['CreatePaymentIntentResponse'];
   CreatePaymentIntentResponseSuccess: CreatePaymentIntentResponseSuccess;
+  CreateSetupIntentResponse: ResolversUnionTypes<ResolversParentTypes>['CreateSetupIntentResponse'];
+  CreateSetupIntentResponseSuccess: CreateSetupIntentResponseSuccess;
   CreateStoryInput: CreateStoryInput;
   CreateStoryResponse: ResolversUnionTypes<ResolversParentTypes>['CreateStoryResponse'];
   CreateStoryResponseSuccess: CreateStoryResponseSuccess;
@@ -1138,6 +1180,9 @@ export type ResolversParentTypes = {
   ResponseError: ResponseError;
   RevokePushTokensResponse: ResolversUnionTypes<ResolversParentTypes>['RevokePushTokensResponse'];
   RevokePushTokensResponseSuccess: RevokePushTokensResponseSuccess;
+  SavePaymentMethodInput: SavePaymentMethodInput;
+  SavePaymentMethodResponse: ResolversUnionTypes<ResolversParentTypes>['SavePaymentMethodResponse'];
+  SavePaymentMethodResponseSuccess: SavePaymentMethodResponseSuccess;
   SendBirdInternalUserID: Scalars['SendBirdInternalUserID']['output'];
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolversUnionTypes<ResolversParentTypes>['SendFriendRequestResponse'];
@@ -1208,18 +1253,22 @@ export type ContactResolvers<ContextType = any, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type CreatePaymentIntentInputResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatePaymentIntentInput'] = ResolversParentTypes['CreatePaymentIntentInput']> = {
-  note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  wishlist?: Resolver<Array<ResolversTypes['WishSuggest']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type CreatePaymentIntentResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatePaymentIntentResponse'] = ResolversParentTypes['CreatePaymentIntentResponse']> = {
   __resolveType: TypeResolveFn<'CreatePaymentIntentResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
 
 export type CreatePaymentIntentResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatePaymentIntentResponseSuccess'] = ResolversParentTypes['CreatePaymentIntentResponseSuccess']> = {
-  checkoutToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  checkoutToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateSetupIntentResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateSetupIntentResponse'] = ResolversParentTypes['CreateSetupIntentResponse']> = {
+  __resolveType: TypeResolveFn<'CreateSetupIntentResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type CreateSetupIntentResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateSetupIntentResponseSuccess'] = ResolversParentTypes['CreateSetupIntentResponseSuccess']> = {
+  clientSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1432,6 +1481,8 @@ export type ModifyStoryResponseSuccessResolvers<ContextType = any, ParentType ex
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createPaymentIntent?: Resolver<ResolversTypes['CreatePaymentIntentResponse'], ParentType, ContextType, RequireFields<MutationCreatePaymentIntentArgs, 'input'>>;
+  createSetupIntent?: Resolver<ResolversTypes['CreateSetupIntentResponse'], ParentType, ContextType>;
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
   createWish?: Resolver<ResolversTypes['CreateWishResponse'], ParentType, ContextType, RequireFields<MutationCreateWishArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
@@ -1442,6 +1493,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   recallTransaction?: Resolver<ResolversTypes['RecallTransactionResponse'], ParentType, ContextType, RequireFields<MutationRecallTransactionArgs, 'input'>>;
   requestMerchantOnboarding?: Resolver<ResolversTypes['RequestMerchantOnboardingResponse'], ParentType, ContextType>;
   revokePushTokens?: Resolver<ResolversTypes['RevokePushTokensResponse'], ParentType, ContextType>;
+  savePaymentMethod?: Resolver<ResolversTypes['SavePaymentMethodResponse'], ParentType, ContextType, RequireFields<MutationSavePaymentMethodArgs, 'input'>>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   sendTransfer?: Resolver<ResolversTypes['SendTransferResponse'], ParentType, ContextType, RequireFields<MutationSendTransferArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
@@ -1523,6 +1575,15 @@ export type RevokePushTokensResponseResolvers<ContextType = any, ParentType exte
 
 export type RevokePushTokensResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['RevokePushTokensResponseSuccess'] = ResolversParentTypes['RevokePushTokensResponseSuccess']> = {
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SavePaymentMethodResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SavePaymentMethodResponse'] = ResolversParentTypes['SavePaymentMethodResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'SavePaymentMethodResponseSuccess', ParentType, ContextType>;
+};
+
+export type SavePaymentMethodResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['SavePaymentMethodResponseSuccess'] = ResolversParentTypes['SavePaymentMethodResponseSuccess']> = {
+  paymentMethodID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1624,6 +1685,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
+  defaultPaymentMethodID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   disabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1697,13 +1759,6 @@ export type WishAuthorResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type WishSuggestResolvers<ContextType = any, ParentType extends ResolversParentTypes['WishSuggest'] = ResolversParentTypes['WishSuggest']> = {
-  suggestedAmount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  suggestedFrequency?: Resolver<Maybe<ResolversTypes['WishBuyFrequency']>, ParentType, ContextType>;
-  wishID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type Resolvers<ContextType = any> = {
   ChatRoom?: ChatRoomResolvers<ContextType>;
   CheckMerchantStatusResponse?: CheckMerchantStatusResponseResolvers<ContextType>;
@@ -1711,9 +1766,10 @@ export type Resolvers<ContextType = any> = {
   CheckUsernameAvailableResponse?: CheckUsernameAvailableResponseResolvers<ContextType>;
   CheckUsernameAvailableResponseSuccess?: CheckUsernameAvailableResponseSuccessResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
-  CreatePaymentIntentInput?: CreatePaymentIntentInputResolvers<ContextType>;
   CreatePaymentIntentResponse?: CreatePaymentIntentResponseResolvers<ContextType>;
   CreatePaymentIntentResponseSuccess?: CreatePaymentIntentResponseSuccessResolvers<ContextType>;
+  CreateSetupIntentResponse?: CreateSetupIntentResponseResolvers<ContextType>;
+  CreateSetupIntentResponseSuccess?: CreateSetupIntentResponseSuccessResolvers<ContextType>;
   CreateStoryResponse?: CreateStoryResponseResolvers<ContextType>;
   CreateStoryResponseSuccess?: CreateStoryResponseSuccessResolvers<ContextType>;
   CreateWishResponse?: CreateWishResponseResolvers<ContextType>;
@@ -1769,6 +1825,8 @@ export type Resolvers<ContextType = any> = {
   ResponseError?: ResponseErrorResolvers<ContextType>;
   RevokePushTokensResponse?: RevokePushTokensResponseResolvers<ContextType>;
   RevokePushTokensResponseSuccess?: RevokePushTokensResponseSuccessResolvers<ContextType>;
+  SavePaymentMethodResponse?: SavePaymentMethodResponseResolvers<ContextType>;
+  SavePaymentMethodResponseSuccess?: SavePaymentMethodResponseSuccessResolvers<ContextType>;
   SendBirdInternalUserID?: GraphQLScalarType;
   SendFriendRequestResponse?: SendFriendRequestResponseResolvers<ContextType>;
   SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;
@@ -1792,6 +1850,5 @@ export type Resolvers<ContextType = any> = {
   WalletAliasID?: GraphQLScalarType;
   Wish?: WishResolvers<ContextType>;
   WishAuthor?: WishAuthorResolvers<ContextType>;
-  WishSuggest?: WishSuggestResolvers<ContextType>;
 };
 

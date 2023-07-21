@@ -83,6 +83,9 @@ const devConfig: ConfigEnv = {
     cashoutTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/cashout",
     },
+    getWallet: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+    },
   },
 };
 const stagingConfig: ConfigEnv = {
@@ -167,6 +170,9 @@ const stagingConfig: ConfigEnv = {
     cashoutTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/cashout",
     },
+    getWallet: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+    },
   },
 };
 
@@ -248,6 +254,9 @@ const prodConfig: ConfigEnv = {
     cashoutTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/cashout",
     },
+    getWallet: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+    },
   },
 };
 
@@ -306,6 +315,9 @@ interface ConfigEnv {
       url: string;
     };
     cashoutTransaction: {
+      url: string;
+    };
+    getWallet: {
       url: string;
     };
   };
