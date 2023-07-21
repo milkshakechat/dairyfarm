@@ -8,10 +8,12 @@ import config from "@/config.env";
 import { sleep } from "@/utils/utils";
 import { Agent } from "https";
 import {
+  FirestoreCollection,
   PostTransactionXCloudRequestBody,
   PurchaseMainfestID,
   TransactionType,
   WalletAliasID,
+  Wallet_MirrorFireLedger,
   generateGlobalStoreAliasID,
 } from "@milkshakechat/helpers";
 import { QLDBSessionClientConfig } from "@aws-sdk/client-qldb-session";
@@ -31,6 +33,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { dom, load, dumpBinary } from "ion-js";
 import axios from "axios";
+import { getFirestoreDoc } from "./firestore";
 
 /**
  * Use the quantumLedger SDK to create ledgers
@@ -211,6 +214,11 @@ export const seedCookiesFromStore_Tx = async ({
   console.log("seedCookiesFromStore_Tx...");
   const xcloudSecret = await getXCloudAWSSecret();
 
+  const wallet = await getFirestoreDoc<WalletAliasID, Wallet_MirrorFireLedger>({
+    id: receivingWallet,
+    collection: FirestoreCollection.MIRROR_WALLETS,
+  });
+
   const transaction: PostTransactionXCloudRequestBody = {
     title,
     note: title,
@@ -220,6 +228,8 @@ export const seedCookiesFromStore_Tx = async ({
     amount,
     senderWallet: config.LEDGER.globalCookieStore.walletAliasID,
     receiverWallet: receivingWallet,
+    receiverUserID: wallet.ownerID,
+    senderUserID: config.LEDGER.globalCookieStore.userID,
     explanations: [
       {
         walletAliasID: receivingWallet,
@@ -267,6 +277,17 @@ export const mockTransaction_Tx = async ({
   console.log("mockTransaction_Tx...");
   const xcloudSecret = await getXCloudAWSSecret();
 
+  const [senderWallet, receiverWallet] = await Promise.all([
+    getFirestoreDoc<WalletAliasID, Wallet_MirrorFireLedger>({
+      id: sendingWallet,
+      collection: FirestoreCollection.MIRROR_WALLETS,
+    }),
+    getFirestoreDoc<WalletAliasID, Wallet_MirrorFireLedger>({
+      id: receivingWallet,
+      collection: FirestoreCollection.MIRROR_WALLETS,
+    }),
+  ]);
+
   const transaction: PostTransactionXCloudRequestBody = {
     title,
     note: title,
@@ -276,6 +297,8 @@ export const mockTransaction_Tx = async ({
     amount,
     senderWallet: sendingWallet,
     receiverWallet: receivingWallet,
+    receiverUserID: receiverWallet.ownerID,
+    senderUserID: senderWallet.ownerID,
     explanations: [
       {
         walletAliasID: receivingWallet,

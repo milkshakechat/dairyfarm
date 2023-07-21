@@ -71,6 +71,7 @@ const devConfig: ConfigEnv = {
       userID: "store-owner" as UserID,
       walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
     },
+    recallGracePeriodDays: 90,
   },
   WALLET_GATEWAY: {
     postTransaction: {
@@ -154,6 +155,7 @@ const stagingConfig: ConfigEnv = {
       userID: "store-owner" as UserID,
       walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
     },
+    recallGracePeriodDays: 90,
   },
   WALLET_GATEWAY: {
     postTransaction: {
@@ -230,11 +232,11 @@ const prodConfig: ConfigEnv = {
       WALLET: "wallets",
       TRANSACTION: "transactions",
     },
-
     globalCookieStore: {
       userID: "store-owner" as UserID,
       walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
     },
+    recallGracePeriodDays: 90,
   },
   WALLET_GATEWAY: {
     postTransaction: {
@@ -294,6 +296,7 @@ interface ConfigEnv {
       userID: UserID;
       walletAliasID: WalletAliasID;
     };
+    recallGracePeriodDays: number;
   };
   WALLET_GATEWAY: {
     postTransaction: {

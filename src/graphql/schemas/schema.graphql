@@ -564,6 +564,32 @@ union CreatePaymentIntentResponse =
     CreatePaymentIntentResponseSuccess
   | ResponseError
 
+# --- send transfer
+input SendTransferInput {
+  recipientID: UserID!
+  amount: Int!
+  note: String
+}
+type SendTransferResponseSuccess {
+  referenceID: String!
+}
+union SendTransferResponse =
+    SendTransferResponseSuccess
+  | ResponseError
+
+# --- recall transaction
+input RecallTransactionInput {
+  txMirrorID: String!
+  recallerNote: String
+}
+type RecallTransactionResponseSuccess {
+  referenceID: String!
+}
+union RecallTransactionResponse =
+    RecallTransactionResponseSuccess
+  | ResponseError
+
+
 # --- Mutations
 type Mutation {
   # profile
@@ -586,6 +612,9 @@ type Mutation {
   requestMerchantOnboarding: RequestMerchantOnboardingResponse!
   # shopping
   # createPaymentIntent(input: CreatePaymentIntentInput!): CreatePaymentIntentResponse!
+  sendTransfer(input: SendTransferInput!): SendTransferResponse!
+  recallTransaction(input: RecallTransactionInput!): RecallTransactionResponse!
+  # cashOutTransaction(input: CashOutTransactionInput!): CashOutTransactionResponse!
 }
 
 
