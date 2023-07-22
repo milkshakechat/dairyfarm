@@ -10,6 +10,8 @@ import {
   MutationSavePaymentMethodArgs,
   SavePaymentMethodResponse,
   StatusCode,
+  MutationCancelSubscriptionArgs,
+  CancelSubscriptionResponse,
 } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
 import { getXCloudAWSSecret } from "@/utils/secrets";
@@ -17,6 +19,7 @@ import {
   FirestoreCollection,
   MirrorTransactionID,
   PostTransactionXCloudRequestBody,
+  PurchaseMainfestID,
   TransactionType,
   TxRefID,
   Tx_MirrorFireLedger,
@@ -31,6 +34,7 @@ import { v4 as uuidv4 } from "uuid";
 import config from "@/config.env";
 import {
   attachPaymentMethodToUser,
+  cancelSubscriptionPurchaseManifest,
   createPaymentIntentForWish,
   createSetupIntentStripe,
 } from "@/services/stripe";
@@ -184,18 +188,20 @@ export const createPaymentIntent = async (
   if (!userID) {
     throw Error("No user ID found");
   }
-  const { checkoutToken, referenceID } = await createPaymentIntentForWish({
-    wishSuggest: args.input.wishSuggest,
-    userID,
-    note: args.input.note || "",
-    attribution: args.input.attribution || "",
-    promoCode: args.input.promoCode || "",
-  });
+  const { checkoutToken, referenceID, purchaseManifestID } =
+    await createPaymentIntentForWish({
+      wishSuggest: args.input.wishSuggest,
+      userID,
+      note: args.input.note || "",
+      attribution: args.input.attribution || "",
+      promoCode: args.input.promoCode || "",
+    });
   console.log(`checkoutToken = ${checkoutToken}`);
   console.log(`referenceID = ${referenceID}`);
   return {
     checkoutToken,
     referenceID,
+    purchaseManifestID,
   };
 };
 
@@ -252,6 +258,25 @@ export const savePaymentMethod = async (
   }
 };
 
+export const cancelSubscription = async (
+  _parent: any,
+  args: MutationCancelSubscriptionArgs,
+  _context: any,
+  _info: any
+): Promise<CancelSubscriptionResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const res = await cancelSubscriptionPurchaseManifest({
+    purchaseManifestID: args.input.purchaseManifestID as PurchaseMainfestID,
+    userID,
+  });
+  return {
+    status: `Successfully cancelled subscription ${args.input.purchaseManifestID}`,
+  };
+};
+
 export const responses = {
   SendTransferResponse: {
     __resolveType(
@@ -291,7 +316,7 @@ export const responses = {
       context: any,
       info: GraphQLResolveInfo
     ) {
-      if ("referenceID" in obj) {
+      if ("referenceID" in obj && "purchaseManifestID" in obj) {
         return "CreatePaymentIntentResponseSuccess";
       }
       if ("error" in obj) {
@@ -323,6 +348,21 @@ export const responses = {
     ) {
       if ("paymentMethodID" in obj) {
         return "SavePaymentMethodResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  CancelSubscriptionResponse: {
+    __resolveType(
+      obj: CancelSubscriptionResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "CancelSubscriptionResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

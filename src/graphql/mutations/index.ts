@@ -22,4 +22,5 @@ export {
   sendTransfer,
   recallTransaction,
   createSetupIntent,
+  cancelSubscription,
 } from "@/graphql/mutations/lib/wallet.mutations";

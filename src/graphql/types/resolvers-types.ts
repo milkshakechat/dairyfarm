@@ -23,6 +23,17 @@ export type Scalars = {
   WalletAliasID: { input: any; output: any; }
 };
 
+export type CancelSubscriptionInput = {
+  purchaseManifestID: Scalars['String']['input'];
+};
+
+export type CancelSubscriptionResponse = CancelSubscriptionResponseSuccess | ResponseError;
+
+export type CancelSubscriptionResponseSuccess = {
+  __typename?: 'CancelSubscriptionResponseSuccess';
+  status: Scalars['String']['output'];
+};
+
 export type ChatRoom = {
   __typename?: 'ChatRoom';
   chatRoomID: Scalars['String']['output'];
@@ -75,6 +86,7 @@ export type CreatePaymentIntentResponse = CreatePaymentIntentResponseSuccess | R
 export type CreatePaymentIntentResponseSuccess = {
   __typename?: 'CreatePaymentIntentResponseSuccess';
   checkoutToken?: Maybe<Scalars['String']['output']>;
+  purchaseManifestID: Scalars['String']['output'];
   referenceID: Scalars['String']['output'];
 };
 
@@ -372,6 +384,7 @@ export type ModifyStoryResponseSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  cancelSubscription: CancelSubscriptionResponse;
   createPaymentIntent: CreatePaymentIntentResponse;
   createSetupIntent: CreateSetupIntentResponse;
   createStory: CreateStoryResponse;
@@ -390,6 +403,11 @@ export type Mutation = {
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
   updateWish: UpdateWishResponse;
+};
+
+
+export type MutationCancelSubscriptionArgs = {
+  input: CancelSubscriptionInput;
 };
 
 
@@ -921,6 +939,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  CancelSubscriptionResponse: ( CancelSubscriptionResponseSuccess ) | ( ResponseError );
   CheckMerchantStatusResponse: ( CheckMerchantStatusResponseSuccess ) | ( ResponseError );
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
   CreatePaymentIntentResponse: ( CreatePaymentIntentResponseSuccess ) | ( ResponseError );
@@ -958,6 +977,9 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CancelSubscriptionInput: CancelSubscriptionInput;
+  CancelSubscriptionResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CancelSubscriptionResponse']>;
+  CancelSubscriptionResponseSuccess: ResolverTypeWrapper<CancelSubscriptionResponseSuccess>;
   ChatRoom: ResolverTypeWrapper<ChatRoom>;
   CheckMerchantStatusInput: CheckMerchantStatusInput;
   CheckMerchantStatusResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckMerchantStatusResponse']>;
@@ -1094,6 +1116,9 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
+  CancelSubscriptionInput: CancelSubscriptionInput;
+  CancelSubscriptionResponse: ResolversUnionTypes<ResolversParentTypes>['CancelSubscriptionResponse'];
+  CancelSubscriptionResponseSuccess: CancelSubscriptionResponseSuccess;
   ChatRoom: ChatRoom;
   CheckMerchantStatusInput: CheckMerchantStatusInput;
   CheckMerchantStatusResponse: ResolversUnionTypes<ResolversParentTypes>['CheckMerchantStatusResponse'];
@@ -1217,6 +1242,15 @@ export type ResolversParentTypes = {
   WishSuggest: WishSuggest;
 };
 
+export type CancelSubscriptionResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CancelSubscriptionResponse'] = ResolversParentTypes['CancelSubscriptionResponse']> = {
+  __resolveType: TypeResolveFn<'CancelSubscriptionResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type CancelSubscriptionResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CancelSubscriptionResponseSuccess'] = ResolversParentTypes['CancelSubscriptionResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatRoom'] = ResolversParentTypes['ChatRoom']> = {
   chatRoomID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   participants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
@@ -1259,6 +1293,7 @@ export type CreatePaymentIntentResponseResolvers<ContextType = any, ParentType e
 
 export type CreatePaymentIntentResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreatePaymentIntentResponseSuccess'] = ResolversParentTypes['CreatePaymentIntentResponseSuccess']> = {
   checkoutToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  purchaseManifestID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -1481,6 +1516,7 @@ export type ModifyStoryResponseSuccessResolvers<ContextType = any, ParentType ex
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  cancelSubscription?: Resolver<ResolversTypes['CancelSubscriptionResponse'], ParentType, ContextType, RequireFields<MutationCancelSubscriptionArgs, 'input'>>;
   createPaymentIntent?: Resolver<ResolversTypes['CreatePaymentIntentResponse'], ParentType, ContextType, RequireFields<MutationCreatePaymentIntentArgs, 'input'>>;
   createSetupIntent?: Resolver<ResolversTypes['CreateSetupIntentResponse'], ParentType, ContextType>;
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
@@ -1760,6 +1796,8 @@ export type WishAuthorResolvers<ContextType = any, ParentType extends ResolversP
 };
 
 export type Resolvers<ContextType = any> = {
+  CancelSubscriptionResponse?: CancelSubscriptionResponseResolvers<ContextType>;
+  CancelSubscriptionResponseSuccess?: CancelSubscriptionResponseSuccessResolvers<ContextType>;
   ChatRoom?: ChatRoomResolvers<ContextType>;
   CheckMerchantStatusResponse?: CheckMerchantStatusResponseResolvers<ContextType>;
   CheckMerchantStatusResponseSuccess?: CheckMerchantStatusResponseSuccessResolvers<ContextType>;
