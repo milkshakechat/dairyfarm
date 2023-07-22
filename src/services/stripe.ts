@@ -15,6 +15,7 @@ import {
   StripePaymentMethodID,
   StripePriceID,
   StripeProductID,
+  StripeSubItemID,
   StripeSubscriptionID,
   TransactionType,
   TxRefID,
@@ -44,6 +45,8 @@ import axios from "axios";
 import { _postTransaction } from "./quantum";
 
 let stripe: Stripe;
+
+const MINIMUM_STRIPE_CHARGE = 50; // $0.50 USD
 
 export const initStripe = async () => {
   const privateKey = await getStripeSecret();
@@ -154,13 +157,18 @@ export const createPaymentIntentForWish = async ({
   const frequency = wishSuggest.suggestedFrequency
     ? (wishSuggest.suggestedFrequency as unknown as WishBuyFrequency)
     : wish.buyFrequency;
-  const desc = `@${customer.username} paid ${price} cookies ${frequency} for "${wish.wishTitle}" from @${seller.username}. Original terms were ${wish.cookiePrice} cookies ${wish.buyFrequency}. BuyerUserID=${customer.id} and SellerUserID=${seller.id}.`;
+  const title = wish.wishTitle;
+  console.log(`title = ${title}`);
+
+  const desc = `${price} Cookies / $${cookieToUSD(
+    price
+  )} USD ${WishBuyFrequencyPrettyPrint(frequency)} - @${
+    customer.username
+  } bought "${wish.wishTitle}" from @${seller.username}`;
   console.log(desc);
 
   const { purchaseManifest, stripePrice } = await createPurchaseManifest({
-    title: `"${
-      wish.wishTitle
-    }" - ${price} cookies ${WishBuyFrequencyPrettyPrint(frequency)}`,
+    title,
     note: desc,
     wishID: wish.id,
     buyerUserID: userID,
@@ -185,7 +193,7 @@ export const createPaymentIntentForWish = async ({
   // spend existing cookies first for one-time charges
   if (
     frequency === WishBuyFrequency.ONE_TIME &&
-    totalCookiesCostForOneTimePayments < cookieBalance
+    totalCookiesCostForOneTimePayments <= cookieBalance
   ) {
     console.log(
       `you have enough money! totalCookiesCostForOneTimePayment=${totalCookiesCostForOneTimePayments} < cookieBalance=${cookieBalance}`
@@ -227,10 +235,15 @@ export const createPaymentIntentForWish = async ({
       },
       referenceID,
     };
-    _postTransaction(transaction);
+    try {
+      _postTransaction(transaction);
+    } catch (e) {
+      console.log(e);
+    }
     return {
       checkoutToken: null,
       referenceID,
+      purchaseManifestID: purchaseManifest.id,
     };
   } else if (
     frequency === WishBuyFrequency.ONE_TIME &&
@@ -248,7 +261,10 @@ export const createPaymentIntentForWish = async ({
     if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
       const paymentIntent = await createPaymentIntentStripe({
         stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
-        amount: totalPriceUSD,
+        amount:
+          totalPriceUSD > MINIMUM_STRIPE_CHARGE
+            ? totalPriceUSD
+            : MINIMUM_STRIPE_CHARGE,
         description: desc,
         recieptEmail: customer.email,
       });
@@ -264,6 +280,7 @@ export const createPaymentIntentForWish = async ({
       return {
         checkoutToken: paymentIntent.client_secret,
         referenceID,
+        purchaseManifestID: purchaseManifest.id,
       };
     } else {
       throw Error("No Stripe customer on file");
@@ -289,9 +306,22 @@ export const createPaymentIntentForWish = async ({
     // 2a. Charge once for prorated subscriptions
 
     const subscriptionPrice = wishSuggest.suggestedAmount || wish.cookiePrice;
-    const dailyRate = cookieToUSD(subscriptionPrice) / daysInMonth;
-
-    const totalChargedNowSub = Math.ceil(dailyRate * daysUntilNextCycle);
+    const proratedMonthlyPrice = convertFrequencySubscriptionToMonthly({
+      amount: subscriptionPrice,
+      frequency,
+    });
+    console.log(
+      `subscriptionPrice= ${subscriptionPrice}, proratedMonthlyPrice=${proratedMonthlyPrice}, cookieToUSD(proratedMonthlyPrice)=${cookieToUSD(
+        proratedMonthlyPrice
+      )}`
+    );
+    const dailyRate = (cookieToUSD(proratedMonthlyPrice) / daysInMonth) * 100;
+    console.log(`dailyRate=${dailyRate}`);
+    const _totalChargedNowSub = Math.ceil(dailyRate * daysUntilNextCycle);
+    const totalChargedNowSub =
+      _totalChargedNowSub < MINIMUM_STRIPE_CHARGE
+        ? MINIMUM_STRIPE_CHARGE
+        : _totalChargedNowSub;
     console.log(`totalChargedNowSub=${totalChargedNowSub}`);
 
     // charge card on "subscriptionPrice"
@@ -299,28 +329,37 @@ export const createPaymentIntentForWish = async ({
     if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
       const paymentIntent = await createPaymentIntentStripe({
         stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
-        amount: totalChargedNowSub,
+        amount:
+          totalChargedNowSub > MINIMUM_STRIPE_CHARGE
+            ? totalChargedNowSub
+            : MINIMUM_STRIPE_CHARGE,
         description: desc,
         recieptEmail: customer.email,
       });
+      // post transaction for cookie jar topup
+      // post transaction for sale
+      let subItemID = undefined;
+      if (customer.stripeMetadata.stripeCustomerSubscriptionID && stripePrice) {
+        const subItem = await addItemToMainBillingCycle({
+          subscriptionID: customer.stripeMetadata.stripeCustomerSubscriptionID,
+          stripePrice,
+        });
+        subItemID = subItem.id;
+      }
       await updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
         id: purchaseManifest.id,
         payload: {
           stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
+          stripeSubItemID: subItemID
+            ? (subItemID as StripeSubItemID)
+            : undefined,
         },
         collection: FirestoreCollection.PURCHASE_MANIFESTS,
       });
-      // post transaction for cookie jar topup
-      // post transaction for sale
-      if (customer.stripeMetadata.stripeCustomerSubscriptionID && stripePrice) {
-        await addItemToMainBillingCycle({
-          subscriptionID: customer.stripeMetadata.stripeCustomerSubscriptionID,
-          stripePrice,
-        });
-      }
       return {
         checkoutToken: paymentIntent.client_secret,
         referenceID,
+        purchaseManifestID: purchaseManifest.id,
       };
     } else {
       throw Error("No Stripe customer on file");
@@ -343,18 +382,25 @@ export const createPaymentIntentStripe = async ({
   description?: string;
   recieptEmail?: string;
 }) => {
-  console.log(`createPaymentIntentStripe...`);
-  const paymentIntent = await stripe.paymentIntents.create({
+  console.log(
+    `createPaymentIntentStripe... for stripeCustomerID ${stripeCustomerID}`
+  );
+  const intent = {
     customer: stripeCustomerID,
     setup_future_usage: "off_session",
-    amount,
+    amount: amount > MINIMUM_STRIPE_CHARGE ? amount : MINIMUM_STRIPE_CHARGE,
     currency,
     description,
     receipt_email: recieptEmail,
     automatic_payment_methods: {
       enabled: true,
     },
-  });
+  };
+  console.log(`intent = ${JSON.stringify(intent)}`);
+  const paymentIntent = await stripe.paymentIntents.create(
+    // @ts-ignore
+    intent
+  );
   console.log(`paymentIntent`, paymentIntent);
   return paymentIntent;
 };
@@ -599,10 +645,12 @@ export const createPurchaseManifest = async (args: {
   } = args;
   const id = uuidv4() as PurchaseMainfestID;
   const totalPriceUSD = parseInt(`${cookieToUSD(agreedCookiePrice) * 100}`);
+  console.log(`totalPriceUSD`, totalPriceUSD);
   const priceUSDBasisAsMonthly = convertFrequencySubscriptionToMonthly({
     amount: totalPriceUSD,
     frequency: agreedBuyFrequency,
   });
+  console.log(`priceUSDBasisAsMonthly`, priceUSDBasisAsMonthly);
   const priceCookieAsMonthly = convertFrequencySubscriptionToMonthly({
     amount: agreedCookiePrice,
     frequency: agreedBuyFrequency,
@@ -686,7 +734,7 @@ export const convertFrequencySubscriptionToMonthly = (args: {
     default:
       throw Error(`Invalid frequency ${frequency}`);
   }
-  return monthlyAmount;
+  return Math.ceil(monthlyAmount);
 };
 
 export const createStripeProduct = async (args: { wishID: WishID }) => {
@@ -808,4 +856,87 @@ export const attachPaymentMethodToUser = async (args: {
     collection: FirestoreCollection.USERS,
   });
   return paymentMethod;
+};
+
+export const cancelSubscriptionPurchaseManifest = async (args: {
+  purchaseManifestID: PurchaseMainfestID;
+  userID: UserID;
+}) => {
+  const [user, purchaseManifest] = await Promise.all([
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: args.userID,
+      collection: FirestoreCollection.USERS,
+    }),
+    getFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+      id: args.purchaseManifestID,
+      collection: FirestoreCollection.PURCHASE_MANIFESTS,
+    }),
+  ]);
+  if (!user) {
+    throw Error(`User ${args.userID} not found`);
+  }
+  if (!user.stripeMetadata || !user.stripeMetadata.stripeCustomerID) {
+    throw Error(`User ${args.userID} does not have stripe metadata`);
+  }
+  if (!purchaseManifest) {
+    throw Error(`Purchase manifest ${args.purchaseManifestID} not found`);
+  }
+  if (
+    user.id !== purchaseManifest.buyerUserID &&
+    user.id !== purchaseManifest.sellerUserID
+  ) {
+    throw Error(
+      `User ${args.userID} is not the buyer or seller of purchase manifest ${args.purchaseManifestID}`
+    );
+  }
+  if (!purchaseManifest.stripePriceID) {
+    throw Error(
+      `Purchase manifest ${args.purchaseManifestID} does not have a stripe price`
+    );
+  }
+  if (!purchaseManifest.stripeSubItemID) {
+    throw Error(
+      `Purchase manifest ${args.purchaseManifestID} does not have a stripe subscription item`
+    );
+  }
+  if (!user.stripeMetadata.stripeCustomerSubscriptionID) {
+    throw Error(
+      `User ${args.userID} does not have a stripe subscription ID on file`
+    );
+  }
+  const mainBillingCycleSub = await stripe.subscriptions.retrieve(
+    user.stripeMetadata.stripeCustomerSubscriptionID
+  );
+  // Filter out the item you want to delete
+  const itemsToKeep = mainBillingCycleSub.items.data.filter(
+    (item) => item.id !== purchaseManifest.stripeSubItemID
+  );
+  // Create a new items array for the update call
+  const itemsForUpdate = itemsToKeep.map((item) => ({ id: item.id }));
+  // Add a deleted item
+  itemsForUpdate.push({
+    id: purchaseManifest.stripeSubItemID,
+    // @ts-ignore
+    deleted: true,
+  });
+
+  // Update the subscription
+  const updatedSubscription = await stripe.subscriptions.update(
+    user.stripeMetadata.stripeCustomerSubscriptionID,
+    {
+      items: itemsForUpdate,
+    }
+  );
+
+  await updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+    id: args.purchaseManifestID,
+    payload: {
+      isCancelled: true,
+      cancelledAt: createFirestoreTimestamp(),
+      cancelledBy: user.id,
+    },
+    collection: FirestoreCollection.PURCHASE_MANIFESTS,
+  });
+  console.log(`updatedSubscription`, updatedSubscription);
+  return updatedSubscription;
 };

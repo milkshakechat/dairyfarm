@@ -583,6 +583,7 @@ input WishSuggest {
 type CreatePaymentIntentResponseSuccess {
   checkoutToken: String
   referenceID: String!
+  purchaseManifestID: String!
 }
 union CreatePaymentIntentResponse =
     CreatePaymentIntentResponseSuccess
@@ -611,6 +612,17 @@ type RecallTransactionResponseSuccess {
 }
 union RecallTransactionResponse =
     RecallTransactionResponseSuccess
+  | ResponseError
+
+# --- cancel subscription
+input CancelSubscriptionInput {
+  purchaseManifestID: String!
+}
+type CancelSubscriptionResponseSuccess {
+  status: String!
+}
+union CancelSubscriptionResponse =
+    CancelSubscriptionResponseSuccess
   | ResponseError
 
 
@@ -642,6 +654,7 @@ type Mutation {
   sendTransfer(input: SendTransferInput!): SendTransferResponse!
   recallTransaction(input: RecallTransactionInput!): RecallTransactionResponse!
   # cashOutTransaction(input: CashOutTransactionInput!): CashOutTransactionResponse!
+  cancelSubscription(input: CancelSubscriptionInput!): CancelSubscriptionResponse!
 }
 
 

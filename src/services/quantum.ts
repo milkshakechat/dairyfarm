@@ -336,14 +336,20 @@ export const _postTransaction = async (
 ) => {
   const xcloudSecret = await getXCloudAWSSecret();
   console.log(`transaction`, transaction);
-  const { data }: { data: PostTransactionXCloudResponseBody } =
-    await axios.post(config.WALLET_GATEWAY.postTransaction.url, transaction, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: xcloudSecret,
-      },
-    });
-  return data.transaction;
+  try {
+    const { data }: { data: PostTransactionXCloudResponseBody } =
+      await axios.post(config.WALLET_GATEWAY.postTransaction.url, transaction, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: xcloudSecret,
+        },
+        timeout: 1000 * 120, // wait 2 mins
+      });
+    return data.transaction;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
 };
 
 // export const createWallet_QuantumLedger = async ({
