@@ -5,13 +5,15 @@ import {
   createCustomerStripe,
   createEmptySubscriptionStripe,
   initStripe,
+  setStripeWebhook,
 } from "@/services/stripe";
 
 const run = async () => {
   console.log(`Running script stripe sandbox...`);
   await initFirebase();
   await initStripe();
+  // await setStripeWebhook();
   // await createCustomerStripe();
-  await createEmptySubscriptionStripe();
+  // await createEmptySubscriptionStripe();
 };
 run();
