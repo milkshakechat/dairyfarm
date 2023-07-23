@@ -59,6 +59,7 @@ const devConfig: ConfigEnv = {
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
+    webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
   },
   LEDGER: {
     region: "ap-northeast-1",
@@ -145,6 +146,7 @@ const stagingConfig: ConfigEnv = {
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
+    webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
   },
   LEDGER: {
     region: "ap-northeast-1",
@@ -230,6 +232,7 @@ const prodConfig: ConfigEnv = {
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
+    webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
   },
   LEDGER: {
     region: "ap-northeast-1",
@@ -294,6 +297,7 @@ interface ConfigEnv {
   STRIPE: {
     merchantOnboardingSuccessUrl: string;
     merchantOnboardingFailureUrl: string;
+    webhookEndpoint: string;
   };
   LEDGER: {
     region: string;

@@ -27,6 +27,7 @@ import {
   WishBuyFrequencyPrettyPrint,
   WishID,
   Wish_Firestore,
+  convertFrequencySubscriptionToMonthly,
   cookieToUSD,
 } from "@milkshakechat/helpers";
 import {
@@ -61,6 +62,15 @@ export const createCustomerStripe = async () => {
     email: "customer@example.com",
   });
   console.log("customer", customer);
+};
+
+export const setStripeWebhook = async () => {
+  console.log(`setting stripe endpoint...`);
+  const webhookEndpoint = await stripe.webhookEndpoints.create({
+    url: config.STRIPE.webhookEndpoint,
+    enabled_events: ["charge.failed", "charge.succeeded"],
+  });
+  console.log(`webhookEndpoint`, webhookEndpoint);
 };
 
 /**
@@ -114,258 +124,268 @@ export const createPaymentIntentForWish = async ({
   attribution?: string;
   promoCode?: string;
 }) => {
-  console.log(`createPaymentIntentForWish...`);
-  const referenceID = uuidv4() as TxRefID;
-  const [customer, wish] = await Promise.all([
-    await getFirestoreDoc<UserID, User_Firestore>({
-      id: userID,
+  try {
+    console.log(`createPaymentIntentForWish...`);
+    const referenceID = uuidv4() as TxRefID;
+    const [customer, wish] = await Promise.all([
+      await getFirestoreDoc<UserID, User_Firestore>({
+        id: userID,
+        collection: FirestoreCollection.USERS,
+      }),
+      await getFirestoreDoc<WishID, Wish_Firestore>({
+        id: wishSuggest.wishID as WishID,
+        collection: FirestoreCollection.WISH,
+      }),
+    ]);
+    const seller = await getFirestoreDoc<UserID, User_Firestore>({
+      id: wish.creatorID,
       collection: FirestoreCollection.USERS,
-    }),
-    await getFirestoreDoc<WishID, Wish_Firestore>({
-      id: wishSuggest.wishID as WishID,
-      collection: FirestoreCollection.WISH,
-    }),
-  ]);
-  const seller = await getFirestoreDoc<UserID, User_Firestore>({
-    id: wish.creatorID,
-    collection: FirestoreCollection.USERS,
-  });
-  const xcloudSecret = await getXCloudAWSSecret();
-  const params: GetWalletXCloudRequestBody = {
-    walletAliasID: customer.tradingWallet,
-  };
-
-  const { data }: { data: GetWalletXCloudResponseBody } = await axios.get(
-    config.WALLET_GATEWAY.getWallet.url,
-    {
-      params: {
-        walletAliasID: params.walletAliasID,
-      },
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: xcloudSecret,
-      },
-    }
-  );
-  const { wallet: tradingWallet } = data;
-  console.log(`---- tradingWallet`);
-  console.log(tradingWallet);
-  const cookieBalance = tradingWallet.balance;
-  console.log(`---- cookieBalance ${cookieBalance}`);
-
-  const price = wishSuggest.suggestedAmount || wish.cookiePrice;
-  const frequency = wishSuggest.suggestedFrequency
-    ? (wishSuggest.suggestedFrequency as unknown as WishBuyFrequency)
-    : wish.buyFrequency;
-  const title = wish.wishTitle;
-  console.log(`title = ${title}`);
-
-  const desc = `${price} Cookies / $${cookieToUSD(
-    price
-  )} USD ${WishBuyFrequencyPrettyPrint(frequency)} - @${
-    customer.username
-  } bought "${wish.wishTitle}" from @${seller.username}`;
-  console.log(desc);
-
-  const { purchaseManifest, stripePrice } = await createPurchaseManifest({
-    title,
-    note: desc,
-    wishID: wish.id,
-    buyerUserID: userID,
-    sellerUserID: wish.creatorID,
-    buyerWallet: customer.tradingWallet,
-    escrowWallet: seller.escrowWallet,
-    agreedCookiePrice: price,
-    originalCookiePrice: wish.cookiePrice,
-    agreedBuyFrequency: frequency,
-    originalBuyFrequency: wish.buyFrequency,
-    stripeProductID: wish.stripeProductID,
-    referenceID,
-  });
-
-  //  1. One-time charges
-  const totalCookiesCostForOneTimePayments =
-    frequency === WishBuyFrequency.ONE_TIME ? price : 0;
-  console.log(
-    `totalCookiesCostForOneTimePayments=${totalCookiesCostForOneTimePayments}`
-  );
-
-  // spend existing cookies first for one-time charges
-  if (
-    frequency === WishBuyFrequency.ONE_TIME &&
-    totalCookiesCostForOneTimePayments <= cookieBalance
-  ) {
-    console.log(
-      `you have enough money! totalCookiesCostForOneTimePayment=${totalCookiesCostForOneTimePayments} < cookieBalance=${cookieBalance}`
-    );
-    // deduct from cookie jar if can pay in full
-    // be sure to log journal entry to show how payment was made
-
-    const transaction: PostTransactionXCloudRequestBody = {
-      title: `@${customer.username} bought "${wish.wishTitle}" for ${totalCookiesCostForOneTimePayments} cookies from @${seller.username}`,
-      note: desc,
-      purchaseManifestID: purchaseManifest.id,
-      attribution,
-      type: TransactionType.DEAL,
-      amount: totalCookiesCostForOneTimePayments,
-      senderWallet: customer.tradingWallet,
-      senderUserID: customer.id,
-      receiverWallet: seller.escrowWallet,
-      receiverUserID: seller.id,
-      explanations: [
-        {
-          walletAliasID: seller.escrowWallet,
-          explanation: `Sold "${wish.wishTitle}" for ${totalCookiesCostForOneTimePayments} cookies from @${customer.username}`,
-          amount: totalCookiesCostForOneTimePayments,
-        },
-        {
-          walletAliasID: customer.tradingWallet,
-          explanation: `Bought "${wish.wishTitle}" for ${totalCookiesCostForOneTimePayments} cookies from @${seller.username}`,
-          amount: -totalCookiesCostForOneTimePayments,
-        },
-      ],
-      gotRecalled: false,
-      salesMetadata: {
-        buyerNote: note,
-        promoCode,
-        agreedCookiePrice: totalCookiesCostForOneTimePayments,
-        originalCookiePrice: wish.cookiePrice,
-        agreedBuyFrequency: frequency,
-        originalBuyFrequency: wish.buyFrequency,
-      },
-      referenceID,
-    };
-    try {
-      _postTransaction(transaction);
-    } catch (e) {
-      console.log(e);
-    }
-    return {
-      checkoutToken: null,
-      referenceID,
-      purchaseManifestID: purchaseManifest.id,
-    };
-  } else if (
-    frequency === WishBuyFrequency.ONE_TIME &&
-    totalCookiesCostForOneTimePayments > cookieBalance
-  ) {
-    console.log("not enough money in wallet, so billing credit card");
-    const totalPriceUSD = parseInt(
-      `${cookieToUSD(totalCookiesCostForOneTimePayments) * 100}`
-    );
-    // charge card on "totalPriceUSD"
-    console.log(
-      `customer.stripeMetadata.stripeCustomerID`,
-      customer.stripeMetadata?.stripeCustomerID
-    );
-    if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
-      const paymentIntent = await createPaymentIntentStripe({
-        stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
-        amount:
-          totalPriceUSD > MINIMUM_STRIPE_CHARGE
-            ? totalPriceUSD
-            : MINIMUM_STRIPE_CHARGE,
-        description: desc,
-        recieptEmail: customer.email,
-      });
-      await updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
-        id: purchaseManifest.id,
-        payload: {
-          stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
-        },
-        collection: FirestoreCollection.PURCHASE_MANIFESTS,
-      });
-      // post transaction for cookie jar topup
-      // post transaction for sale
-      return {
-        checkoutToken: paymentIntent.client_secret,
-        referenceID,
-        purchaseManifestID: purchaseManifest.id,
-      };
-    } else {
-      throw Error("No Stripe customer on file");
-    }
-  } else if (
-    frequency === WishBuyFrequency.DAILY ||
-    frequency === WishBuyFrequency.WEEKLY ||
-    frequency === WishBuyFrequency.MONTHLY
-  ) {
-    console.log(`This is a recurring subscription`);
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const daysInMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0
-    ).getDate();
-    const daysUntilNextCycle = Math.ceil(
-      (nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    console.log(`daysUntilNextCycle=${daysUntilNextCycle}`);
-    // 2. Recurring Subscriptions
-    // 2a. Charge once for prorated subscriptions
-
-    const subscriptionPrice = wishSuggest.suggestedAmount || wish.cookiePrice;
-    const proratedMonthlyPrice = convertFrequencySubscriptionToMonthly({
-      amount: subscriptionPrice,
-      frequency,
     });
-    console.log(
-      `subscriptionPrice= ${subscriptionPrice}, proratedMonthlyPrice=${proratedMonthlyPrice}, cookieToUSD(proratedMonthlyPrice)=${cookieToUSD(
-        proratedMonthlyPrice
-      )}`
-    );
-    const dailyRate = (cookieToUSD(proratedMonthlyPrice) / daysInMonth) * 100;
-    console.log(`dailyRate=${dailyRate}`);
-    const _totalChargedNowSub = Math.ceil(dailyRate * daysUntilNextCycle);
-    const totalChargedNowSub =
-      _totalChargedNowSub < MINIMUM_STRIPE_CHARGE
-        ? MINIMUM_STRIPE_CHARGE
-        : _totalChargedNowSub;
-    console.log(`totalChargedNowSub=${totalChargedNowSub}`);
+    const xcloudSecret = await getXCloudAWSSecret();
+    const params: GetWalletXCloudRequestBody = {
+      walletAliasID: customer.tradingWallet,
+    };
 
-    // charge card on "subscriptionPrice"
-    // add to subscription on "totalChargedLaterSub"
-    if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
-      const paymentIntent = await createPaymentIntentStripe({
-        stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
-        amount:
-          totalChargedNowSub > MINIMUM_STRIPE_CHARGE
-            ? totalChargedNowSub
-            : MINIMUM_STRIPE_CHARGE,
-        description: desc,
-        recieptEmail: customer.email,
-      });
-      // post transaction for cookie jar topup
-      // post transaction for sale
-      let subItemID = undefined;
-      if (customer.stripeMetadata.stripeCustomerSubscriptionID && stripePrice) {
-        const subItem = await addItemToMainBillingCycle({
-          subscriptionID: customer.stripeMetadata.stripeCustomerSubscriptionID,
-          stripePrice,
-        });
-        subItemID = subItem.id;
-      }
-      await updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
-        id: purchaseManifest.id,
-        payload: {
-          stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
-          stripeSubItemID: subItemID
-            ? (subItemID as StripeSubItemID)
-            : undefined,
+    const { data }: { data: GetWalletXCloudResponseBody } = await axios.get(
+      config.WALLET_GATEWAY.getWallet.url,
+      {
+        params: {
+          walletAliasID: params.walletAliasID,
         },
-        collection: FirestoreCollection.PURCHASE_MANIFESTS,
-      });
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: xcloudSecret,
+        },
+      }
+    );
+    const { wallet: tradingWallet } = data;
+    console.log(`---- tradingWallet`);
+    console.log(tradingWallet);
+    const cookieBalance = tradingWallet.balance;
+    console.log(`---- cookieBalance ${cookieBalance}`);
+
+    const price = wishSuggest.suggestedAmount || wish.cookiePrice;
+    const frequency = wishSuggest.suggestedFrequency
+      ? (wishSuggest.suggestedFrequency as unknown as WishBuyFrequency)
+      : wish.buyFrequency;
+    const title = wish.wishTitle;
+    console.log(`title = ${title}`);
+
+    const desc = `${price} Cookies / $${cookieToUSD(
+      price
+    )} USD ${WishBuyFrequencyPrettyPrint(frequency)} - @${
+      customer.username
+    } bought "${wish.wishTitle}" from @${seller.username}`;
+    console.log(desc);
+
+    const { purchaseManifest, stripePrice } = await createPurchaseManifest({
+      title,
+      note: desc,
+      wishID: wish.id,
+      buyerUserID: userID,
+      sellerUserID: wish.creatorID,
+      buyerWallet: customer.tradingWallet,
+      escrowWallet: seller.escrowWallet,
+      agreedCookiePrice: price,
+      originalCookiePrice: wish.cookiePrice,
+      agreedBuyFrequency: frequency,
+      originalBuyFrequency: wish.buyFrequency,
+      stripeProductID: wish.stripeProductID,
+      referenceID,
+    });
+
+    //  1. One-time charges
+    const totalCookiesCostForOneTimePayments =
+      frequency === WishBuyFrequency.ONE_TIME ? price : 0;
+    console.log(
+      `totalCookiesCostForOneTimePayments=${totalCookiesCostForOneTimePayments}`
+    );
+
+    // spend existing cookies first for one-time charges
+    if (
+      frequency === WishBuyFrequency.ONE_TIME &&
+      totalCookiesCostForOneTimePayments <= cookieBalance
+    ) {
+      console.log(
+        `you have enough money! totalCookiesCostForOneTimePayment=${totalCookiesCostForOneTimePayments} < cookieBalance=${cookieBalance}`
+      );
+      // deduct from cookie jar if can pay in full
+      // be sure to log journal entry to show how payment was made
+
+      const transaction: PostTransactionXCloudRequestBody = {
+        title: `@${customer.username} bought "${wish.wishTitle}" for ${totalCookiesCostForOneTimePayments} cookies from @${seller.username}`,
+        note: `${desc}. Paid from Cookie Jar.`,
+        purchaseManifestID: purchaseManifest.id,
+        attribution,
+        type: TransactionType.DEAL,
+        amount: totalCookiesCostForOneTimePayments,
+        senderWallet: customer.tradingWallet,
+        senderUserID: customer.id,
+        receiverWallet: seller.escrowWallet,
+        receiverUserID: seller.id,
+        explanations: [
+          {
+            walletAliasID: seller.escrowWallet,
+            explanation: `Sold "${wish.wishTitle}" for ${totalCookiesCostForOneTimePayments} cookies from @${customer.username}`,
+            amount: totalCookiesCostForOneTimePayments,
+          },
+          {
+            walletAliasID: customer.tradingWallet,
+            explanation: `Bought "${wish.wishTitle}" for ${totalCookiesCostForOneTimePayments} cookies from @${seller.username}`,
+            amount: -totalCookiesCostForOneTimePayments,
+          },
+        ],
+        gotRecalled: false,
+        salesMetadata: {
+          buyerNote: note,
+          promoCode,
+          agreedCookiePrice: totalCookiesCostForOneTimePayments,
+          originalCookiePrice: wish.cookiePrice,
+          agreedBuyFrequency: frequency,
+          originalBuyFrequency: wish.buyFrequency,
+        },
+        referenceID,
+      };
+      try {
+        _postTransaction(transaction);
+      } catch (e) {
+        console.log(e);
+      }
       return {
-        checkoutToken: paymentIntent.client_secret,
+        checkoutToken: null,
         referenceID,
         purchaseManifestID: purchaseManifest.id,
       };
+    } else if (
+      frequency === WishBuyFrequency.ONE_TIME &&
+      totalCookiesCostForOneTimePayments > cookieBalance
+    ) {
+      console.log("not enough money in wallet, so billing credit card");
+      const totalPriceUSD = parseInt(
+        `${cookieToUSD(totalCookiesCostForOneTimePayments) * 100}`
+      );
+      // charge card on "totalPriceUSD"
+      console.log(
+        `customer.stripeMetadata.stripeCustomerID`,
+        customer.stripeMetadata?.stripeCustomerID
+      );
+      if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
+        const paymentIntent = await createPaymentIntentStripe({
+          stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
+          amount:
+            totalPriceUSD > MINIMUM_STRIPE_CHARGE
+              ? totalPriceUSD
+              : MINIMUM_STRIPE_CHARGE,
+          description: desc,
+          recieptEmail: customer.email,
+        });
+        updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+          id: purchaseManifest.id,
+          payload: {
+            stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
+          },
+          collection: FirestoreCollection.PURCHASE_MANIFESTS,
+        });
+        // post transaction for cookie jar topup
+        // post transaction for sale
+        return {
+          checkoutToken: paymentIntent.client_secret,
+          referenceID,
+          purchaseManifestID: purchaseManifest.id,
+        };
+      } else {
+        throw Error("No Stripe customer on file");
+      }
+    } else if (
+      frequency === WishBuyFrequency.DAILY ||
+      frequency === WishBuyFrequency.WEEKLY ||
+      frequency === WishBuyFrequency.MONTHLY
+    ) {
+      console.log(`This is a recurring subscription`);
+      const now = new Date();
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const daysInMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0
+      ).getDate();
+      const daysUntilNextCycle = Math.ceil(
+        (nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      console.log(`daysUntilNextCycle=${daysUntilNextCycle}`);
+      // 2. Recurring Subscriptions
+      // 2a. Charge once for prorated subscriptions
+
+      const subscriptionPrice = wishSuggest.suggestedAmount || wish.cookiePrice;
+      const proratedMonthlyPrice = convertFrequencySubscriptionToMonthly({
+        amount: subscriptionPrice,
+        frequency,
+      });
+      console.log(
+        `subscriptionPrice= ${subscriptionPrice}, proratedMonthlyPrice=${proratedMonthlyPrice}, cookieToUSD(proratedMonthlyPrice)=${cookieToUSD(
+          proratedMonthlyPrice
+        )}`
+      );
+      const dailyRate = (cookieToUSD(proratedMonthlyPrice) / daysInMonth) * 100;
+      console.log(`dailyRate=${dailyRate}`);
+      const _totalChargedNowSub = Math.ceil(dailyRate * daysUntilNextCycle);
+      const totalChargedNowSub =
+        _totalChargedNowSub < MINIMUM_STRIPE_CHARGE
+          ? MINIMUM_STRIPE_CHARGE
+          : _totalChargedNowSub;
+      console.log(`totalChargedNowSub=${totalChargedNowSub}`);
+
+      // charge card on "subscriptionPrice"
+      // add to subscription on "totalChargedLaterSub"
+      if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
+        const paymentIntent = await createPaymentIntentStripe({
+          stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
+          amount:
+            totalChargedNowSub > MINIMUM_STRIPE_CHARGE
+              ? totalChargedNowSub
+              : MINIMUM_STRIPE_CHARGE,
+          description: desc,
+          recieptEmail: customer.email,
+        });
+        // post transaction for cookie jar topup
+        // post transaction for sale
+        let subItemID = undefined;
+        if (
+          customer.stripeMetadata.stripeCustomerSubscriptionID &&
+          stripePrice
+        ) {
+          const subItem = await addItemToMainBillingCycle({
+            subscriptionID:
+              customer.stripeMetadata.stripeCustomerSubscriptionID,
+            stripePrice,
+            purchaseManifestID: purchaseManifest.id,
+          });
+          subItemID = subItem.id;
+        }
+        updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+          id: purchaseManifest.id,
+          payload: {
+            stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
+            stripeSubItemID: subItemID
+              ? (subItemID as StripeSubItemID)
+              : undefined,
+          },
+          collection: FirestoreCollection.PURCHASE_MANIFESTS,
+        });
+        return {
+          checkoutToken: paymentIntent.client_secret,
+          referenceID,
+          purchaseManifestID: purchaseManifest.id,
+        };
+      } else {
+        throw Error("No Stripe customer on file");
+      }
     } else {
-      throw Error("No Stripe customer on file");
+      throw Error("Issue creating payment intent. Insufficient data");
     }
-  } else {
-    throw Error("Issue creating payment intent. Insufficient data");
+  } catch (e) {
+    console.log(e);
+    throw e;
   }
 };
 
@@ -687,6 +707,9 @@ export const createPurchaseManifest = async (args: {
     // wish details
     agreedCookiePrice,
     originalCookiePrice,
+    // assumed
+    assumedMonthlyCookiePrice: priceCookieAsMonthly,
+    assumedMonthlyUSDPrice: priceUSDBasisAsMonthly,
     // subscription details
     agreedBuyFrequency,
     originalBuyFrequency,
@@ -709,32 +732,6 @@ export const createPurchaseManifest = async (args: {
     collection: FirestoreCollection.PURCHASE_MANIFESTS,
   });
   return { purchaseManifest, stripePrice };
-};
-
-export const convertFrequencySubscriptionToMonthly = (args: {
-  amount: number;
-  frequency: WishBuyFrequency;
-}) => {
-  // convert freqencies to monthly equivalent
-  const { amount, frequency } = args;
-  let monthlyAmount = 0;
-  switch (frequency) {
-    case WishBuyFrequency.DAILY:
-      monthlyAmount = amount * 30;
-      break;
-    case WishBuyFrequency.WEEKLY:
-      monthlyAmount = amount * 4.3;
-      break;
-    case WishBuyFrequency.MONTHLY:
-      monthlyAmount = amount;
-      break;
-    case WishBuyFrequency.ONE_TIME:
-      monthlyAmount = 0;
-      break;
-    default:
-      throw Error(`Invalid frequency ${frequency}`);
-  }
-  return Math.ceil(monthlyAmount);
 };
 
 export const createStripeProduct = async (args: { wishID: WishID }) => {
@@ -775,6 +772,7 @@ export const createStripeProductPrice = async (args: {
 export const addItemToMainBillingCycle = async (args: {
   subscriptionID: StripeSubscriptionID;
   stripePrice: Stripe.Price;
+  purchaseManifestID: PurchaseMainfestID;
 }) => {
   console.log("addItemToMainBillingCycle...");
   console.log(
@@ -785,6 +783,10 @@ export const addItemToMainBillingCycle = async (args: {
     subscription: args.subscriptionID,
     price: args.stripePrice.id,
     quantity: 1,
+    proration_behavior: "none", // disables proration
+    metadata: {
+      purchaseManifestID: args.purchaseManifestID,
+    },
   });
   console.log("subscriptionItem", subscriptionItem);
   return subscriptionItem;
