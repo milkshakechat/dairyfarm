@@ -186,7 +186,7 @@ export const sendPushNotificationToUserDevices = async ({
       return sendPushNotification(fullPackage);
     })
   );
-  let pushReciepts = reciepts.flat();
+  const pushReciepts = reciepts.flat();
   return pushReciepts;
 };
 

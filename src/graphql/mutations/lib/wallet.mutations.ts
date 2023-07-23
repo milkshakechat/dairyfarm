@@ -73,6 +73,7 @@ export const sendTransfer = async (
   const transaction: PostTransactionXCloudRequestBody = {
     title: `@${selfUser.username} sent ${args.input.amount} cookies to @${recipientUser.username}`,
     note: ``,
+    thumbnail: selfUser.avatar,
     purchaseManifestID: undefined,
     attribution: undefined,
     type: TransactionType.TRANSFER,
@@ -98,6 +99,7 @@ export const sendTransfer = async (
       senderNote: args.input.note || "",
     },
     referenceID,
+    sendPushNotif: true,
   };
   console.log(`transaction`, transaction);
   axios
