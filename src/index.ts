@@ -11,6 +11,12 @@ import { initFirebase } from "@/services/firebase";
 import config from "@/config.env";
 import { initStripe } from "./services/stripe";
 
+const initCreds = async () => {
+  await initFirebase();
+  await initStripe();
+};
+initCreds();
+
 const SOCKETS_PORT = process.env.PORT || 8080;
 
 const yogaPlugins = [];
@@ -89,9 +95,6 @@ useServer(
   },
   wsServer
 );
-
-initFirebase();
-initStripe();
 
 server.listen(SOCKETS_PORT, () => {
   console.log(`Listening on PORT ${SOCKETS_PORT}/graphql`);

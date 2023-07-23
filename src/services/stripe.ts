@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import config from "@/config.env";
 import {
   CardChargeID,
+  DEFAULT_PUSH_NOTIFICATION_IMAGE,
   FirestoreCollection,
   GetWalletXCloudRequestBody,
   GetWalletXCloudResponseBody,
@@ -29,6 +30,7 @@ import {
   Wish_Firestore,
   convertFrequencySubscriptionToMonthly,
   cookieToUSD,
+  placeholderWishlistGraphic,
 } from "@milkshakechat/helpers";
 import {
   createFirestoreDoc,
@@ -192,6 +194,7 @@ export const createPaymentIntentForWish = async ({
       originalBuyFrequency: wish.buyFrequency,
       stripeProductID: wish.stripeProductID,
       referenceID,
+      thumbnail: wish.thumbnail,
     });
 
     //  1. One-time charges
@@ -217,6 +220,7 @@ export const createPaymentIntentForWish = async ({
         note: `${desc}. Paid from Cookie Jar.`,
         purchaseManifestID: purchaseManifest.id,
         attribution,
+        thumbnail: wish.thumbnail || placeholderWishlistGraphic,
         type: TransactionType.DEAL,
         amount: totalCookiesCostForOneTimePayments,
         senderWallet: customer.tradingWallet,
@@ -245,6 +249,7 @@ export const createPaymentIntentForWish = async ({
           originalBuyFrequency: wish.buyFrequency,
         },
         referenceID,
+        sendPushNotif: true,
       };
       try {
         _postTransaction(transaction);
@@ -646,6 +651,7 @@ export const createPurchaseManifest = async (args: {
   originalBuyFrequency: WishBuyFrequency;
   stripeProductID?: StripeProductID;
   referenceID: TxRefID;
+  thumbnail?: string;
 }) => {
   console.log("createPurchaseManifest...");
   console.log(`stripeProductID = ${args.stripeProductID}`);
@@ -695,6 +701,7 @@ export const createPurchaseManifest = async (args: {
     note,
     createdAt: createFirestoreTimestamp(),
     wishID,
+    thumbnail: args.thumbnail || placeholderWishlistGraphic,
     // foriegn keys
     buyerUserID,
     sellerUserID,
