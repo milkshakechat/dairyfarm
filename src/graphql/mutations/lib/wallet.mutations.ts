@@ -12,6 +12,8 @@ import {
   StatusCode,
   MutationCancelSubscriptionArgs,
   CancelSubscriptionResponse,
+  MutationTopUpWalletArgs,
+  TopUpWalletResponse,
 } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
 import { getXCloudAWSSecret } from "@/utils/secrets";
@@ -37,6 +39,7 @@ import {
   cancelSubscriptionPurchaseManifest,
   createPaymentIntentForWish,
   createSetupIntentStripe,
+  topUpWalletStripe,
 } from "@/services/stripe";
 
 export const sendTransfer = async (
@@ -243,6 +246,7 @@ export const savePaymentMethod = async (
       userID,
       paymentMethodID: args.input.paymentMethodID,
       isDefault: true,
+      email: args.input.email ? args.input.email : undefined,
     });
     return {
       paymentMethodID: res.id,
@@ -276,6 +280,25 @@ export const cancelSubscription = async (
   });
   return {
     status: `Successfully cancelled subscription ${args.input.purchaseManifestID}`,
+  };
+};
+
+export const topUpWallet = async (
+  _parent: any,
+  args: MutationTopUpWalletArgs,
+  _context: any,
+  _info: any
+): Promise<TopUpWalletResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const { checkoutToken, referenceID, purchaseManifestID } =
+    await topUpWalletStripe(args, userID);
+  return {
+    checkoutToken,
+    referenceID,
+    purchaseManifestID,
   };
 };
 
@@ -365,6 +388,21 @@ export const responses = {
     ) {
       if ("status" in obj) {
         return "CancelSubscriptionResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  TopUpWalletResponse: {
+    __resolveType(
+      obj: TopUpWalletResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("referenceID" in obj) {
+        return "TopUpWalletResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

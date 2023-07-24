@@ -1,8 +1,11 @@
 import {
   BucketDef,
   SecretConfig,
+  StripePriceID,
+  StripeProductID,
   UserID,
   WalletAliasID,
+  WishID,
 } from "@milkshakechat/helpers";
 
 const devConfig: ConfigEnv = {
@@ -71,6 +74,9 @@ const devConfig: ConfigEnv = {
     globalCookieStore: {
       userID: "store-owner" as UserID,
       walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
+      topUpWalletProductID: "prod_OK0vYwKnYTh69b" as StripeProductID,
+      topUpWalletPriceID: "price_1NXMu7BbKljWimkIaY3ZWJMk" as StripePriceID,
+      topUpWalletWishID: "TOP_UP_WALLET_WISH_ID" as WishID,
     },
     recallGracePeriodDays: 90,
   },
@@ -159,6 +165,9 @@ const stagingConfig: ConfigEnv = {
     globalCookieStore: {
       userID: "store-owner" as UserID,
       walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
+      topUpWalletProductID: "prod_OK0vYwKnYTh69b" as StripeProductID,
+      topUpWalletPriceID: "price_1NXMu7BbKljWimkIaY3ZWJMk" as StripePriceID,
+      topUpWalletWishID: "TOP_UP_WALLET_WISH_ID" as WishID,
     },
     recallGracePeriodDays: 90,
   },
@@ -244,6 +253,9 @@ const prodConfig: ConfigEnv = {
     globalCookieStore: {
       userID: "store-owner" as UserID,
       walletAliasID: "milkshake-v0.1_store-wallet" as WalletAliasID,
+      topUpWalletProductID: "prod_OK0vYwKnYTh69b" as StripeProductID,
+      topUpWalletPriceID: "price_1NXMu7BbKljWimkIaY3ZWJMk" as StripePriceID,
+      topUpWalletWishID: "TOP_UP_WALLET_WISH_ID" as WishID,
     },
     recallGracePeriodDays: 90,
   },
@@ -308,6 +320,9 @@ interface ConfigEnv {
     globalCookieStore: {
       userID: UserID;
       walletAliasID: WalletAliasID;
+      topUpWalletProductID: StripeProductID;
+      topUpWalletPriceID: StripePriceID;
+      topUpWalletWishID: WishID;
     };
     recallGracePeriodDays: number;
   };

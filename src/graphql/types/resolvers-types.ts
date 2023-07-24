@@ -400,6 +400,7 @@ export type Mutation = {
   savePaymentMethod: SavePaymentMethodResponse;
   sendFriendRequest: SendFriendRequestResponse;
   sendTransfer: SendTransferResponse;
+  topUpWallet: TopUpWalletResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
   updateWish: UpdateWishResponse;
@@ -468,6 +469,11 @@ export type MutationSendFriendRequestArgs = {
 
 export type MutationSendTransferArgs = {
   input: SendTransferInput;
+};
+
+
+export type MutationTopUpWalletArgs = {
+  input: TopUpWalletInput;
 };
 
 
@@ -620,6 +626,7 @@ export type RevokePushTokensResponseSuccess = {
 };
 
 export type SavePaymentMethodInput = {
+  email?: InputMaybe<Scalars['String']['input']>;
   paymentMethodID: Scalars['String']['input'];
 };
 
@@ -722,6 +729,20 @@ export type StoryMediaAttachmentInput = {
 export type Subscription = {
   __typename?: 'Subscription';
   demoSubscription: DemoSubscriptionEvent;
+};
+
+export type TopUpWalletInput = {
+  amount: Scalars['Int']['input'];
+  promoCode?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TopUpWalletResponse = ResponseError | TopUpWalletResponseSuccess;
+
+export type TopUpWalletResponseSuccess = {
+  __typename?: 'TopUpWalletResponseSuccess';
+  checkoutToken?: Maybe<Scalars['String']['output']>;
+  purchaseManifestID: Scalars['String']['output'];
+  referenceID: Scalars['String']['output'];
 };
 
 export type UpdateChatSettingsInput = {
@@ -967,6 +988,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   SavePaymentMethodResponse: ( ResponseError ) | ( SavePaymentMethodResponseSuccess );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   SendTransferResponse: ( ResponseError ) | ( SendTransferResponseSuccess );
+  TopUpWalletResponse: ( ResponseError ) | ( TopUpWalletResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
   UpdateWishResponse: ( ResponseError ) | ( UpdateWishResponseSuccess );
@@ -1090,6 +1112,9 @@ export type ResolversTypes = {
   StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  TopUpWalletInput: TopUpWalletInput;
+  TopUpWalletResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TopUpWalletResponse']>;
+  TopUpWalletResponseSuccess: ResolverTypeWrapper<TopUpWalletResponseSuccess>;
   UpdateChatSettingsInput: UpdateChatSettingsInput;
   UpdateChatSettingsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateChatSettingsResponse']>;
   UpdateChatSettingsResponseSuccess: ResolverTypeWrapper<UpdateChatSettingsResponseSuccess>;
@@ -1222,6 +1247,9 @@ export type ResolversParentTypes = {
   StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: Scalars['String']['output'];
   Subscription: {};
+  TopUpWalletInput: TopUpWalletInput;
+  TopUpWalletResponse: ResolversUnionTypes<ResolversParentTypes>['TopUpWalletResponse'];
+  TopUpWalletResponseSuccess: TopUpWalletResponseSuccess;
   UpdateChatSettingsInput: UpdateChatSettingsInput;
   UpdateChatSettingsResponse: ResolversUnionTypes<ResolversParentTypes>['UpdateChatSettingsResponse'];
   UpdateChatSettingsResponseSuccess: UpdateChatSettingsResponseSuccess;
@@ -1532,6 +1560,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   savePaymentMethod?: Resolver<ResolversTypes['SavePaymentMethodResponse'], ParentType, ContextType, RequireFields<MutationSavePaymentMethodArgs, 'input'>>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   sendTransfer?: Resolver<ResolversTypes['SendTransferResponse'], ParentType, ContextType, RequireFields<MutationSendTransferArgs, 'input'>>;
+  topUpWallet?: Resolver<ResolversTypes['TopUpWalletResponse'], ParentType, ContextType, RequireFields<MutationTopUpWalletArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
   updateWish?: Resolver<ResolversTypes['UpdateWishResponse'], ParentType, ContextType, RequireFields<MutationUpdateWishArgs, 'input'>>;
@@ -1688,6 +1717,17 @@ export type StoryAuthorResolvers<ContextType = any, ParentType extends Resolvers
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   demoSubscription?: SubscriptionResolver<ResolversTypes['DemoSubscriptionEvent'], "demoSubscription", ParentType, ContextType>;
+};
+
+export type TopUpWalletResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['TopUpWalletResponse'] = ResolversParentTypes['TopUpWalletResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'TopUpWalletResponseSuccess', ParentType, ContextType>;
+};
+
+export type TopUpWalletResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['TopUpWalletResponseSuccess'] = ResolversParentTypes['TopUpWalletResponseSuccess']> = {
+  checkoutToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  purchaseManifestID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UpdateChatSettingsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpdateChatSettingsResponse'] = ResolversParentTypes['UpdateChatSettingsResponse']> = {
@@ -1875,6 +1915,8 @@ export type Resolvers<ContextType = any> = {
   StoryAttachment?: StoryAttachmentResolvers<ContextType>;
   StoryAuthor?: StoryAuthorResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  TopUpWalletResponse?: TopUpWalletResponseResolvers<ContextType>;
+  TopUpWalletResponseSuccess?: TopUpWalletResponseSuccessResolvers<ContextType>;
   UpdateChatSettingsResponse?: UpdateChatSettingsResponseResolvers<ContextType>;
   UpdateChatSettingsResponseSuccess?: UpdateChatSettingsResponseSuccessResolvers<ContextType>;
   UpdatePushTokenResponse?: UpdatePushTokenResponseResolvers<ContextType>;
