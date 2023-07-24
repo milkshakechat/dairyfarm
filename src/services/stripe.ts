@@ -41,6 +41,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import {
   CreatePaymentIntentInput,
+  MutationTopUpWalletArgs,
   WishBuyFrequency as WishBuyFrequencyGQL,
   WishSuggest,
 } from "@/graphql/types/resolvers-types";
@@ -70,7 +71,7 @@ export const setStripeWebhook = async () => {
   console.log(`setting stripe endpoint...`);
   const webhookEndpoint = await stripe.webhookEndpoints.create({
     url: config.STRIPE.webhookEndpoint,
-    enabled_events: ["charge.failed", "charge.succeeded"],
+    enabled_events: ["charge.failed", "charge.succeeded", "invoice.paid"],
   });
   console.log(`webhookEndpoint`, webhookEndpoint);
 };
@@ -420,6 +421,9 @@ export const createPaymentIntentStripe = async ({
     automatic_payment_methods: {
       enabled: true,
     },
+    metadata: {
+      affectsCookieWallet: "true",
+    },
   };
   console.log(`intent = ${JSON.stringify(intent)}`);
   const paymentIntent = await stripe.paymentIntents.create(
@@ -625,6 +629,9 @@ export const createEmptySubscriptionStripe = async () => {
   const product = await stripe.products.create({
     name: "Milkshake Subscription - Monthly Main Billing Cycle",
     type: "service",
+    metadata: {
+      affectsCookieWallet: "true",
+    },
   });
   console.log("product", product);
   const price = await stripe.prices.create({
@@ -632,6 +639,9 @@ export const createEmptySubscriptionStripe = async () => {
     currency: "usd",
     recurring: { interval: "month" },
     product: product.id,
+    metadata: {
+      affectsCookieWallet: "true",
+    },
   });
   console.log("price", price);
   return { product, price };
@@ -743,8 +753,11 @@ export const createPurchaseManifest = async (args: {
 
 export const createStripeProduct = async (args: { wishID: WishID }) => {
   const product = await stripe.products.create({
-    name: args.wishID,
+    name: `Wish ${args.wishID}`,
     type: "service",
+    metadata: {
+      affectsCookieWallet: "true",
+    },
   });
   return product;
 };
@@ -772,6 +785,7 @@ export const createStripeProductPrice = async (args: {
       frequency: args.frequency,
       priceCookieAsMonthly: args.priceCookieAsMonthly,
       referenceID: args.referenceID,
+      affectsCookieWallet: "true",
     },
   });
   return price;
@@ -793,6 +807,7 @@ export const addItemToMainBillingCycle = async (args: {
     proration_behavior: "none", // disables proration
     metadata: {
       purchaseManifestID: args.purchaseManifestID,
+      affectsCookieWallet: "true",
     },
   });
   console.log("subscriptionItem", subscriptionItem);
@@ -827,6 +842,7 @@ export const attachPaymentMethodToUser = async (args: {
   userID: UserID;
   paymentMethodID: string;
   isDefault?: boolean;
+  email?: string;
 }) => {
   const user = await getFirestoreDoc<UserID, User_Firestore>({
     id: args.userID,
@@ -852,16 +868,21 @@ export const attachPaymentMethodToUser = async (args: {
       },
     });
   }
+  const payload: Partial<User_Firestore> = {
+    stripeMetadata: {
+      ...(user.stripeMetadata || {
+        hasMerchantPrivilege: false,
+      }),
+      defaultPaymentMethodID: args.paymentMethodID as StripePaymentMethodID,
+    },
+  };
+  if (args.email && !user.email) {
+    payload.email = args.email;
+  }
+
   await updateFirestoreDoc<UserID, User_Firestore>({
     id: args.userID,
-    payload: {
-      stripeMetadata: {
-        ...(user.stripeMetadata || {
-          hasMerchantPrivilege: false,
-        }),
-        defaultPaymentMethodID: args.paymentMethodID as StripePaymentMethodID,
-      },
-    },
+    payload,
     collection: FirestoreCollection.USERS,
   });
   return paymentMethod;
@@ -948,4 +969,104 @@ export const cancelSubscriptionPurchaseManifest = async (args: {
   });
   console.log(`updatedSubscription`, updatedSubscription);
   return updatedSubscription;
+};
+
+export const topUpWalletStripe = async (
+  args: MutationTopUpWalletArgs,
+  userID: UserID
+) => {
+  try {
+    console.log(`createPaymentIntentForWish...`);
+    const referenceID = uuidv4() as TxRefID;
+    const customer = await getFirestoreDoc<UserID, User_Firestore>({
+      id: userID,
+      collection: FirestoreCollection.USERS,
+    });
+    const { purchaseManifest, stripePrice } = await createPurchaseManifest({
+      title: `Top up wallet with ${args.input.amount} cookies`,
+      note: `@${customer.username} topped up wallet with ${args.input.amount} cookies`,
+      wishID: config.LEDGER.globalCookieStore.topUpWalletWishID,
+      buyerUserID: userID,
+      sellerUserID: config.LEDGER.globalCookieStore.userID,
+      buyerWallet: customer.tradingWallet,
+      escrowWallet: customer.tradingWallet,
+      agreedCookiePrice: args.input.amount,
+      originalCookiePrice: args.input.amount,
+      agreedBuyFrequency: WishBuyFrequency.ONE_TIME,
+      originalBuyFrequency: WishBuyFrequency.ONE_TIME,
+      stripeProductID: config.LEDGER.globalCookieStore.topUpWalletProductID,
+      referenceID,
+    });
+    console.log("Billing credit card");
+    const totalPriceUSD = parseInt(`${cookieToUSD(args.input.amount) * 100}`);
+    // charge card on "totalPriceUSD"
+    console.log(
+      `customer.stripeMetadata.stripeCustomerID`,
+      customer.stripeMetadata?.stripeCustomerID
+    );
+    if (customer.stripeMetadata && customer.stripeMetadata.stripeCustomerID) {
+      const paymentIntent = await createPaymentIntentStripe({
+        stripeCustomerID: customer.stripeMetadata.stripeCustomerID,
+        amount:
+          totalPriceUSD > MINIMUM_STRIPE_CHARGE
+            ? totalPriceUSD
+            : MINIMUM_STRIPE_CHARGE,
+        description: `Top up wallet with ${args.input.amount} cookies, initiated by @${customer.username}`,
+        recieptEmail: customer.email,
+      });
+      updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+        id: purchaseManifest.id,
+        payload: {
+          stripePaymentIntentID: paymentIntent.id as StripePaymentIntentID,
+        },
+        collection: FirestoreCollection.PURCHASE_MANIFESTS,
+      });
+      // post transaction for cookie jar topup
+      // post transaction for sale
+      return {
+        checkoutToken: paymentIntent.client_secret,
+        referenceID,
+        purchaseManifestID: purchaseManifest.id,
+      };
+    } else {
+      throw Error("No Stripe customer on file");
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+export const forcePaySubscriptionNow = async ({
+  subscriptionID,
+  customerID,
+}: {
+  customerID: string;
+  subscriptionID: string;
+}) => {
+  console.log(`forcePaySubscriptionNow...`);
+  try {
+    // 0. Set billinng cycle to now
+    // const advancedSubscription = await stripe.subscriptions.update(
+    //   subscriptionID,
+    //   {
+    //     billing_cycle_anchor: "now",
+    //     proration_behavior: "none", // Ensure no prorations are made
+    //   }
+    // );
+
+    // 1. Create an invoice for the subscription
+    const invoice = await stripe.invoices.create({
+      customer: customerID, // Replace with your customer ID
+      subscription: subscriptionID,
+      auto_advance: true, // Auto-finalizes this draft after ~1 hour
+    });
+
+    // 2. Then, immediately pay the invoice
+    const paidInvoice = await stripe.invoices.pay(invoice.id);
+
+    console.log("Invoice paid successfully: ", paidInvoice);
+  } catch (error) {
+    console.error("Error creating or paying invoice: ", error);
+  }
 };

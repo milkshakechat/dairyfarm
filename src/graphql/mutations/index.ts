@@ -23,4 +23,5 @@ export {
   recallTransaction,
   createSetupIntent,
   cancelSubscription,
+  topUpWallet,
 } from "@/graphql/mutations/lib/wallet.mutations";
