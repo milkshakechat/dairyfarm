@@ -98,7 +98,9 @@ export type CreateSetupIntentResponseSuccess = {
 };
 
 export type CreateStoryInput = {
+  allowSwipe?: InputMaybe<Scalars['Boolean']['input']>;
   caption: Scalars['String']['input'];
+  linkedWishID?: InputMaybe<Scalars['String']['input']>;
   media?: InputMaybe<StoryMediaAttachmentInput>;
 };
 
@@ -197,6 +199,17 @@ export type FetchStoryFeedResponse = FetchStoryFeedResponseSuccess | ResponseErr
 export type FetchStoryFeedResponseSuccess = {
   __typename?: 'FetchStoryFeedResponseSuccess';
   stories: Array<Story>;
+};
+
+export type FetchSwipeFeedInput = {
+  nonce: Scalars['String']['input'];
+};
+
+export type FetchSwipeFeedResponse = FetchSwipeFeedResponseSuccess | ResponseError;
+
+export type FetchSwipeFeedResponseSuccess = {
+  __typename?: 'FetchSwipeFeedResponseSuccess';
+  swipeStack: Array<SwipeStory>;
 };
 
 export enum FriendshipAction {
@@ -529,6 +542,7 @@ export type Query = {
   enterChatRoom: EnterChatRoomResponse;
   fetchRecentNotifications: FetchRecentNotificationsResponse;
   fetchStoryFeed: FetchStoryFeedResponse;
+  fetchSwipeFeed: FetchSwipeFeedResponse;
   getMyProfile: GetMyProfileResponse;
   getStory: GetStoryResponse;
   getWish: GetWishResponse;
@@ -567,6 +581,11 @@ export type QueryFetchRecentNotificationsArgs = {
 
 export type QueryFetchStoryFeedArgs = {
   input: FetchStoryFeedInput;
+};
+
+
+export type QueryFetchSwipeFeedArgs = {
+  input: FetchSwipeFeedInput;
 };
 
 
@@ -688,6 +707,7 @@ export type Story = {
   createdAt?: Maybe<Scalars['DateString']['output']>;
   expiresAt?: Maybe<Scalars['DateString']['output']>;
   id: Scalars['ID']['output'];
+  linkedWishID?: Maybe<Scalars['String']['output']>;
   outboundLink?: Maybe<Scalars['String']['output']>;
   pinned?: Maybe<Scalars['Boolean']['output']>;
   showcase?: Maybe<Scalars['Boolean']['output']>;
@@ -729,6 +749,12 @@ export type StoryMediaAttachmentInput = {
 export type Subscription = {
   __typename?: 'Subscription';
   demoSubscription: DemoSubscriptionEvent;
+};
+
+export type SwipeStory = {
+  __typename?: 'SwipeStory';
+  story: Story;
+  wish?: Maybe<Wish>;
 };
 
 export type TopUpWalletInput = {
@@ -972,6 +998,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   EnterChatRoomResponse: ( EnterChatRoomResponseSuccess ) | ( ResponseError );
   FetchRecentNotificationsResponse: ( FetchRecentNotificationsResponseSuccess ) | ( ResponseError );
   FetchStoryFeedResponse: ( FetchStoryFeedResponseSuccess ) | ( ResponseError );
+  FetchSwipeFeedResponse: ( FetchSwipeFeedResponseSuccess ) | ( ResponseError );
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
   GetWishResponse: ( GetWishResponseSuccess ) | ( ResponseError );
@@ -1039,6 +1066,9 @@ export type ResolversTypes = {
   FetchStoryFeedInput: FetchStoryFeedInput;
   FetchStoryFeedResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchStoryFeedResponse']>;
   FetchStoryFeedResponseSuccess: ResolverTypeWrapper<FetchStoryFeedResponseSuccess>;
+  FetchSwipeFeedInput: FetchSwipeFeedInput;
+  FetchSwipeFeedResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchSwipeFeedResponse']>;
+  FetchSwipeFeedResponseSuccess: ResolverTypeWrapper<FetchSwipeFeedResponseSuccess>;
   FriendshipAction: FriendshipAction;
   FriendshipStatus: FriendshipStatus;
   GenderEnum: GenderEnum;
@@ -1112,6 +1142,7 @@ export type ResolversTypes = {
   StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  SwipeStory: ResolverTypeWrapper<SwipeStory>;
   TopUpWalletInput: TopUpWalletInput;
   TopUpWalletResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['TopUpWalletResponse']>;
   TopUpWalletResponseSuccess: ResolverTypeWrapper<TopUpWalletResponseSuccess>;
@@ -1181,6 +1212,9 @@ export type ResolversParentTypes = {
   FetchStoryFeedInput: FetchStoryFeedInput;
   FetchStoryFeedResponse: ResolversUnionTypes<ResolversParentTypes>['FetchStoryFeedResponse'];
   FetchStoryFeedResponseSuccess: FetchStoryFeedResponseSuccess;
+  FetchSwipeFeedInput: FetchSwipeFeedInput;
+  FetchSwipeFeedResponse: ResolversUnionTypes<ResolversParentTypes>['FetchSwipeFeedResponse'];
+  FetchSwipeFeedResponseSuccess: FetchSwipeFeedResponseSuccess;
   GetMyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['GetMyProfileResponse'];
   GetMyProfileResponseSuccess: GetMyProfileResponseSuccess;
   GetStoryInput: GetStoryInput;
@@ -1247,6 +1281,7 @@ export type ResolversParentTypes = {
   StoryMediaAttachmentInput: StoryMediaAttachmentInput;
   String: Scalars['String']['output'];
   Subscription: {};
+  SwipeStory: SwipeStory;
   TopUpWalletInput: TopUpWalletInput;
   TopUpWalletResponse: ResolversUnionTypes<ResolversParentTypes>['TopUpWalletResponse'];
   TopUpWalletResponseSuccess: TopUpWalletResponseSuccess;
@@ -1411,6 +1446,15 @@ export type FetchStoryFeedResponseResolvers<ContextType = any, ParentType extend
 
 export type FetchStoryFeedResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchStoryFeedResponseSuccess'] = ResolversParentTypes['FetchStoryFeedResponseSuccess']> = {
   stories?: Resolver<Array<ResolversTypes['Story']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FetchSwipeFeedResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchSwipeFeedResponse'] = ResolversParentTypes['FetchSwipeFeedResponse']> = {
+  __resolveType: TypeResolveFn<'FetchSwipeFeedResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type FetchSwipeFeedResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['FetchSwipeFeedResponseSuccess'] = ResolversParentTypes['FetchSwipeFeedResponseSuccess']> = {
+  swipeStack?: Resolver<Array<ResolversTypes['SwipeStory']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1601,6 +1645,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   enterChatRoom?: Resolver<ResolversTypes['EnterChatRoomResponse'], ParentType, ContextType, RequireFields<QueryEnterChatRoomArgs, 'input'>>;
   fetchRecentNotifications?: Resolver<ResolversTypes['FetchRecentNotificationsResponse'], ParentType, ContextType, RequireFields<QueryFetchRecentNotificationsArgs, 'input'>>;
   fetchStoryFeed?: Resolver<ResolversTypes['FetchStoryFeedResponse'], ParentType, ContextType, RequireFields<QueryFetchStoryFeedArgs, 'input'>>;
+  fetchSwipeFeed?: Resolver<ResolversTypes['FetchSwipeFeedResponse'], ParentType, ContextType, RequireFields<QueryFetchSwipeFeedArgs, 'input'>>;
   getMyProfile?: Resolver<ResolversTypes['GetMyProfileResponse'], ParentType, ContextType>;
   getStory?: Resolver<ResolversTypes['GetStoryResponse'], ParentType, ContextType, RequireFields<QueryGetStoryArgs, 'input'>>;
   getWish?: Resolver<ResolversTypes['GetWishResponse'], ParentType, ContextType, RequireFields<QueryGetWishArgs, 'input'>>;
@@ -1687,6 +1732,7 @@ export type StoryResolvers<ContextType = any, ParentType extends ResolversParent
   createdAt?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  linkedWishID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   outboundLink?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   pinned?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   showcase?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -1717,6 +1763,12 @@ export type StoryAuthorResolvers<ContextType = any, ParentType extends Resolvers
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   demoSubscription?: SubscriptionResolver<ResolversTypes['DemoSubscriptionEvent'], "demoSubscription", ParentType, ContextType>;
+};
+
+export type SwipeStoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['SwipeStory'] = ResolversParentTypes['SwipeStory']> = {
+  story?: Resolver<ResolversTypes['Story'], ParentType, ContextType>;
+  wish?: Resolver<Maybe<ResolversTypes['Wish']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TopUpWalletResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['TopUpWalletResponse'] = ResolversParentTypes['TopUpWalletResponse']> = {
@@ -1865,6 +1917,8 @@ export type Resolvers<ContextType = any> = {
   FetchRecentNotificationsResponseSuccess?: FetchRecentNotificationsResponseSuccessResolvers<ContextType>;
   FetchStoryFeedResponse?: FetchStoryFeedResponseResolvers<ContextType>;
   FetchStoryFeedResponseSuccess?: FetchStoryFeedResponseSuccessResolvers<ContextType>;
+  FetchSwipeFeedResponse?: FetchSwipeFeedResponseResolvers<ContextType>;
+  FetchSwipeFeedResponseSuccess?: FetchSwipeFeedResponseSuccessResolvers<ContextType>;
   GetMyProfileResponse?: GetMyProfileResponseResolvers<ContextType>;
   GetMyProfileResponseSuccess?: GetMyProfileResponseSuccessResolvers<ContextType>;
   GetStoryResponse?: GetStoryResponseResolvers<ContextType>;
@@ -1915,6 +1969,7 @@ export type Resolvers<ContextType = any> = {
   StoryAttachment?: StoryAttachmentResolvers<ContextType>;
   StoryAuthor?: StoryAuthorResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  SwipeStory?: SwipeStoryResolvers<ContextType>;
   TopUpWalletResponse?: TopUpWalletResponseResolvers<ContextType>;
   TopUpWalletResponseSuccess?: TopUpWalletResponseSuccessResolvers<ContextType>;
   UpdateChatSettingsResponse?: UpdateChatSettingsResponseResolvers<ContextType>;

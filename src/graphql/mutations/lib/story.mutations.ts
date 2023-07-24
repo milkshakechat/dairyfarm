@@ -17,6 +17,7 @@ import {
   FirestoreCollection,
   StoryID,
   Story_Firestore,
+  WishID,
 } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 
@@ -32,7 +33,7 @@ export const createStory = async (
   if (!userID) {
     throw Error("No user ID found");
   }
-  const { caption, media } = args.input;
+  const { caption, media, linkedWishID, allowSwipe } = args.input;
   const { url, type, assetID } = media || {};
 
   if (caption.length > 240) {
@@ -45,6 +46,8 @@ export const createStory = async (
     userID,
     caption,
     assetID,
+    linkedWishID: (linkedWishID as WishID) || undefined,
+    allowSwipe: allowSwipe || false,
   });
   // return the story
   return {

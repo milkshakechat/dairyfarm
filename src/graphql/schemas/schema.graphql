@@ -237,6 +237,22 @@ union CheckMerchantStatusResponse =
     CheckMerchantStatusResponseSuccess
   | ResponseError
 
+# --- fetch swipe feed
+input FetchSwipeFeedInput {
+  nonce: String!
+}
+type SwipeStory {
+  story: Story!
+  wish: Wish
+}
+type FetchSwipeFeedResponseSuccess {
+  swipeStack: [SwipeStory!]!
+}
+union FetchSwipeFeedResponse =
+    FetchSwipeFeedResponseSuccess
+  | ResponseError
+
+
 # --- Queries
 type Query {
   # profile
@@ -262,6 +278,8 @@ type Query {
   getWish(input: GetWishInput!): GetWishResponse!
   # merchant
   checkMerchantStatus(input: CheckMerchantStatusInput!): CheckMerchantStatusResponse!
+  # swipe
+  fetchSwipeFeed(input: FetchSwipeFeedInput!): FetchSwipeFeedResponse!
 }
 
 # --- modifyProfile
@@ -397,6 +415,7 @@ type Story {
   createdAt: DateString
   expiresAt: DateString
   author: StoryAuthor!
+  linkedWishID: String
 }
 type StoryAuthor {
   id: UserID!
@@ -407,6 +426,8 @@ type StoryAuthor {
 input CreateStoryInput {
   caption: String!
   media: StoryMediaAttachmentInput
+  linkedWishID: String
+  allowSwipe: Boolean
   # link: String
   # outboundLink: String
 }

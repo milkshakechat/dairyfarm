@@ -8,6 +8,7 @@ import {
   StoryAttachmentType as TSStoryAttachmentType,
   StoryAttachmentID,
   getCompressedStoryImageUrl,
+  WishID,
 } from "@milkshakechat/helpers";
 import {
   createFirestoreDoc,
@@ -17,7 +18,11 @@ import {
   listFirestoreDocsDoubleWhere,
 } from "./firestore";
 import { v4 as uuidv4 } from "uuid";
-import { Story, StoryAttachmentType } from "@/graphql/types/resolvers-types";
+import {
+  Story,
+  StoryAttachmentType,
+  Wish,
+} from "@/graphql/types/resolvers-types";
 import config from "@/config.env";
 import { getFirestoreDoc } from "@/services/firestore";
 import * as admin from "firebase-admin";
@@ -53,6 +58,8 @@ interface CreateStoryFirestoreArgs {
   userID: UserID;
   caption?: string;
   assetID?: string;
+  linkedWishID?: WishID;
+  allowSwipe?: boolean;
 }
 export const createStoryFirestore = async ({
   mediaUrl,
@@ -60,6 +67,8 @@ export const createStoryFirestore = async ({
   userID,
   caption,
   assetID,
+  linkedWishID,
+  allowSwipe,
 }: CreateStoryFirestoreArgs) => {
   console.log(`mediaType = ${mediaType}`);
   console.log(`mediaUrl`, mediaUrl);
@@ -116,6 +125,9 @@ export const createStoryFirestore = async ({
     pinned: false,
     // showcase will allow story to appear in timeline (also dynamically retrieved)
     showcase: true,
+    // swipe
+    linkedWishID,
+    allowSwipe: allowSwipe ? allowSwipe : false,
     // thumbnails
     thumbnail: !mediaUrl
       ? ""
@@ -231,5 +243,6 @@ export const convertStoryToGraphQL = (
     outboundLink: story.outboundLink,
     createdAt: decodeFirestoreTimestamp(story.createdAt),
     expiresAt: decodeFirestoreTimestamp(story.expiresAt),
+    linkedWishID: story.linkedWishID,
   };
 };
