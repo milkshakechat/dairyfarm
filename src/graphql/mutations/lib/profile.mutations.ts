@@ -45,7 +45,6 @@ export const updatePushToken = async (
   _context: any,
   _info: any
 ) => {
-  console.log(`Got the request to update push notification token`);
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
     throw Error("No user ID found");

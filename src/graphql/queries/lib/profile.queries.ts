@@ -123,7 +123,7 @@ export const fetchRecentNotifications = async (
   _info: any
 ): Promise<FetchRecentNotificationsResponseSuccess> => {
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
-  console.log(`refetching notifications...`);
+
   const ref = firestore
     .collection(FirestoreCollection.NOTIFICATIONS)
     .where("recipientID", "==", userID)

@@ -72,8 +72,6 @@ export const createStoryFirestore = async ({
   linkedWishID,
   allowSwipe,
 }: CreateStoryFirestoreArgs) => {
-  console.log(`mediaType = ${mediaType}`);
-  console.log(`mediaUrl`, mediaUrl);
   const isVideo = mediaType === StoryAttachmentType.Video;
   const now = new Date();
   const defaultExpiry24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -179,7 +177,7 @@ export const createStoryFirestore = async ({
     createdAt: createFirestoreTimestamp(),
     deleted: false,
   };
-  console.log(`storyData`, storyData);
+
   const story = await createFirestoreDoc<StoryID, Story_Firestore>({
     id: storyID,
     data: storyData,

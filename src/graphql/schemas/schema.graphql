@@ -112,6 +112,8 @@ type ChatRoom {
   sendBirdParticipants: [UserID!]!
   sendBirdChannelURL: String
   pushConfig: PushConfig
+  title: String!
+  thumbnail: String!
 }
 type PushConfig {
   snoozeUntil: String

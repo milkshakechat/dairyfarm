@@ -260,7 +260,6 @@ export const updateWishFirestore = async (
   input: UpdateWishInput,
   userID: UserID
 ) => {
-  console.log(`updateWishFirestore`, input);
   const wish = await getFirestoreDoc<WishID, Wish_Firestore>({
     id: input.wishID as WishID,
     collection: FirestoreCollection.WISH,
@@ -341,7 +340,7 @@ export const updateWishFirestore = async (
         finalSaveGraphicsSet.push(newSet);
       }
     });
-    console.log(`finalSaveGraphicsSet`, finalSaveGraphicsSet);
+
     if (finalSaveGraphicsSet.length === 0) {
       finalSaveGraphicsSet.push({
         small: placeholderWishlistGraphic,

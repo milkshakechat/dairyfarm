@@ -54,8 +54,6 @@ export const sendTransfer = async (
   }
   const referenceID = uuidv4() as TxRefID;
 
-  console.log(`------- args`, args);
-
   const [selfUser, recipientUser] = await Promise.all([
     getFirestoreDoc<UserID, User_Firestore>({
       id: userID,
@@ -66,8 +64,6 @@ export const sendTransfer = async (
       collection: FirestoreCollection.USERS,
     }),
   ]);
-  console.log(`selfUser`, selfUser);
-  console.log(`recipientUser`, recipientUser);
   if (!selfUser || !recipientUser) {
     throw Error("No user found");
   }
@@ -104,7 +100,7 @@ export const sendTransfer = async (
     referenceID,
     sendPushNotif: true,
   };
-  console.log(`transaction`, transaction);
+
   axios
     .post(config.WALLET_GATEWAY.postTransaction.url, transaction, {
       headers: {
@@ -113,7 +109,7 @@ export const sendTransfer = async (
       },
     })
     .then((data) => {
-      console.log(data);
+      // console.log(data);
     })
     .catch((err) => console.log(err));
 
@@ -175,7 +171,7 @@ export const recallTransaction = async (
       },
     })
     .then((data) => {
-      console.log(data);
+      // console.log(data);
     })
     .catch((err) => console.log(err));
   return {
@@ -201,8 +197,6 @@ export const createPaymentIntent = async (
       attribution: args.input.attribution || "",
       promoCode: args.input.promoCode || "",
     });
-  console.log(`checkoutToken = ${checkoutToken}`);
-  console.log(`referenceID = ${referenceID}`);
   return {
     checkoutToken,
     referenceID,
@@ -324,8 +318,6 @@ export const responses = {
       context: any,
       info: GraphQLResolveInfo
     ) {
-      console.log(`----= === = = = RecallTransactionResponse`);
-      console.log(obj);
       if ("referenceID" in obj) {
         return "RecallTransactionResponseSuccess";
       }

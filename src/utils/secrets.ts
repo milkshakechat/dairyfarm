@@ -110,7 +110,7 @@ export const getStripeSecret = async () => {
 // used for cross-cloud api communication
 export const generate256BitKey = async () => {
   let key = crypto.randomBytes(32).toString("base64");
-  console.log(`key === ${key}`);
+
   return key;
 };
 

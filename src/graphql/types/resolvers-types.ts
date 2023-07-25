@@ -41,6 +41,8 @@ export type ChatRoom = {
   pushConfig?: Maybe<PushConfig>;
   sendBirdChannelURL?: Maybe<Scalars['String']['output']>;
   sendBirdParticipants: Array<Scalars['UserID']['output']>;
+  thumbnail: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type CheckMerchantStatusInput = {
@@ -1347,6 +1349,8 @@ export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversPar
   pushConfig?: Resolver<Maybe<ResolversTypes['PushConfig']>, ParentType, ContextType>;
   sendBirdChannelURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sendBirdParticipants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
+  thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
