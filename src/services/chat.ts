@@ -308,10 +308,9 @@ export const enterChatRoom = async ({
           sendbirdAllowed: hasSendbirdPrivileges.map((u) => u.id),
         }),
         firestoreParticipantSearch: users.map((u) => u.id),
-        firestoreQuickCheckHash: users
-          .map((u) => u.id)
-          .sort()
-          .join(","),
+        firestoreQuickCheckHash: ChatRoomQuickCheckHashGen(
+          users.map((u) => u.id)
+        ),
         sendBirdChannelURL,
         sendBirdChannelType,
         sendBirdPushNotifConfig:
