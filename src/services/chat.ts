@@ -1,6 +1,7 @@
 import {
   ChatRoomID,
   ChatRoomParticipantStatus,
+  ChatRoomQuickCheckHashGen,
   ChatRoom_Firestore,
   FirestoreCollection,
   FriendshipStatus,
@@ -346,7 +347,7 @@ export const matchChatRoomByParticipants = async ({
     // it breaks when you are able to invite more people to a chatroom
     `firestoreQuickCheckHash`,
     "==",
-    participants.sort().join(",")
+    ChatRoomQuickCheckHashGen(participants)
   ) as Query<ChatRoom_Firestore>;
 
   const collectionItems = await ref.get();

@@ -9,6 +9,7 @@ import {
   UpdatePushTokenResponse,
 } from "@/graphql/types/resolvers-types";
 import { updateFirestoreDoc } from "@/services/firestore";
+
 import { markNotifications } from "@/services/notification";
 import {
   deactivatePushToken,

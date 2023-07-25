@@ -223,6 +223,7 @@ export enum FriendshipAction {
 
 export enum FriendshipStatus {
   Accepted = 'ACCEPTED',
+  Acquaintance = 'ACQUAINTANCE',
   Blocked = 'BLOCKED',
   Declined = 'DECLINED',
   GotRequest = 'GOT_REQUEST',
@@ -307,7 +308,6 @@ export type ListContactsResponse = ListContactsResponseSuccess | ResponseError;
 export type ListContactsResponseSuccess = {
   __typename?: 'ListContactsResponseSuccess';
   contacts: Array<Contact>;
-  globalDirectory: Array<Contact>;
 };
 
 export type ListWishlistInput = {
@@ -1544,7 +1544,6 @@ export type ListContactsResponseResolvers<ContextType = any, ParentType extends 
 
 export type ListContactsResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListContactsResponseSuccess'] = ResolversParentTypes['ListContactsResponseSuccess']> = {
   contacts?: Resolver<Array<ResolversTypes['Contact']>, ParentType, ContextType>;
-  globalDirectory?: Resolver<Array<ResolversTypes['Contact']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
