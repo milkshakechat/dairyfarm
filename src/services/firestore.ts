@@ -153,14 +153,28 @@ interface TListFirestoreDocsProps {
     value: string | number | boolean | null | Timestamp;
   };
   collection: FirestoreCollection;
+  orderBy?: {
+    field: string;
+    direction: "desc" | "asc";
+  };
+  limit?: number;
 }
 export const listFirestoreDocs = async <SchemaType>({
   where,
   collection,
+  orderBy,
+  limit,
 }: TListFirestoreDocsProps): Promise<SchemaType[]> => {
-  const ref = firestore
+  let ref = firestore
     .collection(collection)
     .where(where.field, where.operator, where.value) as Query<SchemaType>;
+
+  if (orderBy) {
+    ref = ref.orderBy(orderBy.field, orderBy.direction);
+  }
+  if (limit) {
+    ref = ref.limit(limit);
+  }
 
   const collectionItems = await ref.get();
 
@@ -188,17 +202,31 @@ interface TListFirestoreDocsDoubleWhereProps {
     operator: WhereFilterOp;
     value: string | number | boolean | null | Timestamp;
   };
+  orderBy?: {
+    field: string;
+    direction: "desc" | "asc";
+  };
+  limit?: number;
   collection: FirestoreCollection;
 }
 export const listFirestoreDocsDoubleWhere = async <SchemaType>({
   where1,
   where2,
   collection,
+  orderBy,
+  limit,
 }: TListFirestoreDocsDoubleWhereProps): Promise<SchemaType[]> => {
-  const ref = firestore
+  let ref = firestore
     .collection(collection)
     .where(where1.field, where1.operator, where1.value)
     .where(where2.field, where2.operator, where2.value) as Query<SchemaType>;
+
+  if (orderBy) {
+    ref = ref.orderBy(orderBy.field, orderBy.direction);
+  }
+  if (limit) {
+    ref = ref.limit(limit);
+  }
 
   const collectionItems = await ref.get();
 
@@ -219,7 +247,9 @@ export const demoListFirestore = async (): Promise<User_Firestore[]> => {
   const ref = firestore
     .collection(FirestoreCollection.USERS)
     .where("fieldName", "==", "value")
-    .where("fieldName", "==", "value") as Query<User_Firestore>;
+    .where("fieldName", "==", "value")
+    .orderBy("fieldName", "desc")
+    .limit(100) as Query<User_Firestore>;
 
   const collectionItems = await ref.get();
 
