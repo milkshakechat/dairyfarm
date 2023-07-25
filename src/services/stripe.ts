@@ -196,6 +196,7 @@ export const createPaymentIntentForWish = async ({
       stripeProductID: wish.stripeProductID,
       referenceID,
       thumbnail: wish.thumbnail,
+      transactionType: TransactionType.DEAL,
     });
 
     //  1. One-time charges
@@ -662,6 +663,7 @@ export const createPurchaseManifest = async (args: {
   stripeProductID?: StripeProductID;
   referenceID: TxRefID;
   thumbnail?: string;
+  transactionType: TransactionType;
 }) => {
   console.log("createPurchaseManifest...");
   console.log(`stripeProductID = ${args.stripeProductID}`);
@@ -724,6 +726,7 @@ export const createPurchaseManifest = async (args: {
     // wish details
     agreedCookiePrice,
     originalCookiePrice,
+    transactionType: args.transactionType,
     // assumed
     assumedMonthlyCookiePrice: priceCookieAsMonthly,
     assumedMonthlyUSDPrice: priceUSDBasisAsMonthly,
@@ -996,6 +999,7 @@ export const topUpWalletStripe = async (
       originalBuyFrequency: WishBuyFrequency.ONE_TIME,
       stripeProductID: config.LEDGER.globalCookieStore.topUpWalletProductID,
       referenceID,
+      transactionType: TransactionType.TOP_UP,
     });
     console.log("Billing credit card");
     const totalPriceUSD = parseInt(`${cookieToUSD(args.input.amount) * 100}`);
