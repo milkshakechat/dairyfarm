@@ -1,8 +1,10 @@
 import { authGuardHTTP } from "@/graphql/authGuard";
 import {
   CreateStoryResponse,
+  InteractStoryResponse,
   ModifyStoryResponse,
   MutationCreateStoryArgs,
+  MutationInteractStoryArgs,
   MutationModifyStoryArgs,
   Story,
   StoryAttachmentType,
@@ -13,6 +15,7 @@ import {
   updateFirestoreDoc,
 } from "@/services/firestore";
 import { convertStoryToGraphQL, createStoryFirestore } from "@/services/story";
+import { interactWithStoryAlgorithm } from "@/services/swipe";
 import {
   FirestoreCollection,
   StoryID,
@@ -99,6 +102,22 @@ export const modifyStory = async (
   };
 };
 
+export const interactStory = async (
+  _parent: any,
+  args: MutationInteractStoryArgs,
+  _context: any,
+  _info: any
+): Promise<InteractStoryResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await interactWithStoryAlgorithm(args.input, userID);
+  return {
+    status,
+  };
+};
+
 export const responses = {
   CreateStoryResponse: {
     __resolveType(
@@ -123,6 +142,21 @@ export const responses = {
     ) {
       if ("story" in obj) {
         return "ModifyStoryResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  InteractStoryResponse: {
+    __resolveType(
+      obj: InteractStoryResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "InteractStoryResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

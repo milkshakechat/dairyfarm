@@ -661,6 +661,20 @@ union TopUpWalletResponse =
     TopUpWalletResponseSuccess
   | ResponseError
 
+# --- interact with story
+input InteractStoryInput {
+  storyID: ID!
+  viewed: String
+  swipeLike: String
+  swipeDislike: String
+}
+type InteractStoryResponseSuccess {
+  status: String!
+}
+union InteractStoryResponse =
+    InteractStoryResponseSuccess
+  | ResponseError
+
 
 # --- Mutations
 type Mutation {
@@ -677,6 +691,7 @@ type Mutation {
   # story
   createStory(input: CreateStoryInput!): CreateStoryResponse!
   modifyStory(input: ModifyStoryInput!): ModifyStoryResponse!
+  interactStory(input: InteractStoryInput!): InteractStoryResponse!
   # wishlist
   createWish(input: CreateWishInput!): CreateWishResponse!
   updateWish(input: UpdateWishInput!): UpdateWishResponse!

@@ -266,6 +266,20 @@ export type GetWishResponseSuccess = {
   wish: Wish;
 };
 
+export type InteractStoryInput = {
+  storyID: Scalars['ID']['input'];
+  swipeDislike?: InputMaybe<Scalars['String']['input']>;
+  swipeLike?: InputMaybe<Scalars['String']['input']>;
+  viewed?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type InteractStoryResponse = InteractStoryResponseSuccess | ResponseError;
+
+export type InteractStoryResponseSuccess = {
+  __typename?: 'InteractStoryResponseSuccess';
+  status: Scalars['String']['output'];
+};
+
 export enum LanguageEnum {
   Arabic = 'arabic',
   Chinese = 'chinese',
@@ -403,6 +417,7 @@ export type Mutation = {
   createStory: CreateStoryResponse;
   createWish: CreateWishResponse;
   demoMutation: DemoMutationResponse;
+  interactStory: InteractStoryResponse;
   manageFriendship: ManageFriendshipResponse;
   markNotificationsAsRead: MarkNotificationsAsReadResponse;
   modifyProfile: ModifyProfileResponse;
@@ -442,6 +457,11 @@ export type MutationCreateWishArgs = {
 
 export type MutationDemoMutationArgs = {
   input: DemoMutationInput;
+};
+
+
+export type MutationInteractStoryArgs = {
+  input: InteractStoryInput;
 };
 
 
@@ -1002,6 +1022,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   GetMyProfileResponse: ( GetMyProfileResponseSuccess ) | ( ResponseError );
   GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
   GetWishResponse: ( GetWishResponseSuccess ) | ( ResponseError );
+  InteractStoryResponse: ( InteractStoryResponseSuccess ) | ( ResponseError );
   ListChatRoomsResponse: ( ListChatRoomsResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ListWishlistResponse: ( ListWishlistResponseSuccess ) | ( ResponseError );
@@ -1084,6 +1105,9 @@ export type ResolversTypes = {
   HexColorCode: ResolverTypeWrapper<Scalars['HexColorCode']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  InteractStoryInput: InteractStoryInput;
+  InteractStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['InteractStoryResponse']>;
+  InteractStoryResponseSuccess: ResolverTypeWrapper<InteractStoryResponseSuccess>;
   LanguageEnum: LanguageEnum;
   ListChatRoomsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListChatRoomsResponse']>;
   ListChatRoomsResponseSuccess: ResolverTypeWrapper<ListChatRoomsResponseSuccess>;
@@ -1227,6 +1251,9 @@ export type ResolversParentTypes = {
   HexColorCode: Scalars['HexColorCode']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  InteractStoryInput: InteractStoryInput;
+  InteractStoryResponse: ResolversUnionTypes<ResolversParentTypes>['InteractStoryResponse'];
+  InteractStoryResponseSuccess: InteractStoryResponseSuccess;
   ListChatRoomsResponse: ResolversUnionTypes<ResolversParentTypes>['ListChatRoomsResponse'];
   ListChatRoomsResponseSuccess: ListChatRoomsResponseSuccess;
   ListContactsInput: ListContactsInput;
@@ -1493,6 +1520,15 @@ export interface HexColorCodeScalarConfig extends GraphQLScalarTypeConfig<Resolv
   name: 'HexColorCode';
 }
 
+export type InteractStoryResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['InteractStoryResponse'] = ResolversParentTypes['InteractStoryResponse']> = {
+  __resolveType: TypeResolveFn<'InteractStoryResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type InteractStoryResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['InteractStoryResponseSuccess'] = ResolversParentTypes['InteractStoryResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ListChatRoomsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListChatRoomsResponse'] = ResolversParentTypes['ListChatRoomsResponse']> = {
   __resolveType: TypeResolveFn<'ListChatRoomsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -1594,6 +1630,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
   createWish?: Resolver<ResolversTypes['CreateWishResponse'], ParentType, ContextType, RequireFields<MutationCreateWishArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
+  interactStory?: Resolver<ResolversTypes['InteractStoryResponse'], ParentType, ContextType, RequireFields<MutationInteractStoryArgs, 'input'>>;
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
   markNotificationsAsRead?: Resolver<ResolversTypes['MarkNotificationsAsReadResponse'], ParentType, ContextType, RequireFields<MutationMarkNotificationsAsReadArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
@@ -1927,6 +1964,8 @@ export type Resolvers<ContextType = any> = {
   GetWishResponseSuccess?: GetWishResponseSuccessResolvers<ContextType>;
   GroupChatID?: GraphQLScalarType;
   HexColorCode?: GraphQLScalarType;
+  InteractStoryResponse?: InteractStoryResponseResolvers<ContextType>;
+  InteractStoryResponseSuccess?: InteractStoryResponseSuccessResolvers<ContextType>;
   ListChatRoomsResponse?: ListChatRoomsResponseResolvers<ContextType>;
   ListChatRoomsResponseSuccess?: ListChatRoomsResponseSuccessResolvers<ContextType>;
   ListContactsResponse?: ListContactsResponseResolvers<ContextType>;
