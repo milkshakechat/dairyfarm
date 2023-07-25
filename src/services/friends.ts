@@ -5,6 +5,7 @@ import {
   FriendshipStatus as FriendshipStatusEnum,
   Story,
   PrivacyModeEnum,
+  ModifyProfileInput,
 } from "@/graphql/types/resolvers-types";
 import {
   FirestoreCollection,
@@ -88,6 +89,20 @@ export const sendFriendRequestFirestore = async ({
 }: SendFriendRequestFirestoreProps): Promise<NextFriendshipStatus> => {
   const { recipientID: to } = request;
 
+  const [fromUser, toUser] = await Promise.all([
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: from,
+      collection: FirestoreCollection.USERS,
+    }),
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: to,
+      collection: FirestoreCollection.USERS,
+    }),
+  ]);
+  if (!fromUser || !toUser) {
+    throw Error(`Could not find user`);
+  }
+
   const [forwardRelation, reverseRelation] = await Promise.all([
     checkExistingFriendship({
       to,
@@ -125,6 +140,8 @@ export const sendFriendRequestFirestore = async ({
             status: FriendshipStatus.SENT_REQUEST,
             initiatedBy: from,
             requestNonce: forward.requestNonce + 1,
+            username: toUser.username,
+            avatar: toUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -136,6 +153,8 @@ export const sendFriendRequestFirestore = async ({
             status: FriendshipStatus.GOT_REQUEST,
             initiatedBy: from,
             requestNonce: forward.requestNonce + 1,
+            username: fromUser.username,
+            avatar: fromUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -167,6 +186,8 @@ export const sendFriendRequestFirestore = async ({
             status: FriendshipStatus.SENT_REQUEST,
             initiatedBy: from,
             requestNonce: forward.requestNonce + 1,
+            username: toUser.username,
+            avatar: toUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -179,6 +200,8 @@ export const sendFriendRequestFirestore = async ({
             status: FriendshipStatus.GOT_REQUEST,
             initiatedBy: from,
             requestNonce: forward.requestNonce + 1,
+            username: fromUser.username,
+            avatar: fromUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -236,6 +259,8 @@ export const sendFriendRequestFirestore = async ({
             status: FriendshipStatus.SENT_REQUEST,
             initiatedBy: from,
             requestNonce: forward.requestNonce + 1,
+            username: toUser.username,
+            avatar: toUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -248,6 +273,8 @@ export const sendFriendRequestFirestore = async ({
             status: FriendshipStatus.GOT_REQUEST,
             initiatedBy: from,
             requestNonce: forward.requestNonce + 1,
+            username: fromUser.username,
+            avatar: fromUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -282,6 +309,8 @@ export const sendFriendRequestFirestore = async ({
           id: forward.id,
           payload: {
             status: FriendshipStatus.ACCEPTED,
+            username: toUser.username,
+            avatar: toUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -291,6 +320,8 @@ export const sendFriendRequestFirestore = async ({
           id: reverse.id,
           payload: {
             status: FriendshipStatus.ACCEPTED,
+            username: fromUser.username,
+            avatar: fromUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -320,12 +351,16 @@ export const sendFriendRequestFirestore = async ({
     initiatedBy,
     note,
     utmAttribution,
+    username,
+    avatar,
   }: {
     primaryUserID: UserID;
     friendID: UserID;
     initiatedBy: UserID;
     note?: string;
     utmAttribution?: string;
+    username: Username;
+    avatar: string;
   }) => {
     /**
      * When a friend request is made, two friendship documents are created:
@@ -340,6 +375,8 @@ export const sendFriendRequestFirestore = async ({
       primaryUserID,
       friendID,
       friendNickname: "",
+      username,
+      avatar,
       note: note || "",
       initiatedBy: initiatedBy,
       utmAttribution: utmAttribution || "",
@@ -367,6 +404,8 @@ export const sendFriendRequestFirestore = async ({
       initiatedBy: from,
       note: request.note || "",
       utmAttribution: request.utmAttribution || "",
+      username: toUser.username,
+      avatar: toUser.avatar,
     }),
     createMutualFriendRequest({
       primaryUserID: to,
@@ -374,6 +413,8 @@ export const sendFriendRequestFirestore = async ({
       initiatedBy: from,
       note: request.note || "",
       utmAttribution: request.utmAttribution || "",
+      username: fromUser.username,
+      avatar: fromUser.avatar,
     }),
     notifySentFriendRequest({
       recipientUserID: to,
@@ -654,14 +695,27 @@ export const manageFriendshipFirestore = async ({
   friendID,
   action,
 }: ManageFriendshipFirestoreProps) => {
+  const [selfUser, friendUser] = await Promise.all([
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: userID,
+      collection: FirestoreCollection.USERS,
+    }),
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: friendID,
+      collection: FirestoreCollection.USERS,
+    }),
+  ]);
+  if (!selfUser || !friendUser) {
+    throw Error(`Could not find user`);
+  }
   const [forwardRelation, reverseRelation] = await Promise.all([
     checkExistingFriendship({
       to: friendID,
       from: userID,
     }),
     checkExistingFriendship({
-      from: friendID,
       to: userID,
+      from: friendID,
     }),
   ]);
   const forward = forwardRelation[0];
@@ -679,6 +733,8 @@ export const manageFriendshipFirestore = async ({
           payload: {
             status: FriendshipStatus.BLOCKED,
             initiatedBy: userID,
+            username: friendUser.username,
+            avatar: friendUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -686,6 +742,8 @@ export const manageFriendshipFirestore = async ({
           id: reverse.id,
           payload: {
             status: FriendshipStatus.NONE,
+            username: selfUser.username,
+            avatar: selfUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -698,6 +756,8 @@ export const manageFriendshipFirestore = async ({
           id: forward.id,
           payload: {
             status: FriendshipStatus.NONE,
+            username: friendUser.username,
+            avatar: friendUser.avatar,
           },
           collection: FirestoreCollection.FRIENDSHIPS,
         }),
@@ -714,6 +774,8 @@ export const manageFriendshipFirestore = async ({
             id: forward.id,
             payload: {
               status: FriendshipStatus.ACCEPTED,
+              username: friendUser.username,
+              avatar: friendUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),
@@ -721,6 +783,8 @@ export const manageFriendshipFirestore = async ({
             id: reverse.id,
             payload: {
               status: FriendshipStatus.ACCEPTED,
+              username: selfUser.username,
+              avatar: selfUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),
@@ -746,6 +810,8 @@ export const manageFriendshipFirestore = async ({
             id: forward.id,
             payload: {
               status: FriendshipStatus.NONE,
+              username: friendUser.username,
+              avatar: friendUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),
@@ -753,6 +819,8 @@ export const manageFriendshipFirestore = async ({
             id: reverse.id,
             payload: {
               status: FriendshipStatus.DECLINED,
+              username: selfUser.username,
+              avatar: selfUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),
@@ -774,6 +842,8 @@ export const manageFriendshipFirestore = async ({
             id: forward.id,
             payload: {
               status: FriendshipStatus.NONE,
+              username: friendUser.username,
+              avatar: friendUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),
@@ -781,6 +851,8 @@ export const manageFriendshipFirestore = async ({
             id: reverse.id,
             payload: {
               status: FriendshipStatus.NONE,
+              username: selfUser.username,
+              avatar: selfUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),
@@ -803,6 +875,8 @@ export const manageFriendshipFirestore = async ({
             payload: {
               status: FriendshipStatus.NONE,
               initiatedBy: userID,
+              username: friendUser.username,
+              avatar: friendUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),
@@ -810,6 +884,8 @@ export const manageFriendshipFirestore = async ({
             id: reverse.id,
             payload: {
               status: FriendshipStatus.NONE,
+              username: selfUser.username,
+              avatar: selfUser.avatar,
             },
             collection: FirestoreCollection.FRIENDSHIPS,
           }),

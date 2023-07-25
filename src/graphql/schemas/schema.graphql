@@ -100,8 +100,6 @@ type Contact {
 }
 type ListContactsResponseSuccess {
   contacts: [Contact!]!
-  # globalDirectory is only for development
-  globalDirectory: [Contact!]!
 }
 union ListContactsResponse =
     ListContactsResponseSuccess
@@ -263,7 +261,7 @@ type Query {
     input: ViewPublicProfileInput!
   ): ViewPublicProfileResponse!
   listContacts(input: ListContactsInput!): ListContactsResponse!
-  # chat
+  # chat 
   enterChatRoom(
     input: EnterChatRoomInput!
   ): EnterChatRoomResponse!
@@ -326,6 +324,7 @@ union RevokePushTokensResponse =
 
 # --- send friend request
 enum FriendshipStatus {
+  ACQUAINTANCE
   SENT_REQUEST
   GOT_REQUEST
   ACCEPTED

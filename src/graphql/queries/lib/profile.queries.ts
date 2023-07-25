@@ -102,49 +102,17 @@ export const listContacts = async (
     },
     collection: FirestoreCollection.FRIENDSHIPS,
   });
-  const contacts = await Promise.all(
-    friendships.map(async (fr) => {
-      try {
-        const user = await getFirestoreDoc<UserID, User_Firestore>({
-          id: fr.friendID,
-          collection: FirestoreCollection.USERS,
-        });
-        return {
-          friendID: fr.friendID,
-          username: user.username,
-          displayName: fr.friendNickname || user.displayName,
-          avatar: user.avatar,
-          status: fr.status,
-        };
-      } catch (e) {
-        return {
-          friendID: fr.friendID,
-          username: fr.friendID,
-          displayName: fr.friendNickname || fr.friendID,
-          status: fr.status,
-        };
-      }
-    })
-  );
-  const allUsers = await listFirestoreDocs<User_Firestore>({
-    where: {
-      field: "disabled",
-      operator: "==",
-      value: false,
-    },
-    collection: FirestoreCollection.USERS,
-  });
-  const globalDirectory = allUsers.map((u) => {
+  const contacts = friendships.map((fr) => {
     return {
-      friendID: u.id,
-      username: u.username,
-      displayName: u.displayName,
-      avatar: u.avatar,
+      friendID: fr.friendID,
+      username: fr.username,
+      displayName: fr.friendNickname,
+      avatar: fr.avatar,
+      status: fr.status,
     };
   });
   return {
     contacts,
-    globalDirectory,
   };
 };
 
