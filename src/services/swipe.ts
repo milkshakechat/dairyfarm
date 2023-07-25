@@ -53,8 +53,6 @@ export const fetchSwipeFeedAlgorithm = async ({
 
   const collectionItems = await ref.get();
 
-  console.log(collectionItems.docs.length);
-
   let stories: Story_Firestore[] = [];
   if (collectionItems.empty) {
     stories = [];
@@ -66,8 +64,6 @@ export const fetchSwipeFeedAlgorithm = async ({
       }
     );
   }
-
-  console.log(stories);
 
   const storiesWithWish = await Promise.all(
     stories
@@ -100,9 +96,6 @@ export const fetchSwipeFeedAlgorithm = async ({
           interaction = _interaction;
         } catch (e) {
           console.log(e);
-          console.log(
-            `No interaction found for story ${story.id} and user ${userID}`
-          );
           const _interaction = await createFirestoreDoc<
             StoryInteractionID,
             StoryInteraction_Firestore
@@ -181,7 +174,7 @@ export const interactWithStoryAlgorithm = async (
     interaction = _interaction;
   } catch (e) {
     console.log(e);
-    console.log(`No interaction found for story ${storyID} and user ${userID}`);
+
     const _interaction = await createFirestoreDoc<
       StoryInteractionID,
       StoryInteraction_Firestore

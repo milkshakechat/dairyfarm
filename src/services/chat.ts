@@ -165,6 +165,7 @@ export const enterChatRoom = async ({
   }
   // handle the case where exists matching chat room
   if (chatroom) {
+    console.log(`OPAAA ----- we found an existing chat room!`, chatroom);
     // edge case, if somehow the user is not a participant of the chat room throw an error
     if (
       !chatroom.participants[userID] ||
@@ -302,7 +303,10 @@ export const enterChatRoom = async ({
       id: chatRoomID,
       data: {
         id: chatRoomID,
+        title:
+          users.length > 2 ? `${users.map((u) => u.username).join(", ")}` : "",
         note: ``,
+        thumbnail: ``,
         participants: mapParticipantsPermissions({
           allUsers: users.map((u) => u.id),
           sendbirdAllowed: hasSendbirdPrivileges.map((u) => u.id),
@@ -417,6 +421,8 @@ export const retrieveChatRooms = async ({
       ),
       sendBirdChannelURL: chatRoom.sendBirdChannelURL,
       pushConfig,
+      thumbnail: chatRoom.thumbnail || "",
+      title: chatRoom.title || "",
     };
   });
   return chatRooms;
@@ -484,5 +490,7 @@ export const updateChatSettingsFirestore = async ({
     ),
     sendBirdChannelURL: updatedChatRoom.sendBirdChannelURL,
     pushConfig,
+    thumbnail: updatedChatRoom.thumbnail || "",
+    title: updatedChatRoom.title || "",
   };
 };

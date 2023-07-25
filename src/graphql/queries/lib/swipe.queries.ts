@@ -25,7 +25,7 @@ export const fetchSwipeFeed = async (
   if (!userID) {
     throw Error("No user ID found");
   }
-  console.log(`fetchSwipeFeed...`);
+
   const feed = await fetchSwipeFeedAlgorithm({
     userID,
   });

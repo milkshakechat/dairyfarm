@@ -29,20 +29,16 @@ export const sendFriendRequest = async (
   _context: any,
   _info: any
 ): Promise<SendFriendRequestResponse> => {
-  console.log(`Init mutation - sendFriendRequest...`);
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
     throw new Error("Your UserID not found");
   }
-  console.log(`Passed auth check`);
+
   const { input } = args;
   const sitrep = await sendFriendRequestFirestore({
     from: userID,
     request: input,
   });
-  console.log(`Got the sitrep`);
-  console.log(sitrep);
-  console.log(sitrep.status);
   return {
     status: sitrep.status as unknown as FriendshipStatus,
   };
@@ -95,8 +91,6 @@ export const responses = {
       context: any,
       info: GraphQLResolveInfo
     ) {
-      console.log(`checker,.....`);
-      console.log(obj);
       if ("status" in obj) {
         return "SendFriendRequestResponseSuccess";
       }

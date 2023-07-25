@@ -26,7 +26,6 @@ export const enterChatRoom = async (
   _context: any,
   _info: any
 ): Promise<EnterChatRoomResponseSuccess> => {
-  console.log(`enterChatRoom()...`);
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
     throw new Error("Your UserID not found");
@@ -65,6 +64,8 @@ export const enterChatRoom = async (
       ),
       sendBirdChannelURL: chatRoom.sendBirdChannelURL,
       pushConfig,
+      thumbnail: chatRoom.thumbnail || "",
+      title: chatRoom.title || "",
     },
     isNew,
   };
