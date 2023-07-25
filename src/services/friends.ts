@@ -531,16 +531,51 @@ export const getPublicProfile = async ({
   console.log(`Its an authenticated request from ${requesterID}`);
   try {
     // handle the case where theres a user
-    const matchedUser = await retrieveUserBasedOnIdOrUsername({
-      username,
-      userID,
-    });
-    const friendships = await checkExistingFriendship({
-      to: matchedUser.id,
-      from: requesterID,
-    });
-    const friendship = friendships[0];
-    console.log(`Found ${friendships.length} friendship logs`, friendship);
+    const [selfUser, matchedUser] = await Promise.all([
+      getFirestoreDoc<UserID, User_Firestore>({
+        id: requesterID,
+        collection: FirestoreCollection.USERS,
+      }),
+      retrieveUserBasedOnIdOrUsername({
+        username,
+        userID,
+      }),
+    ]);
+    const [_forward, _reverse] = await Promise.all([
+      checkExistingFriendship({
+        to: matchedUser.id,
+        from: requesterID,
+      }),
+      checkExistingFriendship({
+        to: requesterID,
+        from: matchedUser.id,
+      }),
+    ]);
+    // update the friendships with latest username & avatar
+    if (_forward && _forward.length > 0 && _reverse && _reverse.length > 0) {
+      const _f = _forward[0];
+      const _r = _reverse[0];
+      await Promise.all([
+        updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+          id: _f.id,
+          payload: {
+            username: matchedUser.username,
+            avatar: matchedUser.avatar,
+          },
+          collection: FirestoreCollection.FRIENDSHIPS,
+        }),
+        updateFirestoreDoc<FriendshipID, Friendship_Firestore>({
+          id: _r.id,
+          payload: {
+            username: selfUser.username,
+            avatar: selfUser.avatar,
+          },
+          collection: FirestoreCollection.FRIENDSHIPS,
+        }),
+      ]);
+    }
+    const friendship = _forward[0];
+    console.log(`Found ${_forward.length} friendship logs`, friendship);
     // not friends
     if (!friendship || friendship.status !== FriendshipStatus.ACCEPTED) {
       if (matchedUser.privacyMode === privacyModeEnum.hidden) {

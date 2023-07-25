@@ -9,6 +9,8 @@ import {
   StoryAttachmentID,
   getCompressedStoryImageUrl,
   WishID,
+  Friendship_Firestore,
+  FriendshipStatus,
 } from "@milkshakechat/helpers";
 import {
   createFirestoreDoc,
@@ -204,16 +206,44 @@ export const fetchStoryFeedFirestore = async ({
   userID,
 }: FetchStoryFeedFirestoreArgs) => {
   const now = admin.firestore.Timestamp.now();
-  const stories = await listFirestoreDocs<Story_Firestore>({
-    where: {
-      field: "expiresAt",
-      operator: ">",
-      value: now,
-    },
-    collection: FirestoreCollection.STORIES,
-  });
 
-  return stories.filter((s) => !s.deleted && s.showcase);
+  const friendships = await listFirestoreDocs<Friendship_Firestore>({
+    where: {
+      field: "friendID",
+      operator: "==",
+      value: userID,
+    },
+    collection: FirestoreCollection.FRIENDSHIPS,
+  });
+  const allStories = await Promise.all(
+    friendships
+      .filter((fr) => fr.status === FriendshipStatus.ACCEPTED)
+      .map(async (fr) => {
+        const stories = await listFirestoreDocsDoubleWhere<Story_Firestore>({
+          where1: {
+            field: "expiresAt",
+            operator: ">",
+            value: now,
+          },
+          where2: {
+            field: "userID",
+            operator: "==",
+            value: fr.primaryUserID,
+          },
+          collection: FirestoreCollection.STORIES,
+        });
+        return [
+          ...stories.filter((s) => {
+            return !s.deleted && s.showcase;
+          }),
+        ];
+      })
+  );
+
+  const stories = allStories.reduce((acc, curr) => {
+    return [...acc, ...curr];
+  }, []);
+  return stories;
 };
 
 export const convertStoryToGraphQL = (
