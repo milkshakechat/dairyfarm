@@ -3,8 +3,10 @@ import {
   FriendshipStatus,
   ManageFriendshipResponse,
   MutationManageFriendshipArgs,
+  MutationSendFreeChatArgs,
   MutationSendFriendRequestArgs,
   MutationUpdateChatSettingsArgs,
+  SendFreeChatResponse,
   SendFriendRequestResponse,
   UpdateChatSettingsResponse,
 } from "../../types/resolvers-types";
@@ -13,7 +15,10 @@ import {
   sendFriendRequestFirestore,
 } from "@/services/friends";
 import { GraphQLResolveInfo } from "graphql";
-import { updateChatSettingsFirestore } from "@/services/chat";
+import {
+  sendFreeChatMessage,
+  updateChatSettingsFirestore,
+} from "@/services/chat";
 export const createGroupChat = (
   _parent: any,
   args: any,
@@ -84,6 +89,22 @@ export const updateChatSettings = async (
   };
 };
 
+export const sendFreeChat = async (
+  _parent: any,
+  args: MutationSendFreeChatArgs,
+  _context: any,
+  _info: any
+): Promise<SendFreeChatResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await sendFreeChatMessage(args.input, userID);
+  return {
+    status,
+  };
+};
+
 export const responses = {
   SendFriendRequestResponse: {
     __resolveType(
@@ -123,6 +144,21 @@ export const responses = {
     ) {
       if ("chatRoom" in obj) {
         return "UpdateChatSettingsResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  SendFreeChatResponse: {
+    __resolveType(
+      obj: SendFreeChatResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "SendFreeChatResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";
