@@ -435,6 +435,7 @@ export type Mutation = {
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
   updateWish: UpdateWishResponse;
+  upgradePremiumChat: UpgradePremiumChatResponse;
 };
 
 
@@ -530,6 +531,11 @@ export type MutationUpdatePushTokenArgs = {
 
 export type MutationUpdateWishArgs = {
   input: UpdateWishInput;
+};
+
+
+export type MutationUpgradePremiumChatArgs = {
+  input: UpgradePremiumChatInput;
 };
 
 export type NotificationGql = {
@@ -860,6 +866,18 @@ export type UpdateWishResponseSuccess = {
   wish: Wish;
 };
 
+export type UpgradePremiumChatInput = {
+  months: Scalars['Int']['input'];
+  targetUserID: Scalars['UserID']['input'];
+};
+
+export type UpgradePremiumChatResponse = ResponseError | UpgradePremiumChatResponseSuccess;
+
+export type UpgradePremiumChatResponseSuccess = {
+  __typename?: 'UpgradePremiumChatResponseSuccess';
+  referenceID: Scalars['String']['output'];
+};
+
 export type User = {
   __typename?: 'User';
   avatar: Scalars['String']['output'];
@@ -1061,6 +1079,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
   UpdateWishResponse: ( ResponseError ) | ( UpdateWishResponseSuccess );
+  UpgradePremiumChatResponse: ( ResponseError ) | ( UpgradePremiumChatResponseSuccess );
   ViewPublicProfileResponse: ( ResponseError ) | ( ViewPublicProfileResponseSuccess );
 };
 
@@ -1203,6 +1222,9 @@ export type ResolversTypes = {
   UpdateWishInput: UpdateWishInput;
   UpdateWishResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateWishResponse']>;
   UpdateWishResponseSuccess: ResolverTypeWrapper<UpdateWishResponseSuccess>;
+  UpgradePremiumChatInput: UpgradePremiumChatInput;
+  UpgradePremiumChatResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpgradePremiumChatResponse']>;
+  UpgradePremiumChatResponseSuccess: ResolverTypeWrapper<UpgradePremiumChatResponseSuccess>;
   User: ResolverTypeWrapper<User>;
   UserID: ResolverTypeWrapper<Scalars['UserID']['output']>;
   ViewPublicProfileInput: ViewPublicProfileInput;
@@ -1348,6 +1370,9 @@ export type ResolversParentTypes = {
   UpdateWishInput: UpdateWishInput;
   UpdateWishResponse: ResolversUnionTypes<ResolversParentTypes>['UpdateWishResponse'];
   UpdateWishResponseSuccess: UpdateWishResponseSuccess;
+  UpgradePremiumChatInput: UpgradePremiumChatInput;
+  UpgradePremiumChatResponse: ResolversUnionTypes<ResolversParentTypes>['UpgradePremiumChatResponse'];
+  UpgradePremiumChatResponseSuccess: UpgradePremiumChatResponseSuccess;
   User: User;
   UserID: Scalars['UserID']['output'];
   ViewPublicProfileInput: ViewPublicProfileInput;
@@ -1674,6 +1699,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
   updateWish?: Resolver<ResolversTypes['UpdateWishResponse'], ParentType, ContextType, RequireFields<MutationUpdateWishArgs, 'input'>>;
+  upgradePremiumChat?: Resolver<ResolversTypes['UpgradePremiumChatResponse'], ParentType, ContextType, RequireFields<MutationUpgradePremiumChatArgs, 'input'>>;
 };
 
 export type NotificationGqlResolvers<ContextType = any, ParentType extends ResolversParentTypes['NotificationGql'] = ResolversParentTypes['NotificationGql']> = {
@@ -1884,6 +1910,15 @@ export type UpdateWishResponseSuccessResolvers<ContextType = any, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpgradePremiumChatResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpgradePremiumChatResponse'] = ResolversParentTypes['UpgradePremiumChatResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'UpgradePremiumChatResponseSuccess', ParentType, ContextType>;
+};
+
+export type UpgradePremiumChatResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpgradePremiumChatResponseSuccess'] = ResolversParentTypes['UpgradePremiumChatResponseSuccess']> = {
+  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -2057,6 +2092,8 @@ export type Resolvers<ContextType = any> = {
   UpdatePushTokenResponseSuccess?: UpdatePushTokenResponseSuccessResolvers<ContextType>;
   UpdateWishResponse?: UpdateWishResponseResolvers<ContextType>;
   UpdateWishResponseSuccess?: UpdateWishResponseSuccessResolvers<ContextType>;
+  UpgradePremiumChatResponse?: UpgradePremiumChatResponseResolvers<ContextType>;
+  UpgradePremiumChatResponseSuccess?: UpgradePremiumChatResponseSuccessResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserID?: GraphQLScalarType;
   ViewPublicProfileResponse?: ViewPublicProfileResponseResolvers<ContextType>;

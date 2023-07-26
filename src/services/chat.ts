@@ -8,13 +8,20 @@ import {
   ChatRoom_Firestore,
   FirestoreCollection,
   FriendshipStatus,
+  PREMIUM_CHAT_PRICE_COOKIES_MONTHLY,
+  PostTransactionXCloudRequestBody,
   SendBirdAccessToken,
   SendBirdChannelType,
   SendBirdChannelURL,
   SendBirdPushNotifConfig,
   SendBirdUserID,
+  TransactionType,
+  TxRefID,
   UserID,
   User_Firestore,
+  WishBuyFrequency,
+  cookieToUSD,
+  milkshakeLogoCookie,
 } from "@milkshakechat/helpers";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -42,6 +49,9 @@ import {
 import { firestore } from "./firebase";
 import { Query, QueryDocumentSnapshot } from "@google-cloud/firestore";
 import { checkExistingFriendship } from "./friends";
+import { _postTransaction, getWalletQLDB } from "./quantum";
+import config from "@/config.env";
+import { createPurchaseManifest } from "./stripe";
 
 export const extendChatPrivileges = async ({ userID }: { userID: UserID }) => {
   console.log(`--- extendChatPrivileges ---`);
@@ -539,4 +549,107 @@ export const sendFreeChatMessage = async (
     collection: FirestoreCollection.CHAT_LOGS,
   });
   return "success";
+};
+
+export const upgradeUserToPremiumChat = async ({
+  months,
+  targetUserID,
+  payerUserID,
+}: {
+  months: number;
+  targetUserID: UserID;
+  payerUserID: UserID;
+}) => {
+  console.log(`upgradeUserToPremiumChat...`);
+  const referenceID = uuidv4() as TxRefID;
+  const [payerUser, targetUser] = await Promise.all([
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: payerUserID,
+      collection: FirestoreCollection.USERS,
+    }),
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: targetUserID,
+      collection: FirestoreCollection.USERS,
+    }),
+  ]);
+  if (!payerUser || !targetUser) {
+    throw new Error(`Could not find payer or target user`);
+  }
+  const payerTradingWallet = await getWalletQLDB({
+    walletAliasID: payerUser.tradingWallet,
+  });
+  const pricePerMonthCookies = PREMIUM_CHAT_PRICE_COOKIES_MONTHLY;
+  const totalPriceCookies = months * pricePerMonthCookies;
+  if (payerTradingWallet.balance < totalPriceCookies) {
+    throw new Error(`You do not have enough cookies to pay for this`);
+  }
+  const { purchaseManifest } = await createPurchaseManifest({
+    title: `Buy ${months} months of premium chat for @${targetUser.username}`,
+    note: `Buy ${months} months of premium chat for @${targetUser.username} paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
+    wishID: config.LEDGER.premiumChatStore.premiumChatWishID,
+    buyerUserID: payerUser.id,
+    sellerUserID: config.LEDGER.premiumChatStore.userID,
+    buyerWallet: payerUser.tradingWallet,
+    escrowWallet: config.LEDGER.premiumChatStore.walletAliasID,
+    agreedCookiePrice: totalPriceCookies,
+    originalCookiePrice: totalPriceCookies,
+    agreedBuyFrequency: WishBuyFrequency.ONE_TIME,
+    originalBuyFrequency: WishBuyFrequency.ONE_TIME,
+    referenceID,
+    thumbnail: milkshakeLogoCookie,
+    transactionType: TransactionType.PREMIUM_CHAT,
+  });
+  const transaction: PostTransactionXCloudRequestBody = {
+    title: `@${targetUser.username} received ${months} months of premium chat`,
+    note: `@${targetUser.username} received ${months} months of premium chat paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
+    purchaseManifestID: purchaseManifest.id,
+    attribution: "",
+    thumbnail: milkshakeLogoCookie,
+    type: TransactionType.PREMIUM_CHAT,
+    amount: totalPriceCookies,
+    senderWallet: payerUser.tradingWallet,
+    senderUserID: payerUser.id,
+    receiverWallet: config.LEDGER.premiumChatStore.walletAliasID,
+    receiverUserID: config.LEDGER.premiumChatStore.userID,
+    explanations: [
+      {
+        walletAliasID: config.LEDGER.premiumChatStore.walletAliasID,
+        explanation: `Sold ${months} months of Premium Chat gifted to @${targetUser.username} by payer @${payerUser.username}`,
+        amount: totalPriceCookies,
+      },
+      {
+        walletAliasID: payerUser.tradingWallet,
+        explanation: `Bought ${months} months of Premium Chat gifted to @${targetUser.username} by payer @${payerUser.username}`,
+        amount: -totalPriceCookies,
+      },
+    ],
+    gotRecalled: false,
+    referenceID,
+    sendPushNotif: true,
+  };
+  const tx = await _postTransaction(transaction);
+  let nextPaidToDate: Date;
+  if (targetUser.isPaidChatUntil) {
+    const currentPaidUntilDate = new Date(
+      (targetUser.isPaidChatUntil as any).seconds * 1000
+    );
+    if (currentPaidUntilDate < new Date()) {
+      nextPaidToDate = new Date();
+    } else {
+      nextPaidToDate = new Date(
+        (targetUser.isPaidChatUntil as any).seconds + months * 30 * 24 * 60 * 60
+      );
+    }
+  } else {
+    nextPaidToDate = new Date();
+  }
+  await updateFirestoreDoc<UserID, User_Firestore>({
+    id: targetUser.id,
+    payload: {
+      isPaidChat: true,
+      isPaidChatUntil: createFirestoreTimestamp(nextPaidToDate),
+    },
+    collection: FirestoreCollection.USERS,
+  });
+  return referenceID;
 };
