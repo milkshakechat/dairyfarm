@@ -676,6 +676,18 @@ union InteractStoryResponse =
     InteractStoryResponseSuccess
   | ResponseError
 
+# --- send free chat
+input SendFreeChatInput {
+  chatRoomID: String!
+  message: String!
+}
+type SendFreeChatResponseSuccess {
+  status: String!
+}
+union SendFreeChatResponse =
+    SendFreeChatResponseSuccess
+  | ResponseError
+
 
 # --- Mutations
 type Mutation {
@@ -689,6 +701,7 @@ type Mutation {
   manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!
   # chat
   updateChatSettings(input: UpdateChatSettingsInput!): UpdateChatSettingsResponse!
+  sendFreeChat(input: SendFreeChatInput!): SendFreeChatResponse!
   # story
   createStory(input: CreateStoryInput!): CreateStoryResponse!
   modifyStory(input: ModifyStoryInput!): ModifyStoryResponse!

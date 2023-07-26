@@ -1,4 +1,7 @@
 import {
+  ChannelTypeEnum,
+  ChatLogID,
+  ChatLog_Firestore,
   ChatRoomID,
   ChatRoomParticipantStatus,
   ChatRoomQuickCheckHashGen,
@@ -33,6 +36,7 @@ import {
 import {
   ChatRoom,
   EnterChatRoomInput,
+  SendFreeChatInput,
   UpdateChatSettingsInput,
 } from "@/graphql/types/resolvers-types";
 import { firestore } from "./firebase";
@@ -311,7 +315,9 @@ export const enterChatRoom = async ({
           allUsers: users.map((u) => u.id),
           sendbirdAllowed: hasSendbirdPrivileges.map((u) => u.id),
         }),
-        firestoreParticipantSearch: users.map((u) => u.id),
+        members: users.map((u) => u.id),
+        admins: users.length > 2 ? [userID] : users.map((u) => u.id),
+        type: users.length > 2 ? ChannelTypeEnum.GROUP : ChannelTypeEnum.DIRECT,
         firestoreQuickCheckHash: ChatRoomQuickCheckHashGen(
           users.map((u) => u.id)
         ),
@@ -391,7 +397,7 @@ export const retrieveChatRooms = async ({
 }): Promise<ChatRoom[]> => {
   const rawChatRooms = await listFirestoreDocs<ChatRoom_Firestore>({
     where: {
-      field: `firestoreParticipantSearch`,
+      field: `members`,
       operator: "array-contains",
       value: userID,
     },
@@ -493,4 +499,44 @@ export const updateChatSettingsFirestore = async ({
     thumbnail: updatedChatRoom.thumbnail || "",
     title: updatedChatRoom.title || "",
   };
+};
+
+export const sendFreeChatMessage = async (
+  args: SendFreeChatInput,
+  userID: UserID
+) => {
+  const { chatRoomID, message } = args;
+  if (message.length > 150) {
+    throw new Error(`Message cannot be longer than 150 characters`);
+  }
+  const [user, chatRoom] = await Promise.all([
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: userID,
+      collection: FirestoreCollection.USERS,
+    }),
+    getFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
+      id: chatRoomID as ChatRoomID,
+      collection: FirestoreCollection.CHAT_ROOMS,
+    }),
+  ]);
+  if (!chatRoom.members.includes(userID)) {
+    throw new Error(`You are not a participant of this chat room`);
+  }
+  const chatLogID = uuidv4() as ChatLogID;
+  const payload: ChatLog_Firestore = {
+    id: chatLogID,
+    message,
+    userID: user.id,
+    avatar: user.avatar,
+    username: user.username,
+    chatRoomID: chatRoom.id,
+    readers: chatRoom.members,
+    createdAt: createFirestoreTimestamp(),
+  };
+  await createFirestoreDoc<ChatLogID, ChatLog_Firestore>({
+    id: chatLogID,
+    data: payload,
+    collection: FirestoreCollection.CHAT_LOGS,
+  });
+  return "success";
 };

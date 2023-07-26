@@ -9,6 +9,7 @@ export {
   sendFriendRequest,
   manageFriendship,
   updateChatSettings,
+  sendFreeChat,
 } from "@/graphql/mutations/lib/friend-and-chat.mutations";
 export {
   createStory,

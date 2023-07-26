@@ -428,6 +428,7 @@ export type Mutation = {
   requestMerchantOnboarding: RequestMerchantOnboardingResponse;
   revokePushTokens: RevokePushTokensResponse;
   savePaymentMethod: SavePaymentMethodResponse;
+  sendFreeChat: SendFreeChatResponse;
   sendFriendRequest: SendFriendRequestResponse;
   sendTransfer: SendTransferResponse;
   topUpWallet: TopUpWalletResponse;
@@ -494,6 +495,11 @@ export type MutationRecallTransactionArgs = {
 
 export type MutationSavePaymentMethodArgs = {
   input: SavePaymentMethodInput;
+};
+
+
+export type MutationSendFreeChatArgs = {
+  input: SendFreeChatInput;
 };
 
 
@@ -676,6 +682,18 @@ export type SavePaymentMethodResponse = ResponseError | SavePaymentMethodRespons
 export type SavePaymentMethodResponseSuccess = {
   __typename?: 'SavePaymentMethodResponseSuccess';
   paymentMethodID: Scalars['String']['output'];
+};
+
+export type SendFreeChatInput = {
+  chatRoomID: Scalars['String']['input'];
+  message: Scalars['String']['input'];
+};
+
+export type SendFreeChatResponse = ResponseError | SendFreeChatResponseSuccess;
+
+export type SendFreeChatResponseSuccess = {
+  __typename?: 'SendFreeChatResponseSuccess';
+  status: Scalars['String']['output'];
 };
 
 export type SendFriendRequestInput = {
@@ -1036,6 +1054,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   RequestMerchantOnboardingResponse: ( RequestMerchantOnboardingResponseSuccess ) | ( ResponseError );
   RevokePushTokensResponse: ( ResponseError ) | ( RevokePushTokensResponseSuccess );
   SavePaymentMethodResponse: ( ResponseError ) | ( SavePaymentMethodResponseSuccess );
+  SendFreeChatResponse: ( ResponseError ) | ( SendFreeChatResponseSuccess );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   SendTransferResponse: ( ResponseError ) | ( SendTransferResponseSuccess );
   TopUpWalletResponse: ( ResponseError ) | ( TopUpWalletResponseSuccess );
@@ -1153,6 +1172,9 @@ export type ResolversTypes = {
   SavePaymentMethodResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SavePaymentMethodResponse']>;
   SavePaymentMethodResponseSuccess: ResolverTypeWrapper<SavePaymentMethodResponseSuccess>;
   SendBirdInternalUserID: ResolverTypeWrapper<Scalars['SendBirdInternalUserID']['output']>;
+  SendFreeChatInput: SendFreeChatInput;
+  SendFreeChatResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendFreeChatResponse']>;
+  SendFreeChatResponseSuccess: ResolverTypeWrapper<SendFreeChatResponseSuccess>;
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendFriendRequestResponse']>;
   SendFriendRequestResponseSuccess: ResolverTypeWrapper<SendFriendRequestResponseSuccess>;
@@ -1297,6 +1319,9 @@ export type ResolversParentTypes = {
   SavePaymentMethodResponse: ResolversUnionTypes<ResolversParentTypes>['SavePaymentMethodResponse'];
   SavePaymentMethodResponseSuccess: SavePaymentMethodResponseSuccess;
   SendBirdInternalUserID: Scalars['SendBirdInternalUserID']['output'];
+  SendFreeChatInput: SendFreeChatInput;
+  SendFreeChatResponse: ResolversUnionTypes<ResolversParentTypes>['SendFreeChatResponse'];
+  SendFreeChatResponseSuccess: SendFreeChatResponseSuccess;
   SendFriendRequestInput: SendFriendRequestInput;
   SendFriendRequestResponse: ResolversUnionTypes<ResolversParentTypes>['SendFriendRequestResponse'];
   SendFriendRequestResponseSuccess: SendFriendRequestResponseSuccess;
@@ -1642,6 +1667,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   requestMerchantOnboarding?: Resolver<ResolversTypes['RequestMerchantOnboardingResponse'], ParentType, ContextType>;
   revokePushTokens?: Resolver<ResolversTypes['RevokePushTokensResponse'], ParentType, ContextType>;
   savePaymentMethod?: Resolver<ResolversTypes['SavePaymentMethodResponse'], ParentType, ContextType, RequireFields<MutationSavePaymentMethodArgs, 'input'>>;
+  sendFreeChat?: Resolver<ResolversTypes['SendFreeChatResponse'], ParentType, ContextType, RequireFields<MutationSendFreeChatArgs, 'input'>>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   sendTransfer?: Resolver<ResolversTypes['SendTransferResponse'], ParentType, ContextType, RequireFields<MutationSendTransferArgs, 'input'>>;
   topUpWallet?: Resolver<ResolversTypes['TopUpWalletResponse'], ParentType, ContextType, RequireFields<MutationTopUpWalletArgs, 'input'>>;
@@ -1740,6 +1766,15 @@ export type SavePaymentMethodResponseSuccessResolvers<ContextType = any, ParentT
 export interface SendBirdInternalUserIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['SendBirdInternalUserID'], any> {
   name: 'SendBirdInternalUserID';
 }
+
+export type SendFreeChatResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendFreeChatResponse'] = ResolversParentTypes['SendFreeChatResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'SendFreeChatResponseSuccess', ParentType, ContextType>;
+};
+
+export type SendFreeChatResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendFreeChatResponseSuccess'] = ResolversParentTypes['SendFreeChatResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type SendFriendRequestResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendFriendRequestResponse'] = ResolversParentTypes['SendFriendRequestResponse']> = {
   __resolveType: TypeResolveFn<'ResponseError' | 'SendFriendRequestResponseSuccess', ParentType, ContextType>;
@@ -2002,6 +2037,8 @@ export type Resolvers<ContextType = any> = {
   SavePaymentMethodResponse?: SavePaymentMethodResponseResolvers<ContextType>;
   SavePaymentMethodResponseSuccess?: SavePaymentMethodResponseSuccessResolvers<ContextType>;
   SendBirdInternalUserID?: GraphQLScalarType;
+  SendFreeChatResponse?: SendFreeChatResponseResolvers<ContextType>;
+  SendFreeChatResponseSuccess?: SendFreeChatResponseSuccessResolvers<ContextType>;
   SendFriendRequestResponse?: SendFriendRequestResponseResolvers<ContextType>;
   SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;
   SendTransferResponse?: SendTransferResponseResolvers<ContextType>;
