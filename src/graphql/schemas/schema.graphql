@@ -688,6 +688,17 @@ union SendFreeChatResponse =
     SendFreeChatResponseSuccess
   | ResponseError
 
+# --- upgrade premium chat
+input UpgradePremiumChatInput {
+  months: Int!
+  targetUserID: UserID!
+}
+type UpgradePremiumChatResponseSuccess {
+  referenceID: String!
+}
+union UpgradePremiumChatResponse =
+    UpgradePremiumChatResponseSuccess
+  | ResponseError
 
 # --- Mutations
 type Mutation {
@@ -702,6 +713,7 @@ type Mutation {
   # chat
   updateChatSettings(input: UpdateChatSettingsInput!): UpdateChatSettingsResponse!
   sendFreeChat(input: SendFreeChatInput!): SendFreeChatResponse!
+  upgradePremiumChat(input: UpgradePremiumChatInput!): UpgradePremiumChatResponse!
   # story
   createStory(input: CreateStoryInput!): CreateStoryResponse!
   modifyStory(input: ModifyStoryInput!): ModifyStoryResponse!

@@ -9,6 +9,8 @@ import { sleep } from "@/utils/utils";
 import { Agent } from "https";
 import {
   FirestoreCollection,
+  GetWalletXCloudRequestBody,
+  GetWalletXCloudResponseBody,
   PostTransactionXCloudRequestBody,
   PostTransactionXCloudResponseBody,
   PurchaseMainfestID,
@@ -148,7 +150,8 @@ export const createGlobalStore_QuantumLedger = async ({
   note?: string;
   balance: number;
 }) => {
-  const walletAliasID = config.LEDGER.globalCookieStore.walletAliasID;
+  const walletAliasID = config.LEDGER.premiumChatStore.walletAliasID;
+  const ownerID = config.LEDGER.premiumChatStore.userID;
   console.log(`Creating global store with walletAliasID=${walletAliasID}`);
   // if (qldbDriver) {
   //   await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
@@ -182,9 +185,9 @@ export const createGlobalStore_QuantumLedger = async ({
   // }
   const xcloudSecret = await getXCloudAWSSecret();
   const wallet = {
-    title: `Global Store - ${walletAliasID}`,
+    title: `Upgrade Premium Chat - ${walletAliasID}`,
     note,
-    userID: config.LEDGER.globalCookieStore.userID,
+    userID: ownerID,
     type: WalletType.STORE,
     walletAliasID,
   };
@@ -350,6 +353,31 @@ export const _postTransaction = async (
     console.log(e);
     return null;
   }
+};
+
+export const getWalletQLDB = async ({
+  walletAliasID,
+}: {
+  walletAliasID: WalletAliasID;
+}) => {
+  const xcloudSecret = await getXCloudAWSSecret();
+  const params: GetWalletXCloudRequestBody = {
+    walletAliasID,
+  };
+
+  const { data }: { data: GetWalletXCloudResponseBody } = await axios.get(
+    config.WALLET_GATEWAY.getWallet.url,
+    {
+      params,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: xcloudSecret,
+      },
+    }
+  );
+  const { wallet } = data;
+  console.log(`---- wallet`);
+  return wallet;
 };
 
 // export const createWallet_QuantumLedger = async ({

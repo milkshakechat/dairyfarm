@@ -16,7 +16,12 @@ import {
   revokeAllPushTokens,
   saveOrUpdatePushToken,
 } from "@/services/push";
-import { FirestoreCollection, NotificationID } from "@milkshakechat/helpers";
+import {
+  FirestoreCollection,
+  MirrorPublicUser_Firestore,
+  NotificationID,
+  Username,
+} from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
 
 export const modifyProfile = async (
@@ -34,6 +39,24 @@ export const modifyProfile = async (
     payload: args.input,
     collection: FirestoreCollection.USERS,
   });
+
+  if (args.input.username || args.input.avatar) {
+    let p: Partial<MirrorPublicUser_Firestore> = {};
+    if (args.input.username) {
+      p.username = args.input.username as Username;
+    }
+    if (args.input.avatar) {
+      p.avatar = args.input.avatar;
+    }
+    const userMirror = await updateFirestoreDoc({
+      id: userID,
+      payload: p,
+      collection: FirestoreCollection.MIRROR_USER,
+    });
+    if (!userMirror) {
+      throw Error("No user mirror found");
+    }
+  }
   return {
     user,
   };

@@ -46,7 +46,7 @@ import {
   WishSuggest,
 } from "@/graphql/types/resolvers-types";
 import axios from "axios";
-import { _postTransaction } from "./quantum";
+import { _postTransaction, getWalletQLDB } from "./quantum";
 
 let stripe: Stripe;
 
@@ -144,26 +144,9 @@ export const createPaymentIntentForWish = async ({
       id: wish.creatorID,
       collection: FirestoreCollection.USERS,
     });
-    const xcloudSecret = await getXCloudAWSSecret();
-    const params: GetWalletXCloudRequestBody = {
+    const tradingWallet = await getWalletQLDB({
       walletAliasID: customer.tradingWallet,
-    };
-
-    const { data }: { data: GetWalletXCloudResponseBody } = await axios.get(
-      config.WALLET_GATEWAY.getWallet.url,
-      {
-        params: {
-          walletAliasID: params.walletAliasID,
-        },
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: xcloudSecret,
-        },
-      }
-    );
-    const { wallet: tradingWallet } = data;
-    console.log(`---- tradingWallet`);
-    console.log(tradingWallet);
+    });
     const cookieBalance = tradingWallet.balance;
     console.log(`---- cookieBalance ${cookieBalance}`);
 
