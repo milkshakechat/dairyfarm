@@ -20,8 +20,9 @@ import { GraphQLResolveInfo } from "graphql";
 import {
   sendFreeChatMessage,
   updateChatSettingsFirestore,
-  upgradeUserToPremiumChat,
+  upgradeUsersToPremiumChat,
 } from "@/services/chat";
+import { ChatRoomID } from "@milkshakechat/helpers";
 export const createGroupChat = (
   _parent: any,
   args: any,
@@ -118,13 +119,13 @@ export const upgradePremiumChat = async (
   if (!userID) {
     throw Error("No user ID found");
   }
-  const referenceID = await upgradeUserToPremiumChat({
-    months: args.input.months,
-    targetUserID: args.input.targetUserID,
-    payerUserID: userID,
-  });
+  const referenceIDs = await upgradeUsersToPremiumChat(
+    args.input.targets,
+    userID,
+    args.input.chatRoomID as ChatRoomID
+  );
   return {
-    referenceID,
+    referenceIDs,
   };
 };
 
@@ -195,7 +196,7 @@ export const responses = {
       context: any,
       info: GraphQLResolveInfo
     ) {
-      if ("referenceID" in obj) {
+      if ("referenceIDs" in obj) {
         return "UpgradePremiumChatResponseSuccess";
       }
       if ("error" in obj) {

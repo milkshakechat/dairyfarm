@@ -10,6 +10,7 @@ export {
   manageFriendship,
   updateChatSettings,
   sendFreeChat,
+  upgradePremiumChat,
 } from "@/graphql/mutations/lib/friend-and-chat.mutations";
 export {
   createStory,

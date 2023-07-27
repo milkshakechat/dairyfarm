@@ -36,11 +36,11 @@ export type CancelSubscriptionResponseSuccess = {
 
 export type ChatRoom = {
   __typename?: 'ChatRoom';
+  admins: Array<Scalars['UserID']['output']>;
   chatRoomID: Scalars['String']['output'];
   participants: Array<Scalars['UserID']['output']>;
   pushConfig?: Maybe<PushConfig>;
   sendBirdChannelURL?: Maybe<Scalars['String']['output']>;
-  sendBirdParticipants: Array<Scalars['UserID']['output']>;
   thumbnail: Scalars['String']['output'];
   title: Scalars['String']['output'];
 };
@@ -555,6 +555,11 @@ export type Ping = {
   timestamp: Scalars['String']['output'];
 };
 
+export type PremiumChatGiftReceiver = {
+  months: Scalars['Int']['input'];
+  targetUserID: Scalars['UserID']['input'];
+};
+
 export enum PrivacyModeEnum {
   Hidden = 'hidden',
   Private = 'private',
@@ -867,15 +872,15 @@ export type UpdateWishResponseSuccess = {
 };
 
 export type UpgradePremiumChatInput = {
-  months: Scalars['Int']['input'];
-  targetUserID: Scalars['UserID']['input'];
+  chatRoomID?: InputMaybe<Scalars['String']['input']>;
+  targets: Array<PremiumChatGiftReceiver>;
 };
 
 export type UpgradePremiumChatResponse = ResponseError | UpgradePremiumChatResponseSuccess;
 
 export type UpgradePremiumChatResponseSuccess = {
   __typename?: 'UpgradePremiumChatResponseSuccess';
-  referenceID: Scalars['String']['output'];
+  referenceIDs: Array<Scalars['String']['output']>;
 };
 
 export type User = {
@@ -1175,6 +1180,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   NotificationGql: ResolverTypeWrapper<NotificationGql>;
   Ping: ResolverTypeWrapper<Ping>;
+  PremiumChatGiftReceiver: PremiumChatGiftReceiver;
   PrivacyModeEnum: PrivacyModeEnum;
   PushConfig: ResolverTypeWrapper<PushConfig>;
   PushToken: ResolverTypeWrapper<Scalars['PushToken']['output']>;
@@ -1326,6 +1332,7 @@ export type ResolversParentTypes = {
   Mutation: {};
   NotificationGql: NotificationGql;
   Ping: Ping;
+  PremiumChatGiftReceiver: PremiumChatGiftReceiver;
   PushConfig: PushConfig;
   PushToken: Scalars['PushToken']['output'];
   Query: {};
@@ -1394,11 +1401,11 @@ export type CancelSubscriptionResponseSuccessResolvers<ContextType = any, Parent
 };
 
 export type ChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatRoom'] = ResolversParentTypes['ChatRoom']> = {
+  admins?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
   chatRoomID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   participants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
   pushConfig?: Resolver<Maybe<ResolversTypes['PushConfig']>, ParentType, ContextType>;
   sendBirdChannelURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  sendBirdParticipants?: Resolver<Array<ResolversTypes['UserID']>, ParentType, ContextType>;
   thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1915,7 +1922,7 @@ export type UpgradePremiumChatResponseResolvers<ContextType = any, ParentType ex
 };
 
 export type UpgradePremiumChatResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['UpgradePremiumChatResponseSuccess'] = ResolversParentTypes['UpgradePremiumChatResponseSuccess']> = {
-  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  referenceIDs?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
