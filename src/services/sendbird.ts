@@ -200,7 +200,7 @@ export const createGroupChannel = async ({
       `${config.SENDBIRD.API_URL}/v3/group_channels`,
       {
         user_ids: participants,
-        is_distinct: true,
+        is_distinct: false,
         is_public: false,
         is_ephemeral: false,
         invitation_status: participants.reduce<Record<UserID, string>>(

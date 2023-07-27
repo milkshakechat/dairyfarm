@@ -109,7 +109,7 @@ union ListContactsResponse =
 type ChatRoom {
   chatRoomID: String!
   participants: [UserID!]!
-  sendBirdParticipants: [UserID!]!
+  admins: [UserID!]!
   sendBirdChannelURL: String
   pushConfig: PushConfig
   title: String!
@@ -690,11 +690,15 @@ union SendFreeChatResponse =
 
 # --- upgrade premium chat
 input UpgradePremiumChatInput {
+  targets: [PremiumChatGiftReceiver!]!
+  chatRoomID: String
+}
+input PremiumChatGiftReceiver {
   months: Int!
   targetUserID: UserID!
 }
 type UpgradePremiumChatResponseSuccess {
-  referenceID: String!
+  referenceIDs: [String!]!
 }
 union UpgradePremiumChatResponse =
     UpgradePremiumChatResponseSuccess

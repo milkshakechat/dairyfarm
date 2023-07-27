@@ -37,10 +37,6 @@ export const enterChatRoom = async (
     chatRoomID: (args.input.chatRoomID as ChatRoomID) || undefined,
     participants: (args.input.participants as UserID[]) || undefined,
   });
-  console.log(
-    `chatRoom.sendBirdPushNotifConfig`,
-    chatRoom.sendBirdPushNotifConfig
-  );
   const pushConfig =
     chatRoom.sendBirdPushNotifConfig &&
     chatRoom.sendBirdPushNotifConfig[userID as UserID]
@@ -57,11 +53,7 @@ export const enterChatRoom = async (
     chatRoom: {
       chatRoomID: chatRoom.id,
       participants: Object.keys(chatRoom.participants),
-      sendBirdParticipants: Object.keys(chatRoom.participants).filter(
-        (userID) =>
-          chatRoom.participants[userID as UserID] ===
-          ChatRoomParticipantStatus.SENDBIRD_ALLOWED
-      ),
+      admins: chatRoom.admins,
       sendBirdChannelURL: chatRoom.sendBirdChannelURL,
       pushConfig,
       thumbnail: chatRoom.thumbnail || "",

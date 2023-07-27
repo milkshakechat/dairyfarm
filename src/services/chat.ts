@@ -8,6 +8,7 @@ import {
   ChatRoom_Firestore,
   FirestoreCollection,
   FriendshipStatus,
+  MirrorPublicUser_Firestore,
   PREMIUM_CHAT_PRICE_COOKIES_MONTHLY,
   PostTransactionXCloudRequestBody,
   SendBirdAccessToken,
@@ -52,13 +53,47 @@ import { checkExistingFriendship } from "./friends";
 import { _postTransaction, getWalletQLDB } from "./quantum";
 import config from "@/config.env";
 import { createPurchaseManifest } from "./stripe";
+import { sendNotificationToUser } from "./notification";
 
-export const extendChatPrivileges = async ({ userID }: { userID: UserID }) => {
+export const extendChatPrivileges = async ({
+  userID,
+  extendUntil,
+}: {
+  userID: UserID;
+  extendUntil?: Date;
+}) => {
   console.log(`--- extendChatPrivileges ---`);
+
+  let extendUntilDate = new Date(); // Get the current date
+  extendUntilDate.setDate(extendUntilDate.getDate() + 30); // Add 30 days
+
+  extendUntilDate = extendUntil ? extendUntil : extendUntilDate;
+
+  console.log(`extendUntilDate = ${extendUntilDate}`);
+
+  const isPaidChatUntil = createFirestoreTimestamp(extendUntilDate);
+  console.log(`isPaidChatUntil = ${isPaidChatUntil}`);
 
   // check if theres a sendbird user
   try {
     const sendbirdUser = await getSendbirdUser({ userID });
+    await Promise.all([
+      updateFirestoreDoc<UserID, User_Firestore>({
+        id: userID,
+        payload: {
+          isPaidChat: true,
+          isPaidChatUntil,
+        },
+        collection: FirestoreCollection.USERS,
+      }),
+      updateFirestoreDoc<UserID, MirrorPublicUser_Firestore>({
+        id: userID,
+        payload: {
+          hasPremiumChat: true,
+        },
+        collection: FirestoreCollection.MIRROR_USER,
+      }),
+    ]);
     return sendbirdUser;
   } catch (e) {
     // create a user if not
@@ -72,20 +107,29 @@ export const extendChatPrivileges = async ({ userID }: { userID: UserID }) => {
     });
     if (newSendbirdUser) {
       // update the user
-      let extendUntilDate = new Date(); // Get the current date
-      extendUntilDate.setDate(extendUntilDate.getDate() + 30); // Add 30 days
+
       try {
-        await updateFirestoreDoc<UserID, User_Firestore>({
-          id: userID,
-          payload: {
-            sendBirdUserID: userID as unknown as SendBirdUserID,
-            isPaidChat: true,
-            isPaidChatUntil: createFirestoreTimestamp(extendUntilDate),
-            sendBirdAccessToken:
-              newSendbirdUser.access_token as SendBirdAccessToken,
-          },
-          collection: FirestoreCollection.USERS,
-        });
+        await Promise.all([
+          updateFirestoreDoc<UserID, User_Firestore>({
+            id: userID,
+            payload: {
+              sendBirdUserID: userID as unknown as SendBirdUserID,
+              isPaidChat: true,
+              isPaidChatUntil: createFirestoreTimestamp(extendUntilDate),
+              sendBirdAccessToken:
+                newSendbirdUser.access_token as SendBirdAccessToken,
+            },
+            collection: FirestoreCollection.USERS,
+          }),
+          updateFirestoreDoc<UserID, MirrorPublicUser_Firestore>({
+            id: userID,
+            payload: {
+              hasPremiumChat: true,
+            },
+            collection: FirestoreCollection.MIRROR_USER,
+          }),
+        ]);
+
         console.log(
           `
           --------------------------------------
@@ -100,6 +144,7 @@ export const extendChatPrivileges = async ({ userID }: { userID: UserID }) => {
       }
       return newSendbirdUser;
     }
+    return newSendbirdUser;
   }
 };
 
@@ -140,15 +185,10 @@ export const enterChatRoom = async ({
         });
       })
     );
-    console.log(`friendships`, friendships);
-    console.log(
-      `countable = `,
-      friendships.filter((frs) => frs.length === 0).length
-    );
     const allAcceptedFriend = friendships
       .filter((frs) => frs.length > 0)
       .every((f) => f && f[0] && f[0].status === FriendshipStatus.ACCEPTED);
-    console.log(`allAcceptedFriend`, allAcceptedFriend);
+
     if (!allAcceptedFriend) {
       throw new Error(`You are not friends with all participants`);
     }
@@ -164,15 +204,10 @@ export const enterChatRoom = async ({
   }
   // or check based on participants
   else if (!chatRoomID && participants && participants.length > 0) {
-    console.log(`Matchng participants based on usr ids..`);
     // else match chat room based on participants (currently limited to 1-1 chat)
     const matchedRooms = await matchChatRoomByParticipants({
       participants,
     });
-    console.log(
-      `matchedRooms`,
-      matchedRooms.map((r) => r.id)
-    );
     if (matchedRooms.length > 0) {
       chatroom = matchedRooms[0];
     }
@@ -202,9 +237,16 @@ export const enterChatRoom = async ({
     if (!selfUser) {
       throw new Error(`Could not find self user ${userID} in Firestore`);
     }
+    console.log(`-----> syncedPermissions`);
     const syncedPermissions = users.reduce<
       Record<UserID, ChatRoomParticipantStatus>
     >((acc, curr) => {
+      console.log(
+        `checkIfUserHasPaidChatPrivileges(curr) = ${checkIfUserHasPaidChatPrivileges(
+          curr
+        )} ... curr.sendBirdUserID=${curr.sendBirdUserID}`
+      );
+
       return {
         ...acc,
         [curr.id]:
@@ -219,6 +261,7 @@ export const enterChatRoom = async ({
     let shouldUpdate = false;
     // check if the chatroom has a sendbird channel
     if (!chatroom.sendBirdChannelURL) {
+      console.log(`no sendbird channel found for chatroom ${chatroom.id}`);
       // if not, then we have to create one
       // but only if there are at least two users with chat privileges
       if (users.filter((u) => checkIfUserHasPaidChatPrivileges(u)).length > 1) {
@@ -232,9 +275,21 @@ export const enterChatRoom = async ({
         shouldUpdate = true;
       }
     } else {
+      console.log(`
+      chatroom.participants[userID] = ${chatroom.participants[userID]}
+
+      syncedPermissions[userID] = ${syncedPermissions[userID]}
+
+      checkIfUserHasPaidChatPrivileges(selfUser) = ${checkIfUserHasPaidChatPrivileges(
+        selfUser
+      )}
+      `);
       // if there already is a sendbird channel then we just have to make sure we are a part of it
       if (
-        chatroom.participants[userID] === ChatRoomParticipantStatus.FREE_TIER &&
+        chatroom.participants[userID] !==
+          ChatRoomParticipantStatus.SENDBIRD_ALLOWED &&
+        syncedPermissions[userID] ===
+          ChatRoomParticipantStatus.SENDBIRD_ALLOWED &&
         checkIfUserHasPaidChatPrivileges(selfUser)
       ) {
         await inviteToGroupChannelWithAutoAccept({
@@ -244,6 +299,8 @@ export const enterChatRoom = async ({
         shouldUpdate = true;
       }
     }
+    console.log(`before: chatroom.participants`, chatroom.participants);
+    console.log(`after: syncedPermissions`, syncedPermissions);
     // update chatroom if there are any changes
     if (
       shouldUpdate ||
@@ -360,7 +417,6 @@ export const matchChatRoomByParticipants = async ({
 }: {
   participants: UserID[];
 }): Promise<ChatRoom_Firestore[]> => {
-  console.log(`firestoreQuickCheckHash`, participants.sort().join(","));
   const ref = firestore.collection(FirestoreCollection.CHAT_ROOMS).where(
     // WARNING! firestoreQuickCheckHash is only used for 1-on-1 chats
     // it breaks when you are able to invite more people to a chatroom
@@ -430,11 +486,7 @@ export const retrieveChatRooms = async ({
     return {
       chatRoomID: chatRoom.id,
       participants: Object.keys(chatRoom.participants),
-      sendBirdParticipants: Object.keys(chatRoom.participants).filter(
-        (userID) =>
-          chatRoom.participants[userID as UserID] ===
-          ChatRoomParticipantStatus.SENDBIRD_ALLOWED
-      ),
+      admins: chatRoom.admins,
       sendBirdChannelURL: chatRoom.sendBirdChannelURL,
       pushConfig,
       thumbnail: chatRoom.thumbnail || "",
@@ -499,11 +551,7 @@ export const updateChatSettingsFirestore = async ({
   return {
     chatRoomID: updatedChatRoom.id,
     participants: Object.keys(updatedChatRoom.participants),
-    sendBirdParticipants: Object.keys(updatedChatRoom.participants).filter(
-      (userID) =>
-        updatedChatRoom.participants[userID as UserID] ===
-        ChatRoomParticipantStatus.SENDBIRD_ALLOWED
-    ),
+    admins: chatRoom.admins,
     sendBirdChannelURL: updatedChatRoom.sendBirdChannelURL,
     pushConfig,
     thumbnail: updatedChatRoom.thumbnail || "",
@@ -551,105 +599,189 @@ export const sendFreeChatMessage = async (
   return "success";
 };
 
-export const upgradeUserToPremiumChat = async ({
-  months,
-  targetUserID,
-  payerUserID,
-}: {
-  months: number;
-  targetUserID: UserID;
-  payerUserID: UserID;
-}) => {
-  console.log(`upgradeUserToPremiumChat...`);
-  const referenceID = uuidv4() as TxRefID;
-  const [payerUser, targetUser] = await Promise.all([
-    getFirestoreDoc<UserID, User_Firestore>({
-      id: payerUserID,
-      collection: FirestoreCollection.USERS,
-    }),
-    getFirestoreDoc<UserID, User_Firestore>({
-      id: targetUserID,
-      collection: FirestoreCollection.USERS,
-    }),
-  ]);
-  if (!payerUser || !targetUser) {
-    throw new Error(`Could not find payer or target user`);
-  }
+export const upgradeUsersToPremiumChat = async (
+  targets: {
+    months: number;
+    targetUserID: UserID;
+  }[],
+  payerUserID: UserID,
+  chatRoomID?: ChatRoomID
+) => {
+  console.log(`upgradeUsersToPremiumChat...`);
+  const payerUser = await getFirestoreDoc<UserID, User_Firestore>({
+    id: payerUserID,
+    collection: FirestoreCollection.USERS,
+  });
   const payerTradingWallet = await getWalletQLDB({
     walletAliasID: payerUser.tradingWallet,
   });
-  const pricePerMonthCookies = PREMIUM_CHAT_PRICE_COOKIES_MONTHLY;
-  const totalPriceCookies = months * pricePerMonthCookies;
-  if (payerTradingWallet.balance < totalPriceCookies) {
-    throw new Error(`You do not have enough cookies to pay for this`);
-  }
-  const { purchaseManifest } = await createPurchaseManifest({
-    title: `Buy ${months} months of premium chat for @${targetUser.username}`,
-    note: `Buy ${months} months of premium chat for @${targetUser.username} paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
-    wishID: config.LEDGER.premiumChatStore.premiumChatWishID,
-    buyerUserID: payerUser.id,
-    sellerUserID: config.LEDGER.premiumChatStore.userID,
-    buyerWallet: payerUser.tradingWallet,
-    escrowWallet: config.LEDGER.premiumChatStore.walletAliasID,
-    agreedCookiePrice: totalPriceCookies,
-    originalCookiePrice: totalPriceCookies,
-    agreedBuyFrequency: WishBuyFrequency.ONE_TIME,
-    originalBuyFrequency: WishBuyFrequency.ONE_TIME,
-    referenceID,
-    thumbnail: milkshakeLogoCookie,
-    transactionType: TransactionType.PREMIUM_CHAT,
-  });
-  const transaction: PostTransactionXCloudRequestBody = {
-    title: `@${targetUser.username} received ${months} months of premium chat`,
-    note: `@${targetUser.username} received ${months} months of premium chat paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
-    purchaseManifestID: purchaseManifest.id,
-    attribution: "",
-    thumbnail: milkshakeLogoCookie,
-    type: TransactionType.PREMIUM_CHAT,
-    amount: totalPriceCookies,
-    senderWallet: payerUser.tradingWallet,
-    senderUserID: payerUser.id,
-    receiverWallet: config.LEDGER.premiumChatStore.walletAliasID,
-    receiverUserID: config.LEDGER.premiumChatStore.userID,
-    explanations: [
-      {
-        walletAliasID: config.LEDGER.premiumChatStore.walletAliasID,
-        explanation: `Sold ${months} months of Premium Chat gifted to @${targetUser.username} by payer @${payerUser.username}`,
+  const referenceIDs: TxRefID[] = [];
+  Promise.all(
+    targets.map(async (t) => {
+      const { months, targetUserID } = t;
+      const referenceID = uuidv4() as TxRefID;
+      referenceIDs.push(referenceID);
+      const [targetUser] = await Promise.all([
+        getFirestoreDoc<UserID, User_Firestore>({
+          id: targetUserID,
+          collection: FirestoreCollection.USERS,
+        }),
+      ]);
+      if (!payerUser || !targetUser) {
+        throw new Error(`Could not find payer or target user`);
+      }
+      const pricePerMonthCookies = PREMIUM_CHAT_PRICE_COOKIES_MONTHLY;
+      const totalPriceCookies = months * pricePerMonthCookies;
+      if (payerTradingWallet.balance < totalPriceCookies) {
+        throw new Error(`You do not have enough cookies to pay for this`);
+      }
+      const { purchaseManifest } = await createPurchaseManifest({
+        title: `Buy ${months} months of premium chat for @${targetUser.username}`,
+        note: `Buy ${months} months of premium chat for @${targetUser.username} paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
+        wishID: config.LEDGER.premiumChatStore.premiumChatWishID,
+        buyerUserID: payerUser.id,
+        sellerUserID: config.LEDGER.premiumChatStore.userID,
+        buyerWallet: payerUser.tradingWallet,
+        escrowWallet: config.LEDGER.premiumChatStore.walletAliasID,
+        agreedCookiePrice: totalPriceCookies,
+        originalCookiePrice: totalPriceCookies,
+        agreedBuyFrequency: WishBuyFrequency.ONE_TIME,
+        originalBuyFrequency: WishBuyFrequency.ONE_TIME,
+        referenceID,
+        thumbnail: milkshakeLogoCookie,
+        transactionType: TransactionType.PREMIUM_CHAT,
+      });
+      const transaction: PostTransactionXCloudRequestBody = {
+        title: `@${targetUser.username} received ${months} months of premium chat`,
+        note: `@${targetUser.username} received ${months} months of premium chat paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
+        purchaseManifestID: purchaseManifest.id,
+        attribution: "",
+        thumbnail: milkshakeLogoCookie,
+        type: TransactionType.PREMIUM_CHAT,
         amount: totalPriceCookies,
+        senderWallet: payerUser.tradingWallet,
+        senderUserID: payerUser.id,
+        receiverWallet: config.LEDGER.premiumChatStore.walletAliasID,
+        receiverUserID: config.LEDGER.premiumChatStore.userID,
+        explanations: [
+          {
+            walletAliasID: config.LEDGER.premiumChatStore.walletAliasID,
+            explanation: `Sold ${months} months of Premium Chat gifted to @${targetUser.username} from @${payerUser.username}`,
+            amount: totalPriceCookies,
+          },
+          {
+            walletAliasID: payerUser.tradingWallet,
+            explanation: `Gifted ${months} months of Premium Chat to @${targetUser.username} from @${payerUser.username}`,
+            amount: -totalPriceCookies,
+          },
+        ],
+        gotRecalled: false,
+        referenceID,
+        sendPushNotif: true,
+      };
+      const tx = await _postTransaction(transaction);
+      let nextPaidToDate: Date;
+      console.log(`
+      
+      targetUser.isPaidChatUntil.seconds = ${
+        (targetUser.isPaidChatUntil as any).seconds
+      }
+      
+      currentPaidUntilDate = ${new Date(
+        ((targetUser.isPaidChatUntil as any) || { seconds: 2 }).seconds * 1000
+      )}
+
+      nextPaidToDate = ${(nextPaidToDate = new Date(
+        ((targetUser.isPaidChatUntil as any) || { seconds: 3 }).seconds * 1000 +
+          months * 30 * 24 * 60 * 60 * 1000
+      ))}
+      
+
+      ------------------
+      `);
+      if (targetUser.isPaidChatUntil) {
+        console.log(
+          `targetUser.isPaidChatUntil = ${targetUser.isPaidChatUntil}`
+        );
+        const currentPaidUntilDate = new Date(
+          (targetUser.isPaidChatUntil as any).seconds * 1000
+        );
+        console.log(`currentPaidUntilDate`, currentPaidUntilDate);
+        if (currentPaidUntilDate < new Date()) {
+          nextPaidToDate = new Date(
+            Date.now() + months * 30 * 24 * 60 * 60 * 1000
+          );
+          console.log(
+            `currentPaidUntilDate < new Date() = true. nextPaidToDate =`,
+            nextPaidToDate
+          );
+        } else {
+          nextPaidToDate = new Date(
+            (targetUser.isPaidChatUntil as any).seconds * 1000 +
+              months * 30 * 24 * 60 * 60 * 1000
+          );
+          console.log(
+            `currentPaidUntilDate < new Date() = false. nextPaidToDate =`,
+            nextPaidToDate
+          );
+        }
+      } else {
+        console.log(
+          `targetUser.isPaidChatUntil = ${targetUser.isPaidChatUntil}`
+        );
+        nextPaidToDate = new Date(
+          Date.now() + months * 30 * 24 * 60 * 60 * 1000
+        );
+        console.log(`really nextPaidToDate = ${nextPaidToDate}`);
+      }
+      await extendChatPrivileges({
+        userID: targetUser.id,
+        extendUntil: nextPaidToDate,
+      });
+      return referenceID;
+    })
+  );
+  console.log(`=============== chatRoomID ================`);
+  if (chatRoomID) {
+    const chatRoom = await getFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
+      id: chatRoomID,
+      collection: FirestoreCollection.CHAT_ROOMS,
+    });
+    const chatLogID = uuidv4() as ChatLogID;
+    await createFirestoreDoc({
+      id: chatRoomID,
+      data: {
+        id: chatLogID,
+        message: `@${payerUser.username} bought Premium Chat for friends here!`,
+        userID: config.LEDGER.premiumChatStore.userID,
+        avatar: milkshakeLogoCookie,
+        username: "Milkshake Store",
+        chatRoomID,
+        readers: chatRoom.members,
+        createdAt: createFirestoreTimestamp(),
       },
-      {
-        walletAliasID: payerUser.tradingWallet,
-        explanation: `Bought ${months} months of Premium Chat gifted to @${targetUser.username} by payer @${payerUser.username}`,
-        amount: -totalPriceCookies,
-      },
-    ],
-    gotRecalled: false,
-    referenceID,
-    sendPushNotif: true,
-  };
-  const tx = await _postTransaction(transaction);
-  let nextPaidToDate: Date;
-  if (targetUser.isPaidChatUntil) {
-    const currentPaidUntilDate = new Date(
-      (targetUser.isPaidChatUntil as any).seconds * 1000
-    );
-    if (currentPaidUntilDate < new Date()) {
-      nextPaidToDate = new Date();
-    } else {
-      nextPaidToDate = new Date(
-        (targetUser.isPaidChatUntil as any).seconds + months * 30 * 24 * 60 * 60
-      );
-    }
-  } else {
-    nextPaidToDate = new Date();
+      collection: FirestoreCollection.CHAT_LOGS,
+    });
   }
-  await updateFirestoreDoc<UserID, User_Firestore>({
-    id: targetUser.id,
-    payload: {
-      isPaidChat: true,
-      isPaidChatUntil: createFirestoreTimestamp(nextPaidToDate),
-    },
-    collection: FirestoreCollection.USERS,
-  });
-  return referenceID;
+  const notifRoute = chatRoomID
+    ? `/app/chats/chat?chat=${chatRoomID}`
+    : `/user?userID=${payerUser.id}`;
+  await Promise.all(
+    targets.map(async (t) => {
+      await sendNotificationToUser({
+        recipientUserID: t.targetUserID as UserID,
+        notification: {
+          data: {
+            title: `@${payerUser.username} gifted you ${t.months} months of Premium Chat!`,
+            body: "Go say thanks!",
+            route: notifRoute,
+            image: payerUser.avatar,
+          },
+        },
+        shouldPush: false,
+        metadataNote: "From a Premium Chat purchase",
+      });
+    })
+  );
+  return referenceIDs;
 };
