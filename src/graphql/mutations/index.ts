@@ -33,4 +33,5 @@ export {
   createSetupIntent,
   cancelSubscription,
   topUpWallet,
+  cashOutTransaction,
 } from "@/graphql/mutations/lib/wallet.mutations";

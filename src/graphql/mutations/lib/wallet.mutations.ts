@@ -14,6 +14,8 @@ import {
   CancelSubscriptionResponse,
   MutationTopUpWalletArgs,
   TopUpWalletResponse,
+  CashOutTransactionResponse,
+  MutationCashOutTransactionArgs,
 } from "@/graphql/types/resolvers-types";
 import { getFirestoreDoc } from "@/services/firestore";
 import { getXCloudAWSSecret } from "@/utils/secrets";
@@ -29,6 +31,7 @@ import {
   UserID,
   User_Firestore,
   WalletAliasID,
+  checkIfCashOutAble,
   checkIfRecallable,
 } from "@milkshakechat/helpers";
 import axios from "axios";
@@ -47,6 +50,7 @@ import {
   sendPuppetUserMessageToChat,
   sendSystemMessageToChat,
 } from "@/services/chat";
+import { cashOutTx } from "@/services/quantum";
 
 export const sendTransfer = async (
   _parent: any,
@@ -315,6 +319,40 @@ export const topUpWallet = async (
   };
 };
 
+export const cashOutTransaction = async (
+  _parent: any,
+  args: MutationCashOutTransactionArgs,
+  _context: any,
+  _info: any
+): Promise<CashOutTransactionResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const referenceID = uuidv4() as TxRefID;
+  const [tx] = await Promise.all([
+    getFirestoreDoc<MirrorTransactionID, Tx_MirrorFireLedger>({
+      id: args.input.txMirrorID as MirrorTransactionID,
+      collection: FirestoreCollection.MIRROR_TX,
+    }),
+  ]);
+  if (tx.recieverUserID !== userID) {
+    throw Error("You are not allowed to cash out this transaction");
+  }
+  if (!checkIfCashOutAble(tx.createdAt)) {
+    throw Error("Transaction cannot yet be cashed out");
+  }
+  cashOutTx({
+    transactionID: tx.txID,
+    initiatorWallet: args.input.initiatorWallet as WalletAliasID,
+    userID,
+    referenceID,
+  });
+  return {
+    referenceID,
+  };
+};
+
 export const responses = {
   SendTransferResponse: {
     __resolveType(
@@ -414,6 +452,21 @@ export const responses = {
     ) {
       if ("referenceID" in obj) {
         return "TopUpWalletResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  CashOutTransactionResponse: {
+    __resolveType(
+      obj: CashOutTransactionResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("referenceID" in obj) {
+        return "CashOutTransactionResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

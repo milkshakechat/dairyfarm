@@ -782,6 +782,20 @@ union SocialPokeResponse =
     SocialPokeResponseSuccess
   | ResponseError
 
+
+# --- cash out transaction
+input CashOutTransactionInput {
+  txMirrorID: String!
+  initiatorWallet: String!
+}
+type CashOutTransactionResponseSuccess {
+  referenceID: String!
+}
+union CashOutTransactionResponse =
+    CashOutTransactionResponseSuccess
+  | ResponseError
+
+
 # --- Mutations
 type Mutation {
   # profile
@@ -818,7 +832,7 @@ type Mutation {
   # money transfer
   sendTransfer(input: SendTransferInput!): SendTransferResponse!
   recallTransaction(input: RecallTransactionInput!): RecallTransactionResponse!
-  # cashOutTransaction(input: CashOutTransactionInput!): CashOutTransactionResponse!
+  cashOutTransaction(input: CashOutTransactionInput!): CashOutTransactionResponse!
   cancelSubscription(input: CancelSubscriptionInput!): CancelSubscriptionResponse!
   # social poke
   socialPoke(input: SocialPokeInput!): SocialPokeResponse!

@@ -8,13 +8,17 @@ import config from "@/config.env";
 import { sleep } from "@/utils/utils";
 import { Agent } from "https";
 import {
+  CashOutXCloudRequestBody,
+  CashOutXCloudResponseBody,
   FirestoreCollection,
   GetWalletXCloudRequestBody,
   GetWalletXCloudResponseBody,
   PostTransactionXCloudRequestBody,
   PostTransactionXCloudResponseBody,
   PurchaseMainfestID,
+  TransactionID,
   TransactionType,
+  TxRefID,
   WalletAliasID,
   Wallet_MirrorFireLedger,
   generateGlobalStoreAliasID,
@@ -37,6 +41,7 @@ import { v4 as uuidv4 } from "uuid";
 import { dom, load, dumpBinary } from "ion-js";
 import axios from "axios";
 import { getFirestoreDoc } from "./firestore";
+import { CashOutTransactionInput } from "@/graphql/types/resolvers-types";
 
 /**
  * Use the quantumLedger SDK to create ledgers
@@ -380,6 +385,43 @@ export const getWalletQLDB = async ({
   const { wallet } = data;
   console.log(`---- wallet`);
   return wallet;
+};
+
+export const cashOutTx = async ({
+  transactionID,
+  initiatorWallet,
+  userID,
+  referenceID,
+}: {
+  transactionID: TransactionID;
+  initiatorWallet: WalletAliasID;
+  userID: UserID;
+  referenceID: TxRefID;
+}) => {
+  const xcloudSecret = await getXCloudAWSSecret();
+  const payload: CashOutXCloudRequestBody = {
+    referenceID,
+    initiatorWallet: initiatorWallet as WalletAliasID,
+    transactionID: transactionID as TransactionID,
+  };
+  console.log(`transaction`, payload);
+  try {
+    const { data }: { data: CashOutXCloudResponseBody } = await axios.post(
+      config.WALLET_GATEWAY.cashoutTransaction.url,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: xcloudSecret,
+        },
+        timeout: 1000 * 120, // wait 2 mins
+      }
+    );
+    return data.transaction;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
 };
 
 // export const createWallet_QuantumLedger = async ({
