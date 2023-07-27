@@ -427,10 +427,12 @@ export const sendBirdUserMessage = async ({
   message,
   userID,
   channelURL,
+  metadata,
 }: {
   channelURL: SendBirdChannelURL;
   userID: UserID;
   message: string;
+  metadata?: any;
 }) => {
   const secretKey = await SendBirdService.getSendbirdSecret();
   try {
@@ -440,6 +442,7 @@ export const sendBirdUserMessage = async ({
         message,
         user_id: userID,
         message_type: "MESG",
+        data: metadata || {},
       },
       {
         headers: {

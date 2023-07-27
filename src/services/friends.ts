@@ -6,15 +6,21 @@ import {
   Story,
   PrivacyModeEnum,
   ModifyProfileInput,
+  SocialPokeInput,
+  PokeActionType,
 } from "@/graphql/types/resolvers-types";
 import {
+  ChatRoom_Firestore,
   FirestoreCollection,
   FriendshipID,
   FriendshipStatus,
   Friendship_Firestore,
+  StoryID,
   Story_Firestore,
   UserID,
   Username,
+  WishID,
+  Wish_Firestore,
   placeholderImageThumbnail,
   privacyModeEnum,
 } from "@milkshakechat/helpers";
@@ -32,6 +38,10 @@ import { firestore } from "@/services/firebase";
 import { Query, QueryDocumentSnapshot } from "firebase-admin/firestore";
 import { convertStoryToGraphQL } from "@/services/story";
 import * as admin from "firebase-admin";
+import {
+  enterChatRoom as retrieveChatRoom,
+  sendPuppetUserMessageToChat,
+} from "@/services/chat";
 import {
   notifyAcceptFriendRequest,
   notifySentFriendRequest,
@@ -946,4 +956,90 @@ const UNKNOWN_USER = {
   displayName: "User Not Found",
   stories: [],
   privacyMode: PrivacyModeEnum.Hidden,
+};
+
+export const sendSocialPoke = async (args: SocialPokeInput, userID: UserID) => {
+  const { pokeActionType, resourceID, targetUserID } = args;
+  const [selfUser, targetUser] = await Promise.all([
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: userID,
+      collection: FirestoreCollection.USERS,
+    }),
+    getFirestoreDoc<UserID, User_Firestore>({
+      id: targetUserID,
+      collection: FirestoreCollection.USERS,
+    }),
+  ]);
+  if (targetUser.privacyMode === privacyModeEnum.hidden) {
+    throw Error(`Cannot poke this user`);
+  }
+  if (targetUser.privacyMode === privacyModeEnum.private) {
+    // check if friends
+    const [forwardRelation, reverseRelation] = await Promise.all([
+      checkExistingFriendship({
+        to: targetUserID,
+        from: userID,
+      }),
+      checkExistingFriendship({
+        to: userID,
+        from: targetUserID,
+      }),
+    ]);
+    const forward = forwardRelation[0];
+    const reverse = reverseRelation[0];
+    if (!forward || !reverse) {
+      throw Error(`Cannot poke this user`);
+    }
+    if (
+      forward.status !== FriendshipStatus.ACCEPTED ||
+      reverse.status !== FriendshipStatus.ACCEPTED
+    ) {
+      throw Error(`Cannot poke this user`);
+    }
+  }
+  const { chatRoom } = await retrieveChatRoom({
+    userID,
+    participants: [targetUserID, userID],
+  });
+  if (!chatRoom) {
+    throw Error(`Could not find chat room`);
+  }
+  if (pokeActionType === PokeActionType.LikeStory) {
+    const story = await getFirestoreDoc<StoryID, Story_Firestore>({
+      id: resourceID as StoryID,
+      collection: FirestoreCollection.STORIES,
+    });
+    if (!story) {
+      throw Error(`Could not find story`);
+    }
+    await sendPuppetUserMessageToChat({
+      message: `👍 Liked Story`,
+      chatRoom,
+      sender: selfUser,
+      metadata: {
+        pokeActionType,
+        storyID: story.id,
+        thumbnail: story.thumbnail,
+      },
+    });
+  } else if (pokeActionType === PokeActionType.BookmarkWish) {
+    const wish = await getFirestoreDoc<WishID, Wish_Firestore>({
+      id: resourceID as WishID,
+      collection: FirestoreCollection.WISH,
+    });
+    if (!wish) {
+      throw Error(`Could not find wish`);
+    }
+    await sendPuppetUserMessageToChat({
+      message: `👀 "${wish.wishTitle}" bookmarked!`,
+      chatRoom,
+      sender: selfUser,
+      metadata: {
+        pokeActionType,
+        wishID: wish.id,
+        thumbnail: wish.thumbnail,
+      },
+    });
+  }
+  return "success";
 };

@@ -800,10 +800,12 @@ export const sendPuppetUserMessageToChat = async ({
   message,
   chatRoom,
   sender,
+  metadata,
 }: {
   message: string;
   chatRoom: ChatRoom_Firestore;
   sender: User_Firestore;
+  metadata?: any;
 }) => {
   const chatLogID = uuidv4() as ChatLogID;
   const updates: Promise<any>[] = [
@@ -831,6 +833,7 @@ export const sendPuppetUserMessageToChat = async ({
         channelURL: chatRoom.sendBirdChannelURL,
         message,
         userID: sender.id,
+        metadata,
       })
     );
   }

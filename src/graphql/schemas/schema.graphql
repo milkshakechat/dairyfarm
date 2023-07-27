@@ -765,6 +765,23 @@ union PromoteAdminResponse =
     PromoteAdminResponseSuccess
   | ResponseError
 
+# --- social poke
+enum PokeActionType {
+  LIKE_STORY
+  BOOKMARK_WISH
+}
+input SocialPokeInput {
+  targetUserID: UserID!
+  pokeActionType: PokeActionType!
+  resourceID: String!
+}
+type SocialPokeResponseSuccess {
+  status: String!
+}
+union SocialPokeResponse =
+    SocialPokeResponseSuccess
+  | ResponseError
+
 # --- Mutations
 type Mutation {
   # profile
@@ -803,6 +820,8 @@ type Mutation {
   recallTransaction(input: RecallTransactionInput!): RecallTransactionResponse!
   # cashOutTransaction(input: CashOutTransactionInput!): CashOutTransactionResponse!
   cancelSubscription(input: CancelSubscriptionInput!): CancelSubscriptionResponse!
+  # social poke
+  socialPoke(input: SocialPokeInput!): SocialPokeResponse!
 }
 
 

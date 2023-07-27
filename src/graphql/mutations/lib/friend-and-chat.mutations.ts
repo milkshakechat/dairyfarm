@@ -13,18 +13,21 @@ import {
   MutationResignAdminArgs,
   MutationSendFreeChatArgs,
   MutationSendFriendRequestArgs,
+  MutationSocialPokeArgs,
   MutationUpdateChatSettingsArgs,
   MutationUpgradePremiumChatArgs,
   PromoteAdminResponse,
   ResignAdminResponse,
   SendFreeChatResponse,
   SendFriendRequestResponse,
+  SocialPokeResponse,
   UpdateChatSettingsResponse,
   UpgradePremiumChatResponse,
 } from "../../types/resolvers-types";
 import {
   manageFriendshipFirestore,
   sendFriendRequestFirestore,
+  sendSocialPoke,
 } from "@/services/friends";
 import { GraphQLResolveInfo } from "graphql";
 import {
@@ -242,6 +245,22 @@ export const promoteAdmin = async (
   };
 };
 
+export const socialPoke = async (
+  _parent: any,
+  args: MutationSocialPokeArgs,
+  _context: any,
+  _info: any
+): Promise<SocialPokeResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await sendSocialPoke(args.input, userID);
+  return {
+    status,
+  };
+};
+
 export const responses = {
   SendFriendRequestResponse: {
     __resolveType(
@@ -386,6 +405,21 @@ export const responses = {
     ) {
       if ("status" in obj) {
         return "PromoteAdminResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  SocialPokeResponse: {
+    __resolveType(
+      obj: SocialPokeResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "SocialPokeResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";

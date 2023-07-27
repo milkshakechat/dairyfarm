@@ -474,6 +474,7 @@ export type Mutation = {
   sendFreeChat: SendFreeChatResponse;
   sendFriendRequest: SendFriendRequestResponse;
   sendTransfer: SendTransferResponse;
+  socialPoke: SocialPokeResponse;
   topUpWallet: TopUpWalletResponse;
   updateChatSettings: UpdateChatSettingsResponse;
   updatePushToken: UpdatePushTokenResponse;
@@ -582,6 +583,11 @@ export type MutationSendTransferArgs = {
 };
 
 
+export type MutationSocialPokeArgs = {
+  input: SocialPokeInput;
+};
+
+
 export type MutationTopUpWalletArgs = {
   input: TopUpWalletInput;
 };
@@ -622,6 +628,11 @@ export type Ping = {
   __typename?: 'Ping';
   timestamp: Scalars['String']['output'];
 };
+
+export enum PokeActionType {
+  BookmarkWish = 'BOOKMARK_WISH',
+  LikeStory = 'LIKE_STORY'
+}
 
 export type PremiumChatGiftReceiver = {
   months: Scalars['Int']['input'];
@@ -822,6 +833,19 @@ export type SendTransferResponse = ResponseError | SendTransferResponseSuccess;
 export type SendTransferResponseSuccess = {
   __typename?: 'SendTransferResponseSuccess';
   referenceID: Scalars['String']['output'];
+};
+
+export type SocialPokeInput = {
+  pokeActionType: PokeActionType;
+  resourceID: Scalars['String']['input'];
+  targetUserID: Scalars['UserID']['input'];
+};
+
+export type SocialPokeResponse = ResponseError | SocialPokeResponseSuccess;
+
+export type SocialPokeResponseSuccess = {
+  __typename?: 'SocialPokeResponseSuccess';
+  status: Scalars['String']['output'];
 };
 
 export type Status = {
@@ -1176,6 +1200,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   SendFreeChatResponse: ( ResponseError ) | ( SendFreeChatResponseSuccess );
   SendFriendRequestResponse: ( ResponseError ) | ( SendFriendRequestResponseSuccess );
   SendTransferResponse: ( ResponseError ) | ( SendTransferResponseSuccess );
+  SocialPokeResponse: ( ResponseError ) | ( SocialPokeResponseSuccess );
   TopUpWalletResponse: ( ResponseError ) | ( TopUpWalletResponseSuccess );
   UpdateChatSettingsResponse: ( ResponseError ) | ( UpdateChatSettingsResponseSuccess );
   UpdatePushTokenResponse: ( ResponseError ) | ( UpdatePushTokenResponseSuccess );
@@ -1285,6 +1310,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   NotificationGql: ResolverTypeWrapper<NotificationGql>;
   Ping: ResolverTypeWrapper<Ping>;
+  PokeActionType: PokeActionType;
   PremiumChatGiftReceiver: PremiumChatGiftReceiver;
   PrivacyModeEnum: PrivacyModeEnum;
   PromoteAdminInput: PromoteAdminInput;
@@ -1317,6 +1343,9 @@ export type ResolversTypes = {
   SendTransferInput: SendTransferInput;
   SendTransferResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SendTransferResponse']>;
   SendTransferResponseSuccess: ResolverTypeWrapper<SendTransferResponseSuccess>;
+  SocialPokeInput: SocialPokeInput;
+  SocialPokeResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['SocialPokeResponse']>;
+  SocialPokeResponseSuccess: ResolverTypeWrapper<SocialPokeResponseSuccess>;
   Status: ResolverTypeWrapper<Status>;
   StatusCode: StatusCode;
   Story: ResolverTypeWrapper<Story>;
@@ -1483,6 +1512,9 @@ export type ResolversParentTypes = {
   SendTransferInput: SendTransferInput;
   SendTransferResponse: ResolversUnionTypes<ResolversParentTypes>['SendTransferResponse'];
   SendTransferResponseSuccess: SendTransferResponseSuccess;
+  SocialPokeInput: SocialPokeInput;
+  SocialPokeResponse: ResolversUnionTypes<ResolversParentTypes>['SocialPokeResponse'];
+  SocialPokeResponseSuccess: SocialPokeResponseSuccess;
   Status: Status;
   Story: Story;
   StoryAttachment: StoryAttachment;
@@ -1860,6 +1892,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   sendFreeChat?: Resolver<ResolversTypes['SendFreeChatResponse'], ParentType, ContextType, RequireFields<MutationSendFreeChatArgs, 'input'>>;
   sendFriendRequest?: Resolver<ResolversTypes['SendFriendRequestResponse'], ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'input'>>;
   sendTransfer?: Resolver<ResolversTypes['SendTransferResponse'], ParentType, ContextType, RequireFields<MutationSendTransferArgs, 'input'>>;
+  socialPoke?: Resolver<ResolversTypes['SocialPokeResponse'], ParentType, ContextType, RequireFields<MutationSocialPokeArgs, 'input'>>;
   topUpWallet?: Resolver<ResolversTypes['TopUpWalletResponse'], ParentType, ContextType, RequireFields<MutationTopUpWalletArgs, 'input'>>;
   updateChatSettings?: Resolver<ResolversTypes['UpdateChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationUpdateChatSettingsArgs, 'input'>>;
   updatePushToken?: Resolver<ResolversTypes['UpdatePushTokenResponse'], ParentType, ContextType, RequireFields<MutationUpdatePushTokenArgs, 'input'>>;
@@ -2000,6 +2033,15 @@ export type SendTransferResponseResolvers<ContextType = any, ParentType extends 
 
 export type SendTransferResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendTransferResponseSuccess'] = ResolversParentTypes['SendTransferResponseSuccess']> = {
   referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SocialPokeResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SocialPokeResponse'] = ResolversParentTypes['SocialPokeResponse']> = {
+  __resolveType: TypeResolveFn<'ResponseError' | 'SocialPokeResponseSuccess', ParentType, ContextType>;
+};
+
+export type SocialPokeResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['SocialPokeResponseSuccess'] = ResolversParentTypes['SocialPokeResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2271,6 +2313,8 @@ export type Resolvers<ContextType = any> = {
   SendFriendRequestResponseSuccess?: SendFriendRequestResponseSuccessResolvers<ContextType>;
   SendTransferResponse?: SendTransferResponseResolvers<ContextType>;
   SendTransferResponseSuccess?: SendTransferResponseSuccessResolvers<ContextType>;
+  SocialPokeResponse?: SocialPokeResponseResolvers<ContextType>;
+  SocialPokeResponseSuccess?: SocialPokeResponseSuccessResolvers<ContextType>;
   Status?: StatusResolvers<ContextType>;
   Story?: StoryResolvers<ContextType>;
   StoryAttachment?: StoryAttachmentResolvers<ContextType>;
