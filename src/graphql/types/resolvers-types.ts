@@ -103,6 +103,7 @@ export type Contact = {
 
 export type CreatePaymentIntentInput = {
   attribution?: InputMaybe<Scalars['String']['input']>;
+  chatRoomID?: InputMaybe<Scalars['String']['input']>;
   note?: InputMaybe<Scalars['String']['input']>;
   promoCode?: InputMaybe<Scalars['String']['input']>;
   wishSuggest: WishSuggest;

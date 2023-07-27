@@ -1,6 +1,7 @@
 import config from "@/config.env";
 import { getSendbirdSecret } from "@/utils/secrets";
 import {
+  PartialSendbirdChannel,
   SendBirdChannelURL,
   UserID,
   User_Firestore,
@@ -186,42 +187,6 @@ export const issueSessonToken = async ({ userID }: { userID: UserID }) => {
   }
 };
 
-export interface PartialSendbirdChannel {
-  name: string;
-  channel_url: string;
-  cover_url: string;
-  custom_type: string;
-  unread_message_count: number;
-  data: any;
-  is_distinct: boolean;
-  is_public: boolean;
-  is_super: boolean;
-  is_ephemeral: boolean;
-  is_access_code_required: boolean;
-  member_count: number;
-  joined_member_count: number;
-  unread_mention_count: number;
-  created_by: {
-    user_id: string;
-    nickname: string;
-    profile_url: string;
-    require_auth_for_profile_image: boolean;
-  };
-  members: {
-    user_id: string;
-    nickname: string;
-    profile_url: string;
-    is_active: boolean;
-    is_online: boolean;
-    last_seen_at: number;
-    state: string;
-  }[];
-  last_message: any;
-  message_survival_seconds: number;
-  max_length_message: number;
-  created_at: number;
-  freeze: boolean;
-}
 interface CreateGroupChatProps {
   participants: UserID[];
   isEphemeral?: boolean;
@@ -414,6 +379,67 @@ export const updateGroupChannel = async ({
       {
         name,
         cover_url: avatar,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const sendBirdSystemMessage = async ({
+  message,
+  channelURL,
+}: {
+  channelURL: SendBirdChannelURL;
+  message: string;
+}) => {
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.post<PartialSendbirdChannel>(
+      `${config.SENDBIRD.API_URL}/v3/group_channels/${channelURL}/messages`,
+      {
+        message,
+        message_type: "ADMM",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const sendBirdUserMessage = async ({
+  message,
+  userID,
+  channelURL,
+}: {
+  channelURL: SendBirdChannelURL;
+  userID: UserID;
+  message: string;
+}) => {
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.post<PartialSendbirdChannel>(
+      `${config.SENDBIRD.API_URL}/v3/group_channels/${channelURL}/messages`,
+      {
+        message,
+        user_id: userID,
+        message_type: "MESG",
       },
       {
         headers: {
