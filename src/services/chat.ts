@@ -617,71 +617,73 @@ export const upgradeUsersToPremiumChat = async (
   });
   const referenceIDs: TxRefID[] = [];
   Promise.all(
-    targets.map(async (t) => {
-      const { months, targetUserID } = t;
-      const referenceID = uuidv4() as TxRefID;
-      referenceIDs.push(referenceID);
-      const [targetUser] = await Promise.all([
-        getFirestoreDoc<UserID, User_Firestore>({
-          id: targetUserID,
-          collection: FirestoreCollection.USERS,
-        }),
-      ]);
-      if (!payerUser || !targetUser) {
-        throw new Error(`Could not find payer or target user`);
-      }
-      const pricePerMonthCookies = PREMIUM_CHAT_PRICE_COOKIES_MONTHLY;
-      const totalPriceCookies = months * pricePerMonthCookies;
-      if (payerTradingWallet.balance < totalPriceCookies) {
-        throw new Error(`You do not have enough cookies to pay for this`);
-      }
-      const { purchaseManifest } = await createPurchaseManifest({
-        title: `Buy ${months} months of premium chat for @${targetUser.username}`,
-        note: `Buy ${months} months of premium chat for @${targetUser.username} paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
-        wishID: config.LEDGER.premiumChatStore.premiumChatWishID,
-        buyerUserID: payerUser.id,
-        sellerUserID: config.LEDGER.premiumChatStore.userID,
-        buyerWallet: payerUser.tradingWallet,
-        escrowWallet: config.LEDGER.premiumChatStore.walletAliasID,
-        agreedCookiePrice: totalPriceCookies,
-        originalCookiePrice: totalPriceCookies,
-        agreedBuyFrequency: WishBuyFrequency.ONE_TIME,
-        originalBuyFrequency: WishBuyFrequency.ONE_TIME,
-        referenceID,
-        thumbnail: milkshakeLogoCookie,
-        transactionType: TransactionType.PREMIUM_CHAT,
-      });
-      const transaction: PostTransactionXCloudRequestBody = {
-        title: `@${targetUser.username} received ${months} months of premium chat`,
-        note: `@${targetUser.username} received ${months} months of premium chat paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
-        purchaseManifestID: purchaseManifest.id,
-        attribution: "",
-        thumbnail: milkshakeLogoCookie,
-        type: TransactionType.PREMIUM_CHAT,
-        amount: totalPriceCookies,
-        senderWallet: payerUser.tradingWallet,
-        senderUserID: payerUser.id,
-        receiverWallet: config.LEDGER.premiumChatStore.walletAliasID,
-        receiverUserID: config.LEDGER.premiumChatStore.userID,
-        explanations: [
-          {
-            walletAliasID: config.LEDGER.premiumChatStore.walletAliasID,
-            explanation: `Sold ${months} months of Premium Chat gifted to @${targetUser.username} from @${payerUser.username}`,
-            amount: totalPriceCookies,
-          },
-          {
-            walletAliasID: payerUser.tradingWallet,
-            explanation: `Gifted ${months} months of Premium Chat to @${targetUser.username} from @${payerUser.username}`,
-            amount: -totalPriceCookies,
-          },
-        ],
-        gotRecalled: false,
-        referenceID,
-        sendPushNotif: true,
-      };
-      const tx = await _postTransaction(transaction);
-      let nextPaidToDate: Date;
-      console.log(`
+    targets
+      .filter((t) => t.months)
+      .map(async (t) => {
+        const { months, targetUserID } = t;
+        const referenceID = uuidv4() as TxRefID;
+        referenceIDs.push(referenceID);
+        const [targetUser] = await Promise.all([
+          getFirestoreDoc<UserID, User_Firestore>({
+            id: targetUserID,
+            collection: FirestoreCollection.USERS,
+          }),
+        ]);
+        if (!payerUser || !targetUser) {
+          throw new Error(`Could not find payer or target user`);
+        }
+        const pricePerMonthCookies = PREMIUM_CHAT_PRICE_COOKIES_MONTHLY;
+        const totalPriceCookies = months * pricePerMonthCookies;
+        if (payerTradingWallet.balance < totalPriceCookies) {
+          throw new Error(`You do not have enough cookies to pay for this`);
+        }
+        const { purchaseManifest } = await createPurchaseManifest({
+          title: `Buy ${months} months of premium chat for @${targetUser.username}`,
+          note: `Buy ${months} months of premium chat for @${targetUser.username} paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
+          wishID: config.LEDGER.premiumChatStore.premiumChatWishID,
+          buyerUserID: payerUser.id,
+          sellerUserID: config.LEDGER.premiumChatStore.userID,
+          buyerWallet: payerUser.tradingWallet,
+          escrowWallet: config.LEDGER.premiumChatStore.walletAliasID,
+          agreedCookiePrice: totalPriceCookies,
+          originalCookiePrice: totalPriceCookies,
+          agreedBuyFrequency: WishBuyFrequency.ONE_TIME,
+          originalBuyFrequency: WishBuyFrequency.ONE_TIME,
+          referenceID,
+          thumbnail: milkshakeLogoCookie,
+          transactionType: TransactionType.PREMIUM_CHAT,
+        });
+        const transaction: PostTransactionXCloudRequestBody = {
+          title: `@${targetUser.username} received ${months} months of premium chat`,
+          note: `@${targetUser.username} received ${months} months of premium chat paid for by @${payerUser.username} for ${totalPriceCookies} cookies`,
+          purchaseManifestID: purchaseManifest.id,
+          attribution: "",
+          thumbnail: milkshakeLogoCookie,
+          type: TransactionType.PREMIUM_CHAT,
+          amount: totalPriceCookies,
+          senderWallet: payerUser.tradingWallet,
+          senderUserID: payerUser.id,
+          receiverWallet: config.LEDGER.premiumChatStore.walletAliasID,
+          receiverUserID: config.LEDGER.premiumChatStore.userID,
+          explanations: [
+            {
+              walletAliasID: config.LEDGER.premiumChatStore.walletAliasID,
+              explanation: `Sold ${months} months of Premium Chat gifted to @${targetUser.username} from @${payerUser.username}`,
+              amount: totalPriceCookies,
+            },
+            {
+              walletAliasID: payerUser.tradingWallet,
+              explanation: `Gifted ${months} months of Premium Chat to @${targetUser.username} from @${payerUser.username}`,
+              amount: -totalPriceCookies,
+            },
+          ],
+          gotRecalled: false,
+          referenceID,
+          sendPushNotif: true,
+        };
+        const tx = await _postTransaction(transaction);
+        let nextPaidToDate: Date;
+        console.log(`
       
       targetUser.isPaidChatUntil.seconds = ${
         (targetUser.isPaidChatUntil as any).seconds
@@ -699,47 +701,47 @@ export const upgradeUsersToPremiumChat = async (
 
       ------------------
       `);
-      if (targetUser.isPaidChatUntil) {
-        console.log(
-          `targetUser.isPaidChatUntil = ${targetUser.isPaidChatUntil}`
-        );
-        const currentPaidUntilDate = new Date(
-          (targetUser.isPaidChatUntil as any).seconds * 1000
-        );
-        console.log(`currentPaidUntilDate`, currentPaidUntilDate);
-        if (currentPaidUntilDate < new Date()) {
+        if (targetUser.isPaidChatUntil) {
+          console.log(
+            `targetUser.isPaidChatUntil = ${targetUser.isPaidChatUntil}`
+          );
+          const currentPaidUntilDate = new Date(
+            (targetUser.isPaidChatUntil as any).seconds * 1000
+          );
+          console.log(`currentPaidUntilDate`, currentPaidUntilDate);
+          if (currentPaidUntilDate < new Date()) {
+            nextPaidToDate = new Date(
+              Date.now() + months * 30 * 24 * 60 * 60 * 1000
+            );
+            console.log(
+              `currentPaidUntilDate < new Date() = true. nextPaidToDate =`,
+              nextPaidToDate
+            );
+          } else {
+            nextPaidToDate = new Date(
+              (targetUser.isPaidChatUntil as any).seconds * 1000 +
+                months * 30 * 24 * 60 * 60 * 1000
+            );
+            console.log(
+              `currentPaidUntilDate < new Date() = false. nextPaidToDate =`,
+              nextPaidToDate
+            );
+          }
+        } else {
+          console.log(
+            `targetUser.isPaidChatUntil = ${targetUser.isPaidChatUntil}`
+          );
           nextPaidToDate = new Date(
             Date.now() + months * 30 * 24 * 60 * 60 * 1000
           );
-          console.log(
-            `currentPaidUntilDate < new Date() = true. nextPaidToDate =`,
-            nextPaidToDate
-          );
-        } else {
-          nextPaidToDate = new Date(
-            (targetUser.isPaidChatUntil as any).seconds * 1000 +
-              months * 30 * 24 * 60 * 60 * 1000
-          );
-          console.log(
-            `currentPaidUntilDate < new Date() = false. nextPaidToDate =`,
-            nextPaidToDate
-          );
+          console.log(`really nextPaidToDate = ${nextPaidToDate}`);
         }
-      } else {
-        console.log(
-          `targetUser.isPaidChatUntil = ${targetUser.isPaidChatUntil}`
-        );
-        nextPaidToDate = new Date(
-          Date.now() + months * 30 * 24 * 60 * 60 * 1000
-        );
-        console.log(`really nextPaidToDate = ${nextPaidToDate}`);
-      }
-      await extendChatPrivileges({
-        userID: targetUser.id,
-        extendUntil: nextPaidToDate,
-      });
-      return referenceID;
-    })
+        await extendChatPrivileges({
+          userID: targetUser.id,
+          extendUntil: nextPaidToDate,
+        });
+        return referenceID;
+      })
   );
   console.log(`=============== chatRoomID ================`);
   if (chatRoomID) {
