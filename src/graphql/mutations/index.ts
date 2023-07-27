@@ -16,6 +16,7 @@ export {
   resignAdmin,
   promoteAdmin,
   adminChatSettings,
+  socialPoke,
 } from "@/graphql/mutations/lib/friend-and-chat.mutations";
 export {
   createStory,
