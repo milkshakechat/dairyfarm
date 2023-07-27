@@ -23,6 +23,31 @@ export type Scalars = {
   WalletAliasID: { input: any; output: any; }
 };
 
+export type AddFriendToChatInput = {
+  chatRoomID: Scalars['String']['input'];
+  friendID: Scalars['UserID']['input'];
+};
+
+export type AddFriendToChatResponse = AddFriendToChatResponseSuccess | ResponseError;
+
+export type AddFriendToChatResponseSuccess = {
+  __typename?: 'AddFriendToChatResponseSuccess';
+  status: Scalars['String']['output'];
+};
+
+export type AdminChatSettingsInput = {
+  chatRoomID: Scalars['String']['input'];
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type AdminChatSettingsResponse = AdminChatSettingsResponseSuccess | ResponseError;
+
+export type AdminChatSettingsResponseSuccess = {
+  __typename?: 'AdminChatSettingsResponseSuccess';
+  chatRoom: ChatRoom;
+};
+
 export type CancelSubscriptionInput = {
   purchaseManifestID: Scalars['String']['input'];
 };
@@ -294,6 +319,18 @@ export enum LanguageEnum {
   Vietnamese = 'vietnamese'
 }
 
+export type LeaveChatInput = {
+  chatRoomID: Scalars['String']['input'];
+  targetUserID: Scalars['UserID']['input'];
+};
+
+export type LeaveChatResponse = LeaveChatResponseSuccess | ResponseError;
+
+export type LeaveChatResponseSuccess = {
+  __typename?: 'LeaveChatResponseSuccess';
+  status: Scalars['String']['output'];
+};
+
 export type ListChatRoomsResponse = ListChatRoomsResponseSuccess | ResponseError;
 
 export type ListChatRoomsResponseSuccess = {
@@ -413,6 +450,8 @@ export type ModifyStoryResponseSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addFriendToChat: AddFriendToChatResponse;
+  adminChatSettings: AdminChatSettingsResponse;
   cancelSubscription: CancelSubscriptionResponse;
   createPaymentIntent: CreatePaymentIntentResponse;
   createSetupIntent: CreateSetupIntentResponse;
@@ -420,12 +459,15 @@ export type Mutation = {
   createWish: CreateWishResponse;
   demoMutation: DemoMutationResponse;
   interactStory: InteractStoryResponse;
+  leaveChat: LeaveChatResponse;
   manageFriendship: ManageFriendshipResponse;
   markNotificationsAsRead: MarkNotificationsAsReadResponse;
   modifyProfile: ModifyProfileResponse;
   modifyStory: ModifyStoryResponse;
+  promoteAdmin: PromoteAdminResponse;
   recallTransaction: RecallTransactionResponse;
   requestMerchantOnboarding: RequestMerchantOnboardingResponse;
+  resignAdmin: ResignAdminResponse;
   revokePushTokens: RevokePushTokensResponse;
   savePaymentMethod: SavePaymentMethodResponse;
   sendFreeChat: SendFreeChatResponse;
@@ -436,6 +478,16 @@ export type Mutation = {
   updatePushToken: UpdatePushTokenResponse;
   updateWish: UpdateWishResponse;
   upgradePremiumChat: UpgradePremiumChatResponse;
+};
+
+
+export type MutationAddFriendToChatArgs = {
+  input: AddFriendToChatInput;
+};
+
+
+export type MutationAdminChatSettingsArgs = {
+  input: AdminChatSettingsInput;
 };
 
 
@@ -469,6 +521,11 @@ export type MutationInteractStoryArgs = {
 };
 
 
+export type MutationLeaveChatArgs = {
+  input: LeaveChatInput;
+};
+
+
 export type MutationManageFriendshipArgs = {
   input: ManageFriendshipInput;
 };
@@ -489,8 +546,18 @@ export type MutationModifyStoryArgs = {
 };
 
 
+export type MutationPromoteAdminArgs = {
+  input: PromoteAdminInput;
+};
+
+
 export type MutationRecallTransactionArgs = {
   input: RecallTransactionInput;
+};
+
+
+export type MutationResignAdminArgs = {
+  input: ResignAdminInput;
 };
 
 
@@ -565,6 +632,18 @@ export enum PrivacyModeEnum {
   Private = 'private',
   Public = 'public'
 }
+
+export type PromoteAdminInput = {
+  chatRoomID: Scalars['String']['input'];
+  memberID: Scalars['UserID']['input'];
+};
+
+export type PromoteAdminResponse = PromoteAdminResponseSuccess | ResponseError;
+
+export type PromoteAdminResponseSuccess = {
+  __typename?: 'PromoteAdminResponseSuccess';
+  status: Scalars['String']['output'];
+};
 
 export type PushConfig = {
   __typename?: 'PushConfig';
@@ -669,6 +748,17 @@ export type RequestMerchantOnboardingResponse = RequestMerchantOnboardingRespons
 export type RequestMerchantOnboardingResponseSuccess = {
   __typename?: 'RequestMerchantOnboardingResponseSuccess';
   registrationUrl: Scalars['String']['output'];
+};
+
+export type ResignAdminInput = {
+  chatRoomID: Scalars['String']['input'];
+};
+
+export type ResignAdminResponse = ResignAdminResponseSuccess | ResponseError;
+
+export type ResignAdminResponseSuccess = {
+  __typename?: 'ResignAdminResponseSuccess';
+  status: Scalars['String']['output'];
 };
 
 export type ResponseError = {
@@ -1049,6 +1139,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
+  AddFriendToChatResponse: ( AddFriendToChatResponseSuccess ) | ( ResponseError );
+  AdminChatSettingsResponse: ( AdminChatSettingsResponseSuccess ) | ( ResponseError );
   CancelSubscriptionResponse: ( CancelSubscriptionResponseSuccess ) | ( ResponseError );
   CheckMerchantStatusResponse: ( CheckMerchantStatusResponseSuccess ) | ( ResponseError );
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
@@ -1066,6 +1158,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   GetStoryResponse: ( GetStoryResponseSuccess ) | ( ResponseError );
   GetWishResponse: ( GetWishResponseSuccess ) | ( ResponseError );
   InteractStoryResponse: ( InteractStoryResponseSuccess ) | ( ResponseError );
+  LeaveChatResponse: ( LeaveChatResponseSuccess ) | ( ResponseError );
   ListChatRoomsResponse: ( ListChatRoomsResponseSuccess ) | ( ResponseError );
   ListContactsResponse: ( ListContactsResponseSuccess ) | ( ResponseError );
   ListWishlistResponse: ( ListWishlistResponseSuccess ) | ( ResponseError );
@@ -1073,8 +1166,10 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   MarkNotificationsAsReadResponse: ( MarkNotificationsAsReadResponseSuccess ) | ( ResponseError );
   ModifyProfileResponse: ( ModifyProfileResponseSuccess ) | ( ResponseError );
   ModifyStoryResponse: ( ModifyStoryResponseSuccess ) | ( ResponseError );
+  PromoteAdminResponse: ( PromoteAdminResponseSuccess ) | ( ResponseError );
   RecallTransactionResponse: ( RecallTransactionResponseSuccess ) | ( ResponseError );
   RequestMerchantOnboardingResponse: ( RequestMerchantOnboardingResponseSuccess ) | ( ResponseError );
+  ResignAdminResponse: ( ResignAdminResponseSuccess ) | ( ResponseError );
   RevokePushTokensResponse: ( ResponseError ) | ( RevokePushTokensResponseSuccess );
   SavePaymentMethodResponse: ( ResponseError ) | ( SavePaymentMethodResponseSuccess );
   SendFreeChatResponse: ( ResponseError ) | ( SendFreeChatResponseSuccess );
@@ -1091,6 +1186,12 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AddFriendToChatInput: AddFriendToChatInput;
+  AddFriendToChatResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AddFriendToChatResponse']>;
+  AddFriendToChatResponseSuccess: ResolverTypeWrapper<AddFriendToChatResponseSuccess>;
+  AdminChatSettingsInput: AdminChatSettingsInput;
+  AdminChatSettingsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AdminChatSettingsResponse']>;
+  AdminChatSettingsResponseSuccess: ResolverTypeWrapper<AdminChatSettingsResponseSuccess>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CancelSubscriptionInput: CancelSubscriptionInput;
   CancelSubscriptionResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CancelSubscriptionResponse']>;
@@ -1154,6 +1255,9 @@ export type ResolversTypes = {
   InteractStoryResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['InteractStoryResponse']>;
   InteractStoryResponseSuccess: ResolverTypeWrapper<InteractStoryResponseSuccess>;
   LanguageEnum: LanguageEnum;
+  LeaveChatInput: LeaveChatInput;
+  LeaveChatResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['LeaveChatResponse']>;
+  LeaveChatResponseSuccess: ResolverTypeWrapper<LeaveChatResponseSuccess>;
   ListChatRoomsResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListChatRoomsResponse']>;
   ListChatRoomsResponseSuccess: ResolverTypeWrapper<ListChatRoomsResponseSuccess>;
   ListContactsInput: ListContactsInput;
@@ -1182,6 +1286,9 @@ export type ResolversTypes = {
   Ping: ResolverTypeWrapper<Ping>;
   PremiumChatGiftReceiver: PremiumChatGiftReceiver;
   PrivacyModeEnum: PrivacyModeEnum;
+  PromoteAdminInput: PromoteAdminInput;
+  PromoteAdminResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['PromoteAdminResponse']>;
+  PromoteAdminResponseSuccess: ResolverTypeWrapper<PromoteAdminResponseSuccess>;
   PushConfig: ResolverTypeWrapper<PushConfig>;
   PushToken: ResolverTypeWrapper<Scalars['PushToken']['output']>;
   Query: ResolverTypeWrapper<{}>;
@@ -1190,6 +1297,9 @@ export type ResolversTypes = {
   RecallTransactionResponseSuccess: ResolverTypeWrapper<RecallTransactionResponseSuccess>;
   RequestMerchantOnboardingResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RequestMerchantOnboardingResponse']>;
   RequestMerchantOnboardingResponseSuccess: ResolverTypeWrapper<RequestMerchantOnboardingResponseSuccess>;
+  ResignAdminInput: ResignAdminInput;
+  ResignAdminResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ResignAdminResponse']>;
+  ResignAdminResponseSuccess: ResolverTypeWrapper<ResignAdminResponseSuccess>;
   ResponseError: ResolverTypeWrapper<ResponseError>;
   RevokePushTokensResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RevokePushTokensResponse']>;
   RevokePushTokensResponseSuccess: ResolverTypeWrapper<RevokePushTokensResponseSuccess>;
@@ -1247,6 +1357,12 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AddFriendToChatInput: AddFriendToChatInput;
+  AddFriendToChatResponse: ResolversUnionTypes<ResolversParentTypes>['AddFriendToChatResponse'];
+  AddFriendToChatResponseSuccess: AddFriendToChatResponseSuccess;
+  AdminChatSettingsInput: AdminChatSettingsInput;
+  AdminChatSettingsResponse: ResolversUnionTypes<ResolversParentTypes>['AdminChatSettingsResponse'];
+  AdminChatSettingsResponseSuccess: AdminChatSettingsResponseSuccess;
   Boolean: Scalars['Boolean']['output'];
   CancelSubscriptionInput: CancelSubscriptionInput;
   CancelSubscriptionResponse: ResolversUnionTypes<ResolversParentTypes>['CancelSubscriptionResponse'];
@@ -1306,6 +1422,9 @@ export type ResolversParentTypes = {
   InteractStoryInput: InteractStoryInput;
   InteractStoryResponse: ResolversUnionTypes<ResolversParentTypes>['InteractStoryResponse'];
   InteractStoryResponseSuccess: InteractStoryResponseSuccess;
+  LeaveChatInput: LeaveChatInput;
+  LeaveChatResponse: ResolversUnionTypes<ResolversParentTypes>['LeaveChatResponse'];
+  LeaveChatResponseSuccess: LeaveChatResponseSuccess;
   ListChatRoomsResponse: ResolversUnionTypes<ResolversParentTypes>['ListChatRoomsResponse'];
   ListChatRoomsResponseSuccess: ListChatRoomsResponseSuccess;
   ListContactsInput: ListContactsInput;
@@ -1333,6 +1452,9 @@ export type ResolversParentTypes = {
   NotificationGql: NotificationGql;
   Ping: Ping;
   PremiumChatGiftReceiver: PremiumChatGiftReceiver;
+  PromoteAdminInput: PromoteAdminInput;
+  PromoteAdminResponse: ResolversUnionTypes<ResolversParentTypes>['PromoteAdminResponse'];
+  PromoteAdminResponseSuccess: PromoteAdminResponseSuccess;
   PushConfig: PushConfig;
   PushToken: Scalars['PushToken']['output'];
   Query: {};
@@ -1341,6 +1463,9 @@ export type ResolversParentTypes = {
   RecallTransactionResponseSuccess: RecallTransactionResponseSuccess;
   RequestMerchantOnboardingResponse: ResolversUnionTypes<ResolversParentTypes>['RequestMerchantOnboardingResponse'];
   RequestMerchantOnboardingResponseSuccess: RequestMerchantOnboardingResponseSuccess;
+  ResignAdminInput: ResignAdminInput;
+  ResignAdminResponse: ResolversUnionTypes<ResolversParentTypes>['ResignAdminResponse'];
+  ResignAdminResponseSuccess: ResignAdminResponseSuccess;
   ResponseError: ResponseError;
   RevokePushTokensResponse: ResolversUnionTypes<ResolversParentTypes>['RevokePushTokensResponse'];
   RevokePushTokensResponseSuccess: RevokePushTokensResponseSuccess;
@@ -1389,6 +1514,24 @@ export type ResolversParentTypes = {
   Wish: Wish;
   WishAuthor: WishAuthor;
   WishSuggest: WishSuggest;
+};
+
+export type AddFriendToChatResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['AddFriendToChatResponse'] = ResolversParentTypes['AddFriendToChatResponse']> = {
+  __resolveType: TypeResolveFn<'AddFriendToChatResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type AddFriendToChatResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['AddFriendToChatResponseSuccess'] = ResolversParentTypes['AddFriendToChatResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AdminChatSettingsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['AdminChatSettingsResponse'] = ResolversParentTypes['AdminChatSettingsResponse']> = {
+  __resolveType: TypeResolveFn<'AdminChatSettingsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type AdminChatSettingsResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['AdminChatSettingsResponseSuccess'] = ResolversParentTypes['AdminChatSettingsResponseSuccess']> = {
+  chatRoom?: Resolver<ResolversTypes['ChatRoom'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CancelSubscriptionResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CancelSubscriptionResponse'] = ResolversParentTypes['CancelSubscriptionResponse']> = {
@@ -1590,6 +1733,15 @@ export type InteractStoryResponseSuccessResolvers<ContextType = any, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type LeaveChatResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['LeaveChatResponse'] = ResolversParentTypes['LeaveChatResponse']> = {
+  __resolveType: TypeResolveFn<'LeaveChatResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type LeaveChatResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['LeaveChatResponseSuccess'] = ResolversParentTypes['LeaveChatResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ListChatRoomsResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ListChatRoomsResponse'] = ResolversParentTypes['ListChatRoomsResponse']> = {
   __resolveType: TypeResolveFn<'ListChatRoomsResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -1684,6 +1836,8 @@ export type ModifyStoryResponseSuccessResolvers<ContextType = any, ParentType ex
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addFriendToChat?: Resolver<ResolversTypes['AddFriendToChatResponse'], ParentType, ContextType, RequireFields<MutationAddFriendToChatArgs, 'input'>>;
+  adminChatSettings?: Resolver<ResolversTypes['AdminChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationAdminChatSettingsArgs, 'input'>>;
   cancelSubscription?: Resolver<ResolversTypes['CancelSubscriptionResponse'], ParentType, ContextType, RequireFields<MutationCancelSubscriptionArgs, 'input'>>;
   createPaymentIntent?: Resolver<ResolversTypes['CreatePaymentIntentResponse'], ParentType, ContextType, RequireFields<MutationCreatePaymentIntentArgs, 'input'>>;
   createSetupIntent?: Resolver<ResolversTypes['CreateSetupIntentResponse'], ParentType, ContextType>;
@@ -1691,12 +1845,15 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createWish?: Resolver<ResolversTypes['CreateWishResponse'], ParentType, ContextType, RequireFields<MutationCreateWishArgs, 'input'>>;
   demoMutation?: Resolver<ResolversTypes['DemoMutationResponse'], ParentType, ContextType, RequireFields<MutationDemoMutationArgs, 'input'>>;
   interactStory?: Resolver<ResolversTypes['InteractStoryResponse'], ParentType, ContextType, RequireFields<MutationInteractStoryArgs, 'input'>>;
+  leaveChat?: Resolver<ResolversTypes['LeaveChatResponse'], ParentType, ContextType, RequireFields<MutationLeaveChatArgs, 'input'>>;
   manageFriendship?: Resolver<ResolversTypes['ManageFriendshipResponse'], ParentType, ContextType, RequireFields<MutationManageFriendshipArgs, 'input'>>;
   markNotificationsAsRead?: Resolver<ResolversTypes['MarkNotificationsAsReadResponse'], ParentType, ContextType, RequireFields<MutationMarkNotificationsAsReadArgs, 'input'>>;
   modifyProfile?: Resolver<ResolversTypes['ModifyProfileResponse'], ParentType, ContextType, RequireFields<MutationModifyProfileArgs, 'input'>>;
   modifyStory?: Resolver<ResolversTypes['ModifyStoryResponse'], ParentType, ContextType, RequireFields<MutationModifyStoryArgs, 'input'>>;
+  promoteAdmin?: Resolver<ResolversTypes['PromoteAdminResponse'], ParentType, ContextType, RequireFields<MutationPromoteAdminArgs, 'input'>>;
   recallTransaction?: Resolver<ResolversTypes['RecallTransactionResponse'], ParentType, ContextType, RequireFields<MutationRecallTransactionArgs, 'input'>>;
   requestMerchantOnboarding?: Resolver<ResolversTypes['RequestMerchantOnboardingResponse'], ParentType, ContextType>;
+  resignAdmin?: Resolver<ResolversTypes['ResignAdminResponse'], ParentType, ContextType, RequireFields<MutationResignAdminArgs, 'input'>>;
   revokePushTokens?: Resolver<ResolversTypes['RevokePushTokensResponse'], ParentType, ContextType>;
   savePaymentMethod?: Resolver<ResolversTypes['SavePaymentMethodResponse'], ParentType, ContextType, RequireFields<MutationSavePaymentMethodArgs, 'input'>>;
   sendFreeChat?: Resolver<ResolversTypes['SendFreeChatResponse'], ParentType, ContextType, RequireFields<MutationSendFreeChatArgs, 'input'>>;
@@ -1723,6 +1880,15 @@ export type NotificationGqlResolvers<ContextType = any, ParentType extends Resol
 
 export type PingResolvers<ContextType = any, ParentType extends ResolversParentTypes['Ping'] = ResolversParentTypes['Ping']> = {
   timestamp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PromoteAdminResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['PromoteAdminResponse'] = ResolversParentTypes['PromoteAdminResponse']> = {
+  __resolveType: TypeResolveFn<'PromoteAdminResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type PromoteAdminResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['PromoteAdminResponseSuccess'] = ResolversParentTypes['PromoteAdminResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1770,6 +1936,15 @@ export type RequestMerchantOnboardingResponseResolvers<ContextType = any, Parent
 
 export type RequestMerchantOnboardingResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['RequestMerchantOnboardingResponseSuccess'] = ResolversParentTypes['RequestMerchantOnboardingResponseSuccess']> = {
   registrationUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ResignAdminResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ResignAdminResponse'] = ResolversParentTypes['ResignAdminResponse']> = {
+  __resolveType: TypeResolveFn<'ResignAdminResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type ResignAdminResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['ResignAdminResponseSuccess'] = ResolversParentTypes['ResignAdminResponseSuccess']> = {
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2005,6 +2180,10 @@ export type WishAuthorResolvers<ContextType = any, ParentType extends ResolversP
 };
 
 export type Resolvers<ContextType = any> = {
+  AddFriendToChatResponse?: AddFriendToChatResponseResolvers<ContextType>;
+  AddFriendToChatResponseSuccess?: AddFriendToChatResponseSuccessResolvers<ContextType>;
+  AdminChatSettingsResponse?: AdminChatSettingsResponseResolvers<ContextType>;
+  AdminChatSettingsResponseSuccess?: AdminChatSettingsResponseSuccessResolvers<ContextType>;
   CancelSubscriptionResponse?: CancelSubscriptionResponseResolvers<ContextType>;
   CancelSubscriptionResponseSuccess?: CancelSubscriptionResponseSuccessResolvers<ContextType>;
   ChatRoom?: ChatRoomResolvers<ContextType>;
@@ -2046,6 +2225,8 @@ export type Resolvers<ContextType = any> = {
   HexColorCode?: GraphQLScalarType;
   InteractStoryResponse?: InteractStoryResponseResolvers<ContextType>;
   InteractStoryResponseSuccess?: InteractStoryResponseSuccessResolvers<ContextType>;
+  LeaveChatResponse?: LeaveChatResponseResolvers<ContextType>;
+  LeaveChatResponseSuccess?: LeaveChatResponseSuccessResolvers<ContextType>;
   ListChatRoomsResponse?: ListChatRoomsResponseResolvers<ContextType>;
   ListChatRoomsResponseSuccess?: ListChatRoomsResponseSuccessResolvers<ContextType>;
   ListContactsResponse?: ListContactsResponseResolvers<ContextType>;
@@ -2066,6 +2247,8 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   NotificationGql?: NotificationGqlResolvers<ContextType>;
   Ping?: PingResolvers<ContextType>;
+  PromoteAdminResponse?: PromoteAdminResponseResolvers<ContextType>;
+  PromoteAdminResponseSuccess?: PromoteAdminResponseSuccessResolvers<ContextType>;
   PushConfig?: PushConfigResolvers<ContextType>;
   PushToken?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
@@ -2073,6 +2256,8 @@ export type Resolvers<ContextType = any> = {
   RecallTransactionResponseSuccess?: RecallTransactionResponseSuccessResolvers<ContextType>;
   RequestMerchantOnboardingResponse?: RequestMerchantOnboardingResponseResolvers<ContextType>;
   RequestMerchantOnboardingResponseSuccess?: RequestMerchantOnboardingResponseSuccessResolvers<ContextType>;
+  ResignAdminResponse?: ResignAdminResponseResolvers<ContextType>;
+  ResignAdminResponseSuccess?: ResignAdminResponseSuccessResolvers<ContextType>;
   ResponseError?: ResponseErrorResolvers<ContextType>;
   RevokePushTokensResponse?: RevokePushTokensResponseResolvers<ContextType>;
   RevokePushTokensResponseSuccess?: RevokePushTokensResponseSuccessResolvers<ContextType>;

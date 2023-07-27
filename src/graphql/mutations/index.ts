@@ -11,6 +11,11 @@ export {
   updateChatSettings,
   sendFreeChat,
   upgradePremiumChat,
+  addFriendToChat,
+  leaveChat,
+  resignAdmin,
+  promoteAdmin,
+  adminChatSettings,
 } from "@/graphql/mutations/lib/friend-and-chat.mutations";
 export {
   createStory,

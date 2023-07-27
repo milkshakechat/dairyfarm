@@ -1,12 +1,22 @@
 import { authGuardHTTP } from "@/graphql/authGuard";
 import {
+  AddFriendToChatResponse,
+  AdminChatSettingsResponse,
   FriendshipStatus,
+  LeaveChatResponse,
   ManageFriendshipResponse,
+  MutationAddFriendToChatArgs,
+  MutationAdminChatSettingsArgs,
+  MutationLeaveChatArgs,
   MutationManageFriendshipArgs,
+  MutationPromoteAdminArgs,
+  MutationResignAdminArgs,
   MutationSendFreeChatArgs,
   MutationSendFriendRequestArgs,
   MutationUpdateChatSettingsArgs,
   MutationUpgradePremiumChatArgs,
+  PromoteAdminResponse,
+  ResignAdminResponse,
   SendFreeChatResponse,
   SendFriendRequestResponse,
   UpdateChatSettingsResponse,
@@ -18,18 +28,28 @@ import {
 } from "@/services/friends";
 import { GraphQLResolveInfo } from "graphql";
 import {
+  addFriendToChatFirestore,
+  adminChatSettingsFirestore,
+  leaveChatFirestore,
+  promoteAdminFirestore,
+  resignAdminFirestore,
   sendFreeChatMessage,
   updateChatSettingsFirestore,
   upgradeUsersToPremiumChat,
 } from "@/services/chat";
-import { ChatRoomID } from "@milkshakechat/helpers";
+import {
+  ChatRoomID,
+  ChatRoomParticipantStatus,
+  UserID,
+} from "@milkshakechat/helpers";
+
 export const createGroupChat = (
   _parent: any,
   args: any,
   _context: any,
   _info: any
 ) => {
-  return "demoMutation";
+  return "addFriendToChat";
 };
 
 export const sendFriendRequest = async (
@@ -129,6 +149,99 @@ export const upgradePremiumChat = async (
   };
 };
 
+export const adminChatSettings = async (
+  _parent: any,
+  args: MutationAdminChatSettingsArgs,
+  _context: any,
+  _info: any
+): Promise<AdminChatSettingsResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const chatRoom = await adminChatSettingsFirestore(args.input, userID);
+  return {
+    chatRoom: {
+      chatRoomID: chatRoom.id,
+      participants: Object.keys(chatRoom.participants).filter(
+        (uid) =>
+          chatRoom.participants[uid as UserID] ===
+            ChatRoomParticipantStatus.FREE_TIER ||
+          chatRoom.participants[uid as UserID] ===
+            ChatRoomParticipantStatus.SENDBIRD_ALLOWED
+      ),
+      admins: chatRoom.admins,
+      sendBirdChannelURL: chatRoom.sendBirdChannelURL,
+      thumbnail: chatRoom.thumbnail || "",
+      title: chatRoom.title || "",
+    },
+  };
+};
+
+export const addFriendToChat = async (
+  _parent: any,
+  args: MutationAddFriendToChatArgs,
+  _context: any,
+  _info: any
+): Promise<AddFriendToChatResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await addFriendToChatFirestore(args.input, userID);
+  return {
+    status,
+  };
+};
+
+export const leaveChat = async (
+  _parent: any,
+  args: MutationLeaveChatArgs,
+  _context: any,
+  _info: any
+): Promise<LeaveChatResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await leaveChatFirestore(args.input, userID);
+  return {
+    status,
+  };
+};
+
+export const resignAdmin = async (
+  _parent: any,
+  args: MutationResignAdminArgs,
+  _context: any,
+  _info: any
+): Promise<ResignAdminResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await resignAdminFirestore(args.input, userID);
+  return {
+    status,
+  };
+};
+
+export const promoteAdmin = async (
+  _parent: any,
+  args: MutationPromoteAdminArgs,
+  _context: any,
+  _info: any
+): Promise<PromoteAdminResponse> => {
+  const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
+  if (!userID) {
+    throw Error("No user ID found");
+  }
+  const status = await promoteAdminFirestore(args.input, userID);
+  return {
+    status,
+  };
+};
+
 export const responses = {
   SendFriendRequestResponse: {
     __resolveType(
@@ -198,6 +311,81 @@ export const responses = {
     ) {
       if ("referenceIDs" in obj) {
         return "UpgradePremiumChatResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  AdminChatSettingsResponse: {
+    __resolveType(
+      obj: UpdateChatSettingsResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("chatRoom" in obj) {
+        return "AdminChatSettingsResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  AddFriendToChatResponse: {
+    __resolveType(
+      obj: AddFriendToChatResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "AddFriendToChatResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  LeaveChatResponse: {
+    __resolveType(
+      obj: LeaveChatResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "LeaveChatResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  ResignAdminResponse: {
+    __resolveType(
+      obj: ResignAdminResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "ResignAdminResponseSuccess";
+      }
+      if ("error" in obj) {
+        return "ResponseError";
+      }
+      return null; // GraphQLError is thrown here
+    },
+  },
+  PromoteAdminResponse: {
+    __resolveType(
+      obj: PromoteAdminResponse,
+      context: any,
+      info: GraphQLResolveInfo
+    ) {
+      if ("status" in obj) {
+        return "PromoteAdminResponseSuccess";
       }
       if ("error" in obj) {
         return "ResponseError";
