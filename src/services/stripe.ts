@@ -3,6 +3,8 @@ import Stripe from "stripe";
 import config from "@/config.env";
 import {
   CardChargeID,
+  ChatRoomID,
+  ChatRoom_Firestore,
   DEFAULT_PUSH_NOTIFICATION_IMAGE,
   FirestoreCollection,
   GetWalletXCloudRequestBody,
@@ -26,6 +28,7 @@ import {
   WalletID,
   WishBuyFrequency,
   WishBuyFrequencyPrettyPrint,
+  WishBuyFrequencyPrettyPrintShort,
   WishID,
   Wish_Firestore,
   convertFrequencySubscriptionToMonthly,
@@ -47,6 +50,12 @@ import {
 } from "@/graphql/types/resolvers-types";
 import axios from "axios";
 import { _postTransaction, getWalletQLDB } from "./quantum";
+import {
+  enterChatRoom as retrieveChatRoom,
+  sendPuppetUserMessageToChat,
+  sendSystemMessageToChat,
+} from "@/services/chat";
+import { sendNotificationToUser } from "./notification";
 
 let stripe: Stripe;
 
@@ -120,12 +129,14 @@ export const createPaymentIntentForWish = async ({
   note = "",
   attribution = "",
   promoCode = "",
+  chatRoomID,
 }: {
   wishSuggest: WishSuggest;
   userID: UserID;
   note?: string;
   attribution?: string;
   promoCode?: string;
+  chatRoomID?: ChatRoomID;
 }) => {
   try {
     console.log(`createPaymentIntentForWish...`);
@@ -140,10 +151,17 @@ export const createPaymentIntentForWish = async ({
         collection: FirestoreCollection.WISH,
       }),
     ]);
-    const seller = await getFirestoreDoc<UserID, User_Firestore>({
-      id: wish.creatorID,
-      collection: FirestoreCollection.USERS,
-    });
+    const [seller, chatRoom] = await Promise.all([
+      getFirestoreDoc<UserID, User_Firestore>({
+        id: wish.creatorID,
+        collection: FirestoreCollection.USERS,
+      }),
+      retrieveChatRoom({
+        userID: userID,
+        participants: [userID, wish.creatorID],
+      }),
+    ]);
+
     const tradingWallet = await getWalletQLDB({
       walletAliasID: customer.tradingWallet,
     });
@@ -164,6 +182,27 @@ export const createPaymentIntentForWish = async ({
     } bought "${wish.wishTitle}" from @${seller.username}`;
     console.log(desc);
 
+    let assumedChatRoomID: ChatRoomID | undefined = chatRoomID;
+    if (chatRoomID) {
+      // check that they are indeed part of this chatroom
+      const chatRoom = await getFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
+        id: chatRoomID,
+        collection: FirestoreCollection.CHAT_ROOMS,
+      });
+      if (!chatRoom.members.includes(userID)) {
+        throw new Error(
+          `User ${userID} is not a member of chatroom ${chatRoomID}`
+        );
+      }
+    } else {
+      // enter chat room using participants
+      const chatRoom = await retrieveChatRoom({
+        userID: userID,
+        participants: [userID, seller.id],
+      });
+      assumedChatRoomID = chatRoom.chatRoom.id;
+    }
+
     const { purchaseManifest, stripePrice } = await createPurchaseManifest({
       title,
       note: desc,
@@ -180,6 +219,8 @@ export const createPaymentIntentForWish = async ({
       referenceID,
       thumbnail: wish.thumbnail,
       transactionType: TransactionType.DEAL,
+      chatRoomID: assumedChatRoomID,
+      buyerNote: note,
     });
 
     //  1. One-time charges
@@ -201,7 +242,11 @@ export const createPaymentIntentForWish = async ({
       // be sure to log journal entry to show how payment was made
 
       const transaction: PostTransactionXCloudRequestBody = {
-        title: `@${customer.username} bought "${wish.wishTitle}" for ${totalCookiesCostForOneTimePayments} cookies from @${seller.username}`,
+        title: `@${customer.username} bought "${
+          wish.wishTitle
+        }" for ${totalCookiesCostForOneTimePayments} cookies ${WishBuyFrequencyPrettyPrintShort(
+          frequency
+        )} from @${seller.username}`,
         note: `${desc}. Paid from Cookie Jar.`,
         purchaseManifestID: purchaseManifest.id,
         attribution,
@@ -235,6 +280,7 @@ export const createPaymentIntentForWish = async ({
         },
         referenceID,
         sendPushNotif: true,
+        chatRoomID: chatRoom.chatRoom.id,
       };
       try {
         _postTransaction(transaction);
@@ -647,6 +693,8 @@ export const createPurchaseManifest = async (args: {
   referenceID: TxRefID;
   thumbnail?: string;
   transactionType: TransactionType;
+  chatRoomID?: ChatRoomID;
+  buyerNote?: string;
 }) => {
   console.log("createPurchaseManifest...");
   console.log(`stripeProductID = ${args.stripeProductID}`);
@@ -663,6 +711,8 @@ export const createPurchaseManifest = async (args: {
     agreedBuyFrequency,
     originalBuyFrequency,
     stripeProductID,
+    chatRoomID,
+    buyerNote,
   } = args;
   const id = uuidv4() as PurchaseMainfestID;
   const totalPriceUSD = parseInt(`${cookieToUSD(agreedCookiePrice) * 100}`);
@@ -725,6 +775,9 @@ export const createPurchaseManifest = async (args: {
     priceCookiePerFrequency: agreedCookiePrice,
     priceUSDBasisAsMonthly,
     priceCookieAsMonthly,
+    // social
+    chatRoomID,
+    buyerNote,
   };
   const purchaseManifest = await createFirestoreDoc<
     PurchaseMainfestID,
@@ -944,16 +997,88 @@ export const cancelSubscriptionPurchaseManifest = async (args: {
     }
   );
 
-  await updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
-    id: args.purchaseManifestID,
-    payload: {
-      isCancelled: true,
-      cancelledAt: createFirestoreTimestamp(),
-      cancelledBy: user.id,
-    },
-    collection: FirestoreCollection.PURCHASE_MANIFESTS,
-  });
+  const updatesAll: Promise<any>[] = [
+    updateFirestoreDoc<PurchaseMainfestID, PurchaseMainfest_Firestore>({
+      id: args.purchaseManifestID,
+      payload: {
+        isCancelled: true,
+        cancelledAt: createFirestoreTimestamp(),
+        cancelledBy: user.id,
+      },
+      collection: FirestoreCollection.PURCHASE_MANIFESTS,
+    }),
+    sendNotificationToUser({
+      recipientUserID: purchaseManifest.sellerUserID,
+      notification: {
+        data: {
+          title: `✋ @${
+            user.username
+          } cancelled ${WishBuyFrequencyPrettyPrintShort(
+            purchaseManifest.agreedBuyFrequency
+          )} subscription to "${purchaseManifest.title}"`,
+          body: `✋ @${
+            user.username
+          } cancelled ${WishBuyFrequencyPrettyPrintShort(
+            purchaseManifest.agreedBuyFrequency
+          )} subscription to "${purchaseManifest.title}"`,
+          route: `/app/chats/chat?participants=${encodeURIComponent(
+            [purchaseManifest.buyerUserID, purchaseManifest.sellerUserID].join(
+              ","
+            )
+          )}`,
+        },
+      },
+      shouldPush: true,
+      metadataNote: "Automated notification for cancelled subscription",
+    }),
+    sendNotificationToUser({
+      recipientUserID: purchaseManifest.buyerUserID,
+      notification: {
+        data: {
+          title: `✋ Cancelled ${WishBuyFrequencyPrettyPrintShort(
+            purchaseManifest.agreedBuyFrequency
+          )} subscription to "${purchaseManifest.title}"`,
+          body: `✋ Cancelled ${WishBuyFrequencyPrettyPrintShort(
+            purchaseManifest.agreedBuyFrequency
+          )} subscription to "${purchaseManifest.title}"`,
+          route: `/app/chats/chat?participants=${encodeURIComponent(
+            [purchaseManifest.buyerUserID, purchaseManifest.sellerUserID].join(
+              ","
+            )
+          )}`,
+        },
+      },
+      shouldPush: true,
+      metadataNote: "Automated notification for cancelled subscription",
+    }),
+  ];
+
+  if (purchaseManifest.chatRoomID) {
+    const chatRoom = await getFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
+      id: purchaseManifest.chatRoomID,
+      collection: FirestoreCollection.CHAT_ROOMS,
+    });
+    updatesAll.push(
+      sendSystemMessageToChat({
+        message: `💔 @${
+          user.username
+        } cancelled ${WishBuyFrequencyPrettyPrintShort(
+          purchaseManifest.agreedBuyFrequency
+        )} subscription to "${purchaseManifest.title}"`,
+        chatRoom,
+      })
+    );
+    // if (message) {
+    //   await sendPuppetUserMessageToChat({
+    //     message,
+    //     chatRoom,
+    //     sender: user,
+    //   });
+    // }
+  }
+  await Promise.all(updatesAll);
   console.log(`updatedSubscription`, updatedSubscription);
+
   return updatedSubscription;
 };
 

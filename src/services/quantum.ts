@@ -151,6 +151,8 @@ export const createGlobalStore_QuantumLedger = async ({
   balance: number;
 }) => {
   const walletAliasID = config.LEDGER.premiumChatStore.walletAliasID;
+  // const walletAliasID = config.LEDGER.globalCookieStore.walletAliasID;
+
   const ownerID = config.LEDGER.premiumChatStore.userID;
   console.log(`Creating global store with walletAliasID=${walletAliasID}`);
   // if (qldbDriver) {

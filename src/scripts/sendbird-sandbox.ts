@@ -6,6 +6,7 @@ import {
   createSendbirdUser,
   issueSessonToken,
   listSendbirdUsers,
+  sendBirdSystemMessage,
 } from "@/services/sendbird";
 import { UserID } from "@milkshakechat/helpers";
 
@@ -14,7 +15,7 @@ const run = async () => {
   const userB = "89eeb6f9-2d01-4fb7-a544-d4e64a26d10b" as UserID;
   const userC = "the-other-guy-in-friendzone" as UserID;
   // const accessToken = "75f8017889544b7f3d6101f6141a7e7bc42ec665"
-  listSendbirdUsers();
+  // listSendbirdUsers();
   // createSendbirdUser({
   //   userID,
   // });
@@ -22,6 +23,11 @@ const run = async () => {
   // await createGroupChannel({
   //   participants: [userA, userC],
   // });
+  await sendBirdSystemMessage({
+    message: "you guys are awesome",
+    channelURL:
+      "sendbird_group_channel_191626866_aa656d883d4b1ae118645b23af5e9a126e86f6bf",
+  });
   // accept invite
   // const userID = "the-other-guy-in-friendzone" as UserID;
   // const channelUrl =

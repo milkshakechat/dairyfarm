@@ -597,6 +597,7 @@ input CreatePaymentIntentInput {
   note: String
   attribution: String
   promoCode: String
+  chatRoomID: String
 }
 input WishSuggest {
   wishID: ID!

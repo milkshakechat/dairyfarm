@@ -18,6 +18,7 @@ import {
 import { getFirestoreDoc } from "@/services/firestore";
 import { getXCloudAWSSecret } from "@/utils/secrets";
 import {
+  ChatRoomID,
   FirestoreCollection,
   MirrorTransactionID,
   PostTransactionXCloudRequestBody,
@@ -41,6 +42,11 @@ import {
   createSetupIntentStripe,
   topUpWalletStripe,
 } from "@/services/stripe";
+import {
+  enterChatRoom as retrieveChatRoom,
+  sendPuppetUserMessageToChat,
+  sendSystemMessageToChat,
+} from "@/services/chat";
 
 export const sendTransfer = async (
   _parent: any,
@@ -48,13 +54,15 @@ export const sendTransfer = async (
   _context: any,
   _info: any
 ): Promise<SendTransferResponse> => {
+  console.log(`========= sendTransfer =========`);
+
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
     throw Error("No user ID found");
   }
   const referenceID = uuidv4() as TxRefID;
 
-  const [selfUser, recipientUser] = await Promise.all([
+  const [selfUser, recipientUser, chatRoomInfo] = await Promise.all([
     getFirestoreDoc<UserID, User_Firestore>({
       id: userID,
       collection: FirestoreCollection.USERS,
@@ -63,7 +71,12 @@ export const sendTransfer = async (
       id: args.input.recipientID as UserID,
       collection: FirestoreCollection.USERS,
     }),
+    retrieveChatRoom({
+      userID: userID,
+      participants: [userID, args.input.recipientID as UserID],
+    }),
   ]);
+  const { chatRoom, isNew } = chatRoomInfo;
   if (!selfUser || !recipientUser) {
     throw Error("No user found");
   }
@@ -71,7 +84,7 @@ export const sendTransfer = async (
   const xcloudSecret = await getXCloudAWSSecret();
   const transaction: PostTransactionXCloudRequestBody = {
     title: `@${selfUser.username} sent ${args.input.amount} cookies to @${recipientUser.username}`,
-    note: ``,
+    note: args.input.note || "",
     thumbnail: selfUser.avatar,
     purchaseManifestID: undefined,
     attribution: undefined,
@@ -99,6 +112,7 @@ export const sendTransfer = async (
     },
     referenceID,
     sendPushNotif: true,
+    chatRoomID: chatRoom.id,
   };
 
   axios
@@ -108,7 +122,7 @@ export const sendTransfer = async (
         Authorization: xcloudSecret,
       },
     })
-    .then((data) => {
+    .then(async (data) => {
       // console.log(data);
     })
     .catch((err) => console.log(err));
@@ -155,13 +169,17 @@ export const recallTransaction = async (
       "You are not a part of this transaction based on walletAliasID"
     );
   }
-
+  const { chatRoom } = await retrieveChatRoom({
+    userID: userID,
+    participants: [tx.senderUserID, tx.recieverUserID],
+  });
   const xcloudSecret = await getXCloudAWSSecret();
   const params = {
     transactionID: tx.txID,
     recallerWalletID,
     recallerNote: args.input.recallerNote || "",
     referenceID,
+    chatRoomID: chatRoom.id,
   };
   axios
     .post(config.WALLET_GATEWAY.recallTransaction.url, params, {
@@ -196,6 +214,7 @@ export const createPaymentIntent = async (
       note: args.input.note || "",
       attribution: args.input.attribution || "",
       promoCode: args.input.promoCode || "",
+      chatRoomID: (args.input.chatRoomID as ChatRoomID) || undefined,
     });
   return {
     checkoutToken,

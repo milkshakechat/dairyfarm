@@ -11,6 +11,7 @@ import {
   MirrorPublicUser_Firestore,
   PREMIUM_CHAT_PRICE_COOKIES_MONTHLY,
   PostTransactionXCloudRequestBody,
+  SYSTEM_MESSAGE_USER_ID,
   SendBirdAccessToken,
   SendBirdChannelType,
   SendBirdChannelURL,
@@ -41,6 +42,8 @@ import {
   getSendbirdUser,
   inviteToGroupChannelWithAutoAccept,
   leaveGroupChannel,
+  sendBirdSystemMessage,
+  sendBirdUserMessage,
   updateGroupChannel,
 } from "./sendbird";
 import {
@@ -725,21 +728,12 @@ export const upgradeUsersToPremiumChat = async (
       id: chatRoomID,
       collection: FirestoreCollection.CHAT_ROOMS,
     });
-    const chatLogID = uuidv4() as ChatLogID;
-    await createFirestoreDoc({
-      id: chatRoomID,
-      data: {
-        id: chatLogID,
-        message: `@${payerUser.username} bought Premium Chat for friends here!`,
-        userID: config.LEDGER.premiumChatStore.userID,
-        avatar: milkshakeLogoCookie,
-        username: "Milkshake Store",
-        chatRoomID,
-        readers: chatRoom.members,
-        createdAt: createFirestoreTimestamp(),
-      },
-      collection: FirestoreCollection.CHAT_LOGS,
-    });
+    if (!chatRoom) {
+      await sendSystemMessageToChat({
+        message: `🎉🎉🎉  @${payerUser.username} bought Premium Chat for friends here!  🎉🎉🎉`,
+        chatRoom,
+      });
+    }
   }
   const notifRoute = chatRoomID
     ? `/app/chats/chat?chat=${chatRoomID}`
@@ -762,6 +756,85 @@ export const upgradeUsersToPremiumChat = async (
     })
   );
   return referenceIDs;
+};
+
+export const sendSystemMessageToChat = async ({
+  message,
+  chatRoom,
+}: {
+  message: string;
+  chatRoom: ChatRoom_Firestore;
+}) => {
+  const chatLogID = uuidv4() as ChatLogID;
+  const updates: Promise<any>[] = [
+    createFirestoreDoc({
+      id: chatLogID,
+      data: {
+        id: chatLogID,
+        message,
+        userID: SYSTEM_MESSAGE_USER_ID,
+        avatar: milkshakeLogoCookie,
+        username: SYSTEM_MESSAGE_USER_ID,
+        chatRoomID: chatRoom.id,
+        readers: chatRoom.members,
+        createdAt: createFirestoreTimestamp(),
+      },
+      collection: FirestoreCollection.CHAT_LOGS,
+    }),
+  ];
+  if (
+    chatRoom.sendBirdChannelURL &&
+    chatRoom.sendBirdChannelURL !== undefined
+  ) {
+    updates.push(
+      sendBirdSystemMessage({
+        channelURL: chatRoom.sendBirdChannelURL,
+        message,
+      })
+    );
+  }
+  await Promise.all(updates);
+};
+
+export const sendPuppetUserMessageToChat = async ({
+  message,
+  chatRoom,
+  sender,
+}: {
+  message: string;
+  chatRoom: ChatRoom_Firestore;
+  sender: User_Firestore;
+}) => {
+  const chatLogID = uuidv4() as ChatLogID;
+  const updates: Promise<any>[] = [
+    createFirestoreDoc({
+      id: chatLogID,
+      data: {
+        id: chatLogID,
+        message,
+        userID: sender.id,
+        avatar: sender.avatar,
+        username: sender.username,
+        chatRoomID: chatRoom.id,
+        readers: chatRoom.members,
+        createdAt: createFirestoreTimestamp(),
+      },
+      collection: FirestoreCollection.CHAT_LOGS,
+    }),
+  ];
+  if (
+    chatRoom.sendBirdChannelURL &&
+    chatRoom.sendBirdChannelURL !== undefined
+  ) {
+    updates.push(
+      sendBirdUserMessage({
+        channelURL: chatRoom.sendBirdChannelURL,
+        message,
+        userID: sender.id,
+      })
+    );
+  }
+  await Promise.all(updates);
 };
 
 export const adminChatSettingsFirestore = async (
