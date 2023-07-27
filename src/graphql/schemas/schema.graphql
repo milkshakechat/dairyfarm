@@ -704,6 +704,66 @@ union UpgradePremiumChatResponse =
     UpgradePremiumChatResponseSuccess
   | ResponseError
 
+# --- admin chat settings
+input AdminChatSettingsInput {
+  chatRoomID: String!
+  title: String
+  thumbnail: String
+}
+type AdminChatSettingsResponseSuccess {
+  chatRoom: ChatRoom!
+}
+union AdminChatSettingsResponse =
+    AdminChatSettingsResponseSuccess
+  | ResponseError
+
+# --- add friend to chat
+input AddFriendToChatInput {
+  chatRoomID: String!
+  friendID: UserID!
+}
+type AddFriendToChatResponseSuccess {
+  status: String!
+}
+union AddFriendToChatResponse =
+    AddFriendToChatResponseSuccess
+  | ResponseError
+
+# --- leave chat
+input LeaveChatInput {
+  chatRoomID: String!
+  targetUserID: UserID!
+}
+type LeaveChatResponseSuccess {
+  status: String!
+}
+union LeaveChatResponse =
+    LeaveChatResponseSuccess
+  | ResponseError
+
+# --- resign admin
+input ResignAdminInput {
+  chatRoomID: String!
+}
+type ResignAdminResponseSuccess {
+  status: String!
+}
+union ResignAdminResponse =
+    ResignAdminResponseSuccess
+  | ResponseError
+
+# --- promote admin
+input PromoteAdminInput {
+  chatRoomID: String!
+  memberID: UserID!
+}
+type PromoteAdminResponseSuccess {
+  status: String!
+}
+union PromoteAdminResponse =
+    PromoteAdminResponseSuccess
+  | ResponseError
+
 # --- Mutations
 type Mutation {
   # profile
@@ -716,8 +776,13 @@ type Mutation {
   manageFriendship(input: ManageFriendshipInput!): ManageFriendshipResponse!
   # chat
   updateChatSettings(input: UpdateChatSettingsInput!): UpdateChatSettingsResponse!
+  adminChatSettings(input: AdminChatSettingsInput!): AdminChatSettingsResponse!
   sendFreeChat(input: SendFreeChatInput!): SendFreeChatResponse!
   upgradePremiumChat(input: UpgradePremiumChatInput!): UpgradePremiumChatResponse!
+  addFriendToChat(input: AddFriendToChatInput!): AddFriendToChatResponse!
+  leaveChat(input: LeaveChatInput!): LeaveChatResponse!
+  resignAdmin(input: ResignAdminInput!): ResignAdminResponse!
+  promoteAdmin(input: PromoteAdminInput!): PromoteAdminResponse!
   # story
   createStory(input: CreateStoryInput!): CreateStoryResponse!
   modifyStory(input: ModifyStoryInput!): ModifyStoryResponse!

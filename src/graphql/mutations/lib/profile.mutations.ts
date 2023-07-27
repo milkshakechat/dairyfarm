@@ -16,10 +16,13 @@ import {
   revokeAllPushTokens,
   saveOrUpdatePushToken,
 } from "@/services/push";
+import { updateSendbirdUser } from "@/services/sendbird";
 import {
   FirestoreCollection,
   MirrorPublicUser_Firestore,
   NotificationID,
+  UserID,
+  User_Firestore,
   Username,
 } from "@milkshakechat/helpers";
 import { GraphQLResolveInfo } from "graphql";
@@ -34,12 +37,22 @@ export const modifyProfile = async (
   if (!userID) {
     throw Error("No user ID found");
   }
-  const user = await updateFirestoreDoc({
+  // @ts-ignore
+  const payload: Partial<User_Firestore> = {
+    ...args.input,
+  };
+  const user = await updateFirestoreDoc<UserID, User_Firestore>({
     id: userID,
-    payload: args.input,
+    payload,
     collection: FirestoreCollection.USERS,
   });
-
+  if (user.sendBirdUserID) {
+    await updateSendbirdUser({
+      userID: userID,
+      displayName: user.displayName,
+      profileUrl: user.avatar,
+    });
+  }
   if (args.input.username || args.input.avatar) {
     let p: Partial<MirrorPublicUser_Firestore> = {};
     if (args.input.username) {
@@ -57,6 +70,7 @@ export const modifyProfile = async (
       throw Error("No user mirror found");
     }
   }
+
   return {
     user,
   };

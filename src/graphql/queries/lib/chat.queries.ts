@@ -30,7 +30,12 @@ export const enterChatRoom = async (
   if (!userID) {
     throw new Error("Your UserID not found");
   }
-  console.log(`Entering chat room...`);
+  console.log(`Entering chat room...
+  
+  args.input.chatRoomID: ${args.input.chatRoomID}
+  args.input.participants: ${args.input.participants}
+  
+  `);
 
   const { chatRoom, isNew } = await retrieveChatRoom({
     userID: userID,
@@ -52,7 +57,13 @@ export const enterChatRoom = async (
   return {
     chatRoom: {
       chatRoomID: chatRoom.id,
-      participants: Object.keys(chatRoom.participants),
+      participants: Object.keys(chatRoom.participants).filter(
+        (uid) =>
+          chatRoom.participants[uid as UserID] ===
+            ChatRoomParticipantStatus.FREE_TIER ||
+          chatRoom.participants[uid as UserID] ===
+            ChatRoomParticipantStatus.SENDBIRD_ALLOWED
+      ),
       admins: chatRoom.admins,
       sendBirdChannelURL: chatRoom.sendBirdChannelURL,
       pushConfig,

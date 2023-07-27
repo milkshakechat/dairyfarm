@@ -83,6 +83,43 @@ export const createSendbirdUser = async ({
   }
 };
 
+export const updateSendbirdUser = async ({
+  userID,
+  displayName,
+  profileUrl,
+}: {
+  userID: UserID;
+  displayName: string;
+  profileUrl: string;
+}) => {
+  console.log(`--- createSendbirdUser`);
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  const data = {
+    user_id: userID,
+    nickname: displayName,
+    profile_url: profileUrl || placeholderImageThumbnail,
+    issue_access_token: true,
+  };
+  try {
+    const response = await axios.put<PartialSendbirdUser>(
+      `${config.SENDBIRD.API_URL}/v3/users/${userID}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+    console.log(`---- >>>>`);
+    throw Error("Could not update Sendbird user.");
+  }
+};
+
 export interface PartialSendbirdUser {
   user_id: string;
   nickname: string;
@@ -268,6 +305,38 @@ export const inviteToGroupChannelWithAutoAccept = async ({
   }
 };
 
+export const leaveGroupChannel = async ({
+  channelUrl,
+  userIDs,
+  reason,
+}: {
+  channelUrl: SendBirdChannelURL;
+  userIDs: UserID[];
+  reason: string;
+}) => {
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.put<PartialSendbirdChannel>(
+      `${config.SENDBIRD.API_URL}/v3/group_channels/${channelUrl}/leave`,
+      {
+        user_ids: userIDs,
+        reason,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
+    throw Error(`Error attempting to leave group channel`);
+  }
+};
+
 export const checkIfUserHasPaidChatPrivileges = (user: User_Firestore) => {
   if (
     user.isPaidChat &&
@@ -324,6 +393,39 @@ export const configureSendBirdWebhooks = async () => {
     console.log(e);
     console.log(`---- >>>>`);
     throw Error("Could not create Sendbird user.");
+  }
+};
+
+interface UpdateGroupChatProps {
+  name: string;
+  avatar: string;
+  channelURL: SendBirdChannelURL;
+}
+export const updateGroupChannel = async ({
+  name,
+  avatar,
+  channelURL,
+}: UpdateGroupChatProps) => {
+  console.log(`createGroupChannel`);
+  const secretKey = await SendBirdService.getSendbirdSecret();
+  try {
+    const response = await axios.put<PartialSendbirdChannel>(
+      `${config.SENDBIRD.API_URL}/v3/group_channels/${channelURL}`,
+      {
+        name,
+        cover_url: avatar,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Token": secretKey,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  } catch (e) {
+    console.log(e);
   }
 };
 
