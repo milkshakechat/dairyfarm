@@ -59,6 +59,18 @@ export type CancelSubscriptionResponseSuccess = {
   status: Scalars['String']['output'];
 };
 
+export type CashOutTransactionInput = {
+  initiatorWallet: Scalars['String']['input'];
+  txMirrorID: Scalars['String']['input'];
+};
+
+export type CashOutTransactionResponse = CashOutTransactionResponseSuccess | ResponseError;
+
+export type CashOutTransactionResponseSuccess = {
+  __typename?: 'CashOutTransactionResponseSuccess';
+  referenceID: Scalars['String']['output'];
+};
+
 export type ChatRoom = {
   __typename?: 'ChatRoom';
   admins: Array<Scalars['UserID']['output']>;
@@ -454,6 +466,7 @@ export type Mutation = {
   addFriendToChat: AddFriendToChatResponse;
   adminChatSettings: AdminChatSettingsResponse;
   cancelSubscription: CancelSubscriptionResponse;
+  cashOutTransaction: CashOutTransactionResponse;
   createPaymentIntent: CreatePaymentIntentResponse;
   createSetupIntent: CreateSetupIntentResponse;
   createStory: CreateStoryResponse;
@@ -495,6 +508,11 @@ export type MutationAdminChatSettingsArgs = {
 
 export type MutationCancelSubscriptionArgs = {
   input: CancelSubscriptionInput;
+};
+
+
+export type MutationCashOutTransactionArgs = {
+  input: CashOutTransactionInput;
 };
 
 
@@ -1167,6 +1185,7 @@ export type ResolversUnionTypes<RefType extends Record<string, unknown>> = {
   AddFriendToChatResponse: ( AddFriendToChatResponseSuccess ) | ( ResponseError );
   AdminChatSettingsResponse: ( AdminChatSettingsResponseSuccess ) | ( ResponseError );
   CancelSubscriptionResponse: ( CancelSubscriptionResponseSuccess ) | ( ResponseError );
+  CashOutTransactionResponse: ( CashOutTransactionResponseSuccess ) | ( ResponseError );
   CheckMerchantStatusResponse: ( CheckMerchantStatusResponseSuccess ) | ( ResponseError );
   CheckUsernameAvailableResponse: ( CheckUsernameAvailableResponseSuccess ) | ( ResponseError );
   CreatePaymentIntentResponse: ( CreatePaymentIntentResponseSuccess ) | ( ResponseError );
@@ -1222,6 +1241,9 @@ export type ResolversTypes = {
   CancelSubscriptionInput: CancelSubscriptionInput;
   CancelSubscriptionResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CancelSubscriptionResponse']>;
   CancelSubscriptionResponseSuccess: ResolverTypeWrapper<CancelSubscriptionResponseSuccess>;
+  CashOutTransactionInput: CashOutTransactionInput;
+  CashOutTransactionResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CashOutTransactionResponse']>;
+  CashOutTransactionResponseSuccess: ResolverTypeWrapper<CashOutTransactionResponseSuccess>;
   ChatRoom: ResolverTypeWrapper<ChatRoom>;
   CheckMerchantStatusInput: CheckMerchantStatusInput;
   CheckMerchantStatusResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CheckMerchantStatusResponse']>;
@@ -1397,6 +1419,9 @@ export type ResolversParentTypes = {
   CancelSubscriptionInput: CancelSubscriptionInput;
   CancelSubscriptionResponse: ResolversUnionTypes<ResolversParentTypes>['CancelSubscriptionResponse'];
   CancelSubscriptionResponseSuccess: CancelSubscriptionResponseSuccess;
+  CashOutTransactionInput: CashOutTransactionInput;
+  CashOutTransactionResponse: ResolversUnionTypes<ResolversParentTypes>['CashOutTransactionResponse'];
+  CashOutTransactionResponseSuccess: CashOutTransactionResponseSuccess;
   ChatRoom: ChatRoom;
   CheckMerchantStatusInput: CheckMerchantStatusInput;
   CheckMerchantStatusResponse: ResolversUnionTypes<ResolversParentTypes>['CheckMerchantStatusResponse'];
@@ -1573,6 +1598,15 @@ export type CancelSubscriptionResponseResolvers<ContextType = any, ParentType ex
 
 export type CancelSubscriptionResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CancelSubscriptionResponseSuccess'] = ResolversParentTypes['CancelSubscriptionResponseSuccess']> = {
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CashOutTransactionResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CashOutTransactionResponse'] = ResolversParentTypes['CashOutTransactionResponse']> = {
+  __resolveType: TypeResolveFn<'CashOutTransactionResponseSuccess' | 'ResponseError', ParentType, ContextType>;
+};
+
+export type CashOutTransactionResponseSuccessResolvers<ContextType = any, ParentType extends ResolversParentTypes['CashOutTransactionResponseSuccess'] = ResolversParentTypes['CashOutTransactionResponseSuccess']> = {
+  referenceID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1872,6 +1906,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addFriendToChat?: Resolver<ResolversTypes['AddFriendToChatResponse'], ParentType, ContextType, RequireFields<MutationAddFriendToChatArgs, 'input'>>;
   adminChatSettings?: Resolver<ResolversTypes['AdminChatSettingsResponse'], ParentType, ContextType, RequireFields<MutationAdminChatSettingsArgs, 'input'>>;
   cancelSubscription?: Resolver<ResolversTypes['CancelSubscriptionResponse'], ParentType, ContextType, RequireFields<MutationCancelSubscriptionArgs, 'input'>>;
+  cashOutTransaction?: Resolver<ResolversTypes['CashOutTransactionResponse'], ParentType, ContextType, RequireFields<MutationCashOutTransactionArgs, 'input'>>;
   createPaymentIntent?: Resolver<ResolversTypes['CreatePaymentIntentResponse'], ParentType, ContextType, RequireFields<MutationCreatePaymentIntentArgs, 'input'>>;
   createSetupIntent?: Resolver<ResolversTypes['CreateSetupIntentResponse'], ParentType, ContextType>;
   createStory?: Resolver<ResolversTypes['CreateStoryResponse'], ParentType, ContextType, RequireFields<MutationCreateStoryArgs, 'input'>>;
@@ -2229,6 +2264,8 @@ export type Resolvers<ContextType = any> = {
   AdminChatSettingsResponseSuccess?: AdminChatSettingsResponseSuccessResolvers<ContextType>;
   CancelSubscriptionResponse?: CancelSubscriptionResponseResolvers<ContextType>;
   CancelSubscriptionResponseSuccess?: CancelSubscriptionResponseSuccessResolvers<ContextType>;
+  CashOutTransactionResponse?: CashOutTransactionResponseResolvers<ContextType>;
+  CashOutTransactionResponseSuccess?: CashOutTransactionResponseSuccessResolvers<ContextType>;
   ChatRoom?: ChatRoomResolvers<ContextType>;
   CheckMerchantStatusResponse?: CheckMerchantStatusResponseResolvers<ContextType>;
   CheckMerchantStatusResponseSuccess?: CheckMerchantStatusResponseSuccessResolvers<ContextType>;
