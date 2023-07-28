@@ -5,3 +5,7 @@
 node_modules
 build
 assets/*
+src/scripts/barbiebox/users/*
+src/scripts/barbiebox/seeds/*
+src/scripts/barbiebox/posts/*
+src/scripts/barbiebox/media/*
