@@ -107,6 +107,15 @@ export const getStripeSecret = async () => {
   return stripeSecret;
 };
 
+export const getRapidAPISecret = async () => {
+  const stripeSecret = await accessSecretVersionGCP({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.RAPID_API.secretId,
+    versionId: config.SECRETS.RAPID_API.versionId,
+  });
+  return stripeSecret;
+};
+
 // used for cross-cloud api communication
 export const generate256BitKey = async () => {
   let key = crypto.randomBytes(32).toString("base64");

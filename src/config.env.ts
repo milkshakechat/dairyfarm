@@ -39,6 +39,10 @@ const devConfig: ConfigEnv = {
       secretId: "xcloud-wallet-gateway-gcp-to-aws",
       versionId: "latest",
     },
+    RAPID_API: {
+      secretId: "rapid-api-key",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -131,6 +135,10 @@ const stagingConfig: ConfigEnv = {
     },
     XCLOUD_WALLET: {
       secretId: "xcloud-wallet-gateway-gcp-to-aws",
+      versionId: "latest",
+    },
+    RAPID_API: {
+      secretId: "rapid-api-key",
       versionId: "latest",
     },
   },
@@ -232,6 +240,10 @@ const prodConfig: ConfigEnv = {
       secretId: "xcloud-wallet-gateway-gcp-to-aws",
       versionId: "latest",
     },
+    RAPID_API: {
+      secretId: "rapid-api-key",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -309,6 +321,7 @@ interface ConfigEnv {
     FCM_SERVER_KEY: SecretConfig;
     STRIPE_SERVER_KEY: SecretConfig;
     XCLOUD_WALLET: SecretConfig;
+    RAPID_API: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;

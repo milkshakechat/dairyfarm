@@ -62,6 +62,7 @@ export interface CreateStoryFirestoreArgs {
   assetID?: string;
   linkedWishID?: WishID;
   allowSwipe?: boolean;
+  overrideDate?: Date;
 }
 export const createStoryFirestore = async ({
   mediaUrl,
@@ -71,9 +72,10 @@ export const createStoryFirestore = async ({
   assetID,
   linkedWishID,
   allowSwipe,
+  overrideDate,
 }: CreateStoryFirestoreArgs) => {
   const isVideo = mediaType === StoryAttachmentType.Video;
-  const now = new Date();
+  const now = overrideDate ? overrideDate : new Date();
   const defaultExpiry24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const storyID = uuidv4() as StoryID;
   const attachmentID = uuidv4() as StoryAttachmentID;
@@ -174,7 +176,7 @@ export const createStoryFirestore = async ({
     // outboundLink?: string;
     // metadata
     processingComplete: isVideo ? false : true,
-    createdAt: createFirestoreTimestamp(),
+    createdAt: createFirestoreTimestamp(now),
     deleted: false,
   };
 
