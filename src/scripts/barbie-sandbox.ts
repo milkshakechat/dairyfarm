@@ -5,6 +5,7 @@ import {
   SeedUser,
   bulkDownloadInstagramStories,
   bulkDownloadInstagramUsers,
+  fixMockUsers,
   seedLore,
   seedPopulation,
   seedUniverse,
@@ -17,6 +18,7 @@ import {
   Username,
   genderEnum,
   placeholderImageThumbnail,
+  privacyModeEnum,
 } from "@milkshakechat/helpers";
 
 const seedUsernames = [
@@ -114,7 +116,60 @@ const run = async () => {
   console.log(`Running script Barbie World...`);
   await initFirebase();
 
-  const women = ["trinhcherrybaby", "th.nhan.ng"] as Username[];
+  const women = [
+    // "lovelynnboo",
+    // "trinhcherrybaby",
+    // "knhs2",
+    // "mariona.roma",
+    // "dabechen",
+    // "ayda.ekr",
+    // "mathildeleite",
+    // "militsa_borisova",
+    // "emmaaurora",
+    // "linda.sza",
+    // "rebeancer",
+    // "andreallavero",
+    // "martasilvagonz",
+    // "elliemwhitehead",
+    // "melody_pin23",
+    // "yonyonyxx",
+    // "bouvaanx_",
+    // "nanczhang",
+    // "neneci.ci",
+    // "thinkaboutzu",
+    // "leidysandoval3629",
+    // "taliana_r5",
+    // "sami_to8",
+    // "cestvrai_",
+    // "clararline",
+    // "kelly.kiko",
+    // "vsdo_",
+    // "cassandrequan",
+    // "alice77wang",
+    // "goodshing",
+    // "lady_nneka_",
+    // "glontee",
+    // "nabilahkariem",
+    // "jo_annstrauss",
+    // "moghelingz",
+    // "teresa5598",
+    // "tommygenesis",
+    // "gabbriette",
+    // "pb.lngttttt",
+    // "matcha_cha",
+    // "chennn_en",
+    // "yueyuwsan",
+    // "yuan_sayuki",
+    // "christinnazhou",
+    // "losangelless",
+    // "keng_kim",
+    // "alexis_talia",
+    // "ulzzanggirlth",
+    // ------------------------ not yet made
+    "anna.demina",
+    "moshamalpartida",
+    "kellylin_1105",
+  ] as Username[];
   await seedUniverse({
     usernames: women,
     gender: genderEnum.female,
@@ -122,13 +177,66 @@ const run = async () => {
     // saveLocal: true,
   });
 
-  const men = ["mannarintangon", "jab.panithan"] as Username[];
-  await seedUniverse({
-    usernames: men,
-    gender: genderEnum.female,
-    interestedIn: [genderEnum.male],
-    // saveLocal: true,
-  });
+  const men = [
+    // "mannarintangon",
+    // "jab.panithan",
+    // "jun___san___",
+    // "noe_ledee",
+    // "niklinio",
+    // "arc_shonyboi",
+    // "raulcasanas",
+    // "sarbojitpal",
+    // "alejandrocano334",
+    // "ravi_somani",
+    // "negimohit07",
+    // "jephphrey_",
+    // "dr4483854",
+    // "sarahbnashkar",
+    // "yon.eia",
+    // "mpethanation",
+    // "mr.anderssons",
+    // "brandonbalfourr",
+    // "ryonsu24",
+    // "chayannemunoz",
+    // "monsieurcoupet",
+    // "timdessaint",
+    // "david_swing",
+    // "mr_andy_thomas",
+    // "happy___david",
+    // "juanyanesgb",
+    // "climmens",
+    // "superherointraining",
+    // "danielhug",
+    // "rofhiwamaneta",
+    // "noam_pereg",
+    // "timtalkthai",
+    // "elsyahrial27",
+    // "cog.j_92",
+    // "d.of.j.c",
+    // "chang._.a",
+    // "dntlrdl",
+    // "tenlee_1001",
+    // ---------------------- not yet made
+    "henryl89",
+    "jichangwook",
+    "khaby00",
+    "danieletoretto",
+    "_dnyaneshwar_1818",
+    "lucas_mk",
+    "want.zamora",
+    "noe_ledee",
+    "theyluvv_shawny",
+    "nkhanhm",
+    "ricodwichyy",
+    "moutsiakk",
+    "nwieherbert",
+  ] as Username[];
+  // await seedUniverse({
+  //   usernames: men,
+  //   gender: genderEnum.male,
+  //   interestedIn: [genderEnum.female],
+  //   // saveLocal: true,
+  // });
 
   // await seedUniverse({
   //   usernames: seedUsernames,
@@ -161,5 +269,13 @@ const run = async () => {
   //   seedStories,
   //   "c8aCgynFCCVfAiJNwuDJXe3RTBC2" as UserID
   // );
+
+  // await fixMockUsers(men, {
+  //   gender: genderEnum.male,
+  //   interestedIn: [genderEnum.female],
+  // });
+  // await fixMockUsers(women, {
+  //   privacyMode: privacyModeEnum.public,
+  // });
 };
 run();
