@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-import { getFirebaseConfig } from "@/utils/secrets";
+import { accessLocalGCPKeyFile, getFirebaseConfig } from "@/utils/secrets";
 
 export let app: admin.app.App;
 export let firestore: admin.firestore.Firestore;
@@ -12,7 +12,12 @@ export const initFirebase = async () => {
 
   // load firebase app credentials using secretmanager
   // https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
-  app = admin.initializeApp(firebaseConfig);
+  // app = admin.initializeApp(firebaseConfig);
+
+  const credentials = await accessLocalGCPKeyFile();
+  const credential = admin.credential.cert(credentials as admin.ServiceAccount);
+  app = admin.initializeApp({ ...firebaseConfig, credential });
+
   firestore = admin.firestore(app);
   firestore.settings({ ignoreUndefinedProperties: true });
   storage = admin.storage(app);

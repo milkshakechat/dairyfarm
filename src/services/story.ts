@@ -54,7 +54,7 @@ export const getImageStoryCompressed = ({
   });
 };
 
-interface CreateStoryFirestoreArgs {
+export interface CreateStoryFirestoreArgs {
   mediaUrl?: string;
   mediaType?: StoryAttachmentType;
   userID: UserID;
