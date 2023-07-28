@@ -12,11 +12,17 @@ import {
   genderEnum,
   getCompressedAvatarUrl,
   placeholderImageThumbnail,
+  privacyModeEnum,
 } from "@milkshakechat/helpers";
 import { promisify } from "util";
 import { UserRecord, getAuth } from "firebase-admin/auth";
 import { v4 as uuidv4 } from "uuid";
-import { createFirestoreDoc, updateFirestoreDoc } from "./firestore";
+import {
+  createFirestoreDoc,
+  getFirestoreDoc,
+  listFirestoreDocs,
+  updateFirestoreDoc,
+} from "./firestore";
 import { sleep } from "@/utils/utils";
 import { checkIfUsernameAvailable } from "@/utils/username";
 import { CreateStoryFirestoreArgs, createStoryFirestore } from "./story";
@@ -162,7 +168,19 @@ export const seedPopulation = async (
         mediaUrl: user.avatar,
         userID: res.uid as UserID,
       });
-      await sleep(15000);
+      await sleep(10000);
+      let canProceed = false;
+      while (!canProceed) {
+        try {
+          await getFirestoreDoc<UserID, User_Firestore>({
+            id: res.uid as UserID,
+            collection: FirestoreCollection.USERS,
+          });
+          canProceed = true;
+        } catch (e) {
+          await sleep(5000);
+        }
+      }
       const _user = await updateFirestoreDoc<UserID, User_Firestore>({
         id: res.uid as UserID,
         payload: {
@@ -173,6 +191,7 @@ export const seedPopulation = async (
           bio: user.biography,
           gender: user.gender as genderEnum,
           interestedIn: user.interestedIn as genderEnum[],
+          privacyMode: privacyModeEnum.public,
         },
         collection: FirestoreCollection.USERS,
       });
@@ -198,6 +217,30 @@ export const seedPopulation = async (
   await runSequentially();
 
   return results;
+};
+
+export const fixMockUsers = async (usernames: Username[], payload: any) => {
+  async function runSequentially() {
+    for (let i = 0; i < usernames.length; i++) {
+      const users = await listFirestoreDocs<User_Firestore>({
+        where: {
+          field: "username",
+          operator: "==",
+          value: usernames[i],
+        },
+        collection: FirestoreCollection.USERS,
+      });
+      if (users[0]) {
+        console.log(`Updating ${users[0].username}...`);
+        await updateFirestoreDoc<UserID, User_Firestore>({
+          id: users[0].id,
+          payload,
+          collection: FirestoreCollection.USERS,
+        });
+      }
+    }
+  }
+  await runSequentially();
 };
 
 export interface SeedStory {
@@ -270,6 +313,7 @@ export const bulkDownloadInstagramUsers = async ({
   async function runSequentially() {
     for (let i = 0; i < usernames.length; i++) {
       const username = usernames[i];
+      console.log(`${username}...`);
       const options = {
         method: "GET",
         url: "https://instagram-scraper-2022.p.rapidapi.com/ig/info_username/",
@@ -286,7 +330,7 @@ export const bulkDownloadInstagramUsers = async ({
       } catch (error) {
         console.error(error);
       }
-      await sleep(10000);
+      await sleep(2000);
     }
   }
   await runSequentially();

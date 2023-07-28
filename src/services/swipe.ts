@@ -49,7 +49,7 @@ export const fetchSwipeFeedAlgorithm = async ({
     .collection(FirestoreCollection.STORIES)
     .where("allowSwipe", "==", true)
     .orderBy("createdAt", "desc")
-    .limit(200) as Query<Story_Firestore>;
+    .limit(100) as Query<Story_Firestore>;
 
   const collectionItems = await ref.get();
 
@@ -146,10 +146,10 @@ export const fetchSwipeFeedAlgorithm = async ({
       if (author?.id === userID) {
         return false;
       }
-      if (!selfUser.interestedIn.includes(author.gender)) {
-        return false;
+      if (selfUser.interestedIn.includes(author.gender)) {
+        return true;
       }
-      return true;
+      return false;
     });
   return onlyNewStories;
 };
