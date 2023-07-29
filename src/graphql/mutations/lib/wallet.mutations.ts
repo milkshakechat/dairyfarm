@@ -21,6 +21,7 @@ import { getFirestoreDoc } from "@/services/firestore";
 import { getXCloudAWSSecret } from "@/utils/secrets";
 import {
   ChatRoomID,
+  ChatRoom_Firestore,
   FirestoreCollection,
   MirrorTransactionID,
   PostTransactionXCloudRequestBody,
@@ -66,7 +67,7 @@ export const sendTransfer = async (
   }
   const referenceID = uuidv4() as TxRefID;
 
-  const [selfUser, recipientUser, chatRoomInfo] = await Promise.all([
+  const [selfUser, recipientUser] = await Promise.all([
     getFirestoreDoc<UserID, User_Firestore>({
       id: userID,
       collection: FirestoreCollection.USERS,
@@ -75,12 +76,19 @@ export const sendTransfer = async (
       id: args.input.recipientID as UserID,
       collection: FirestoreCollection.USERS,
     }),
-    retrieveChatRoom({
+  ]);
+  let chatRoom: ChatRoom_Firestore | undefined;
+  try {
+    const chatRoomInfo = await retrieveChatRoom({
       userID: userID,
       participants: [userID, args.input.recipientID as UserID],
-    }),
-  ]);
-  const { chatRoom, isNew } = chatRoomInfo;
+    });
+    const { chatRoom: _chatRoom, isNew } = chatRoomInfo;
+    chatRoom = _chatRoom;
+  } catch (e) {
+    console.log(e);
+  }
+  console.log("continuing on..");
   if (!selfUser || !recipientUser) {
     throw Error("No user found");
   }
@@ -116,7 +124,7 @@ export const sendTransfer = async (
     },
     referenceID,
     sendPushNotif: true,
-    chatRoomID: chatRoom.id,
+    chatRoomID: chatRoom ? chatRoom.id : undefined,
   };
 
   axios
@@ -173,17 +181,23 @@ export const recallTransaction = async (
       "You are not a part of this transaction based on walletAliasID"
     );
   }
-  const { chatRoom } = await retrieveChatRoom({
-    userID: userID,
-    participants: [tx.senderUserID, tx.recieverUserID],
-  });
+  let chatRoom: ChatRoom_Firestore | undefined;
+  try {
+    const { chatRoom: _chatRoom } = await retrieveChatRoom({
+      userID: userID,
+      participants: [tx.senderUserID, tx.recieverUserID],
+    });
+    chatRoom = _chatRoom;
+  } catch (e) {
+    console.log(e);
+  }
   const xcloudSecret = await getXCloudAWSSecret();
   const params = {
     transactionID: tx.txID,
     recallerWalletID,
     recallerNote: args.input.recallerNote || "",
     referenceID,
-    chatRoomID: chatRoom.id,
+    chatRoomID: chatRoom ? chatRoom.id : undefined,
   };
   axios
     .post(config.WALLET_GATEWAY.recallTransaction.url, params, {

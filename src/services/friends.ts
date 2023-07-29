@@ -997,49 +997,57 @@ export const sendSocialPoke = async (args: SocialPokeInput, userID: UserID) => {
       throw Error(`Cannot poke this user`);
     }
   }
-  const { chatRoom } = await retrieveChatRoom({
-    userID,
-    participants: [targetUserID, userID],
-  });
-  if (!chatRoom) {
-    throw Error(`Could not find chat room`);
+  let chatRoom: ChatRoom_Firestore | undefined;
+  try {
+    const { chatRoom: _chatRoom } = await retrieveChatRoom({
+      userID,
+      participants: [targetUserID, userID],
+    });
+    chatRoom = _chatRoom;
+  } catch (e) {
+    console.log(e);
   }
   if (pokeActionType === PokeActionType.LikeStory) {
-    const story = await getFirestoreDoc<StoryID, Story_Firestore>({
-      id: resourceID as StoryID,
-      collection: FirestoreCollection.STORIES,
-    });
-    if (!story) {
-      throw Error(`Could not find story`);
+    if (chatRoom) {
+      const story = await getFirestoreDoc<StoryID, Story_Firestore>({
+        id: resourceID as StoryID,
+        collection: FirestoreCollection.STORIES,
+      });
+      if (!story) {
+        throw Error(`Could not find story`);
+      }
+      await sendPuppetUserMessageToChat({
+        message: `👍 Liked Story`,
+        chatRoom,
+        sender: selfUser,
+        metadata: {
+          pokeActionType,
+          storyID: story.id,
+          thumbnail: story.thumbnail,
+        },
+      });
     }
-    await sendPuppetUserMessageToChat({
-      message: `👍 Liked Story`,
-      chatRoom,
-      sender: selfUser,
-      metadata: {
-        pokeActionType,
-        storyID: story.id,
-        thumbnail: story.thumbnail,
-      },
-    });
   } else if (pokeActionType === PokeActionType.BookmarkWish) {
-    const wish = await getFirestoreDoc<WishID, Wish_Firestore>({
-      id: resourceID as WishID,
-      collection: FirestoreCollection.WISH,
-    });
-    if (!wish) {
-      throw Error(`Could not find wish`);
+    if (chatRoom) {
+      const wish = await getFirestoreDoc<WishID, Wish_Firestore>({
+        id: resourceID as WishID,
+        collection: FirestoreCollection.WISH,
+      });
+      if (!wish) {
+        throw Error(`Could not find wish`);
+      }
+
+      await sendPuppetUserMessageToChat({
+        message: `👀 "${wish.wishTitle}" bookmarked!`,
+        chatRoom,
+        sender: selfUser,
+        metadata: {
+          pokeActionType,
+          wishID: wish.id,
+          thumbnail: wish.thumbnail,
+        },
+      });
     }
-    await sendPuppetUserMessageToChat({
-      message: `👀 "${wish.wishTitle}" bookmarked!`,
-      chatRoom,
-      sender: selfUser,
-      metadata: {
-        pokeActionType,
-        wishID: wish.id,
-        thumbnail: wish.thumbnail,
-      },
-    });
   }
   return "success";
 };
