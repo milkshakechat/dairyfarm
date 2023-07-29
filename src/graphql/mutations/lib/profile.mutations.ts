@@ -9,6 +9,7 @@ import {
   UpdatePushTokenResponse,
 } from "@/graphql/types/resolvers-types";
 import { updateFirestoreDoc } from "@/services/firestore";
+import { getPlaceDetails, updateGeoField } from "@/services/geolocation";
 
 import { markNotifications } from "@/services/notification";
 import {
@@ -19,6 +20,8 @@ import {
 import { updateSendbirdUser } from "@/services/sendbird";
 import {
   FirestoreCollection,
+  GeoInfo,
+  GoogleMapsPlaceID,
   MirrorPublicUser_Firestore,
   NotificationID,
   UserID,
@@ -41,6 +44,13 @@ export const modifyProfile = async (
   const payload: Partial<User_Firestore> = {
     ...args.input,
   };
+  if (args.input.geoPlaceID) {
+    await updateGeoField<UserID, User_Firestore>({
+      id: userID,
+      placeID: args.input.geoPlaceID as GoogleMapsPlaceID,
+      collection: FirestoreCollection.USERS,
+    });
+  }
   const user = await updateFirestoreDoc<UserID, User_Firestore>({
     id: userID,
     payload,
@@ -53,6 +63,7 @@ export const modifyProfile = async (
       profileUrl: user.avatar,
     });
   }
+  // public user mirror
   if (args.input.username || args.input.avatar) {
     let p: Partial<MirrorPublicUser_Firestore> = {};
     if (args.input.username) {
@@ -70,9 +81,22 @@ export const modifyProfile = async (
       throw Error("No user mirror found");
     }
   }
-
   return {
-    user,
+    user: {
+      ...user,
+      currency: user.currency || undefined,
+      prefGeoBias: user.prefGeoBias || undefined,
+      prefAboutMe: user.prefAboutMe || undefined,
+      prefLookingFor: user.prefLookingFor || undefined,
+      location: user.geoInfo
+        ? {
+            title: user.geoInfo.title || "",
+            geoHash: user.geoFireX?.geohash || "",
+            latitude: user.geoInfo.lat || 0,
+            longitude: user.geoInfo.lng || 0,
+          }
+        : undefined,
+    },
   };
 };
 

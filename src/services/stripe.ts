@@ -571,7 +571,7 @@ export const checkMerchantOnboardingStatus = async ({
     collection: FirestoreCollection.USERS,
   });
   if (!user.stripeMetadata || !user.stripeMetadata.stripeMerchantID) {
-    console.log(`User ${userID} does not have a stripe account.`);
+    // console.log(`User ${userID} does not have a stripe account.`);
     return {
       userID: userID,
       tradingWallet: user.tradingWallet,

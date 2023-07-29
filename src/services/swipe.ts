@@ -13,7 +13,7 @@ import {
   WishlistVisibility,
   createStoryInteractionID,
 } from "@milkshakechat/helpers";
-import { firestore } from "@/services/firebase";
+import { GeoFireX, firestore } from "@/services/firebase";
 import * as admin from "firebase-admin";
 import {
   createFirestoreDoc,
@@ -24,6 +24,7 @@ import {
 } from "./firestore";
 import { InteractStoryInput } from "@/graphql/types/resolvers-types";
 import { Query, QueryDocumentSnapshot } from "firebase-admin/firestore";
+import { get } from "geofirex";
 
 const appendStoryInteractionUnixTimestamp = (_unixCsv?: string) => {
   const generateStoryInterationUnixTimestamp = (_date?: Date) => {
@@ -45,24 +46,38 @@ export const fetchSwipeFeedAlgorithm = async ({
     collection: FirestoreCollection.USERS,
   });
 
-  const ref = firestore
-    .collection(FirestoreCollection.STORIES)
-    .where("allowSwipe", "==", true)
-    .orderBy("createdAt", "desc")
-    .limit(100) as Query<Story_Firestore>;
-
-  const collectionItems = await ref.get();
-
   let stories: Story_Firestore[] = [];
-  if (collectionItems.empty) {
-    stories = [];
+
+  if (selfUser.prefGeoBias && selfUser.geoInfo) {
+    const collection = firestore
+      .collection(FirestoreCollection.STORIES)
+      .where("allowSwipe", "==", true);
+    const target = GeoFireX.point(selfUser.geoInfo.lat, selfUser.geoInfo.lng);
+    const radius = 100; // 100km
+
+    const query = GeoFireX.query(collection).within(target, radius, "geoFireX");
+    // query.subscribe(console.log);
+    const _stories: Story_Firestore[] = await get(query);
+    stories = _stories;
   } else {
-    stories = collectionItems.docs.map(
-      (doc: QueryDocumentSnapshot<Story_Firestore>) => {
-        const data = doc.data();
-        return data;
-      }
-    );
+    const ref = firestore
+      .collection(FirestoreCollection.STORIES)
+      .where("allowSwipe", "==", true)
+      .orderBy("createdAt", "desc")
+      .limit(100) as Query<Story_Firestore>;
+
+    const collectionItems = await ref.get();
+
+    if (collectionItems.empty) {
+      stories = [];
+    } else {
+      stories = collectionItems.docs.map(
+        (doc: QueryDocumentSnapshot<Story_Firestore>) => {
+          const data = doc.data();
+          return data;
+        }
+      );
+    }
   }
 
   const storiesWithWish = await Promise.all(

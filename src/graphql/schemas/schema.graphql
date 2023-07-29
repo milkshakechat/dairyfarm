@@ -46,6 +46,18 @@ type User {
   tradingWallet: WalletAliasID
   escrowWallet: WalletAliasID
   defaultPaymentMethodID: String
+  location: LocationInfo
+  currency: String
+  prefGeoBias: Boolean
+  prefAboutMe: String
+  prefLookingFor: String
+}
+
+type LocationInfo {
+  title: String!
+  geoHash: String!
+  latitude: Float!
+  longitude: Float!
 }
 
 # --- getMyProfile
@@ -287,13 +299,19 @@ input ModifyProfileInput {
   displayName: String
   username: String
   bio: String
+  email: String
   avatar: String
   link: String
   privacyMode: PrivacyModeEnum
   themeColor: HexColorCode
   language: LanguageEnum
+  currency: String
   gender: GenderEnum
   interestedIn: [GenderEnum!]
+  geoPlaceID: String
+  prefGeoBias: Boolean
+  prefAboutMe: String
+  prefLookingFor: String
 }
 type ModifyProfileResponseSuccess {
   user: User!
@@ -417,6 +435,8 @@ type Story {
   expiresAt: DateString
   author: StoryAuthor!
   linkedWishID: String
+  # geolocation
+  location: LocationInfo
 }
 type StoryAuthor {
   id: UserID!
@@ -429,6 +449,7 @@ input CreateStoryInput {
   media: StoryMediaAttachmentInput
   linkedWishID: String
   allowSwipe: Boolean
+  geoPlaceID: String
   # link: String
   # outboundLink: String
 }

@@ -158,6 +158,7 @@ export const seedPopulation = async (
         data: {
           id: res.uid as UserID,
           email,
+          username: user.username as Username,
           password,
           genesisID,
           lastKnownToken: customAccessToken,

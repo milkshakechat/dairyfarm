@@ -14,10 +14,12 @@ import {
   getFirestoreDoc,
   updateFirestoreDoc,
 } from "@/services/firestore";
+import { createGeoFields } from "@/services/geolocation";
 import { convertStoryToGraphQL, createStoryFirestore } from "@/services/story";
 import { interactWithStoryAlgorithm } from "@/services/swipe";
 import {
   FirestoreCollection,
+  GoogleMapsPlaceID,
   StoryID,
   Story_Firestore,
   WishID,
@@ -36,12 +38,14 @@ export const createStory = async (
   if (!userID) {
     throw Error("No user ID found");
   }
-  const { caption, media, linkedWishID, allowSwipe } = args.input;
+  const { caption, media, linkedWishID, allowSwipe, geoPlaceID } = args.input;
   const { url, type, assetID } = media || {};
 
   if (caption.length > 240) {
     throw Error("Caption must be less than 240 characters");
   }
+
+  console.log(`creating a story with geolocation...`);
   // create the story
   const story = await createStoryFirestore({
     mediaUrl: url,
@@ -51,6 +55,7 @@ export const createStory = async (
     assetID,
     linkedWishID: (linkedWishID as WishID) || undefined,
     allowSwipe: allowSwipe || false,
+    geoPlaceID: geoPlaceID ? (geoPlaceID as GoogleMapsPlaceID) : undefined,
   });
   // return the story
   return {

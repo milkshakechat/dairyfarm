@@ -61,6 +61,18 @@ export const getMyProfile = async (
         createdAt: (user.createdAt as any).toDate(),
         defaultPaymentMethodID:
           user.stripeMetadata?.defaultPaymentMethodID || undefined,
+        location: user.geoInfo
+          ? {
+              title: user.geoInfo.title || "",
+              geoHash: user.geoFireX?.geohash || "",
+              latitude: user.geoInfo.lat || 0,
+              longitude: user.geoInfo.lng || 0,
+            }
+          : undefined,
+        currency: user.currency || undefined,
+        prefGeoBias: user.prefGeoBias || undefined,
+        prefAboutMe: user.prefAboutMe || undefined,
+        prefLookingFor: user.prefLookingFor || undefined,
       },
     };
   } catch (e) {

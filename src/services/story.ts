@@ -11,6 +11,7 @@ import {
   WishID,
   Friendship_Firestore,
   FriendshipStatus,
+  GoogleMapsPlaceID,
 } from "@milkshakechat/helpers";
 import {
   createFirestoreDoc,
@@ -33,6 +34,7 @@ import {
   predictVideoTranscodedManifestRoute,
   predictVideoTranscodedSDHDRoute,
 } from "./video-transcoder";
+import { getPlaceDetails, updateGeoField } from "./geolocation";
 
 export const getImageStoryCompressed = ({
   storyID,
@@ -63,6 +65,7 @@ export interface CreateStoryFirestoreArgs {
   linkedWishID?: WishID;
   allowSwipe?: boolean;
   overrideDate?: Date;
+  geoPlaceID?: GoogleMapsPlaceID;
 }
 export const createStoryFirestore = async ({
   mediaUrl,
@@ -73,6 +76,7 @@ export const createStoryFirestore = async ({
   linkedWishID,
   allowSwipe,
   overrideDate,
+  geoPlaceID,
 }: CreateStoryFirestoreArgs) => {
   const isVideo = mediaType === StoryAttachmentType.Video;
   const now = overrideDate ? overrideDate : new Date();
@@ -114,7 +118,7 @@ export const createStoryFirestore = async ({
       : undefined,
     altText: caption || "",
   };
-  const storyData = {
+  const storyData: Partial<Story_Firestore> = {
     id: storyID,
     userID,
     // story
@@ -179,12 +183,20 @@ export const createStoryFirestore = async ({
     createdAt: createFirestoreTimestamp(now),
     deleted: false,
   };
-
-  const story = await createFirestoreDoc<StoryID, Story_Firestore>({
+  let story: Story_Firestore;
+  story = await createFirestoreDoc<StoryID, Story_Firestore>({
     id: storyID,
+    // @ts-ignore
     data: storyData,
     collection: FirestoreCollection.STORIES,
   });
+  if (geoPlaceID) {
+    story = await updateGeoField<StoryID, Story_Firestore>({
+      id: storyID,
+      placeID: geoPlaceID,
+      collection: FirestoreCollection.STORIES,
+    });
+  }
   return story;
 };
 
@@ -274,5 +286,14 @@ export const convertStoryToGraphQL = (
     createdAt: decodeFirestoreTimestamp(story.createdAt),
     expiresAt: decodeFirestoreTimestamp(story.expiresAt),
     linkedWishID: story.linkedWishID,
+    location:
+      story.geoInfo && story.geoFireX
+        ? {
+            title: story.geoInfo.title,
+            geoHash: story.geoFireX.geohash,
+            latitude: story.geoInfo.lat,
+            longitude: story.geoInfo.lng,
+          }
+        : undefined,
   };
 };
