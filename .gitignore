@@ -9,3 +9,5 @@ src/scripts/barbiebox/users/*
 src/scripts/barbiebox/seeds/*
 src/scripts/barbiebox/posts/*
 src/scripts/barbiebox/media/*
+
+.DS_Store
