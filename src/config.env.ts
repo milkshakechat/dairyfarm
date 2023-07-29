@@ -43,6 +43,10 @@ const devConfig: ConfigEnv = {
       secretId: "rapid-api-key",
       versionId: "latest",
     },
+    GEO_PLACES: {
+      secretId: "geoplaces-map-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -139,6 +143,10 @@ const stagingConfig: ConfigEnv = {
     },
     RAPID_API: {
       secretId: "rapid-api-key",
+      versionId: "latest",
+    },
+    GEO_PLACES: {
+      secretId: "geoplaces-map-api",
       versionId: "latest",
     },
   },
@@ -244,6 +252,10 @@ const prodConfig: ConfigEnv = {
       secretId: "rapid-api-key",
       versionId: "latest",
     },
+    GEO_PLACES: {
+      secretId: "geoplaces-map-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -322,6 +334,7 @@ interface ConfigEnv {
     STRIPE_SERVER_KEY: SecretConfig;
     XCLOUD_WALLET: SecretConfig;
     RAPID_API: SecretConfig;
+    GEO_PLACES: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;

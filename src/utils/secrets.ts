@@ -116,6 +116,15 @@ export const getRapidAPISecret = async () => {
   return stripeSecret;
 };
 
+export const getGeoPlacesSecret = async () => {
+  const stripeSecret = await accessSecretVersionGCP({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.GEO_PLACES.secretId,
+    versionId: config.SECRETS.GEO_PLACES.versionId,
+  });
+  return stripeSecret;
+};
+
 // used for cross-cloud api communication
 export const generate256BitKey = async () => {
   let key = crypto.randomBytes(32).toString("base64");

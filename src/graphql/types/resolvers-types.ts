@@ -140,6 +140,7 @@ export type CreateSetupIntentResponseSuccess = {
 export type CreateStoryInput = {
   allowSwipe?: InputMaybe<Scalars['Boolean']['input']>;
   caption: Scalars['String']['input'];
+  geoPlaceID?: InputMaybe<Scalars['String']['input']>;
   linkedWishID?: InputMaybe<Scalars['String']['input']>;
   media?: InputMaybe<StoryMediaAttachmentInput>;
 };
@@ -373,6 +374,14 @@ export type ListWishlistResponseSuccess = {
   wishlist: Array<Wish>;
 };
 
+export type LocationInfo = {
+  __typename?: 'LocationInfo';
+  geoHash: Scalars['String']['output'];
+  latitude: Scalars['Float']['output'];
+  longitude: Scalars['Float']['output'];
+  title: Scalars['String']['output'];
+};
+
 export type ManageFriendshipInput = {
   action: FriendshipAction;
   friendID: Scalars['UserID']['input'];
@@ -430,11 +439,17 @@ export type MerchantOnboardingStatusSummary = {
 export type ModifyProfileInput = {
   avatar?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
   displayName?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
   gender?: InputMaybe<GenderEnum>;
+  geoPlaceID?: InputMaybe<Scalars['String']['input']>;
   interestedIn?: InputMaybe<Array<GenderEnum>>;
   language?: InputMaybe<LanguageEnum>;
   link?: InputMaybe<Scalars['String']['input']>;
+  prefAboutMe?: InputMaybe<Scalars['String']['input']>;
+  prefGeoBias?: InputMaybe<Scalars['Boolean']['input']>;
+  prefLookingFor?: InputMaybe<Scalars['String']['input']>;
   privacyMode?: InputMaybe<PrivacyModeEnum>;
   themeColor?: InputMaybe<Scalars['HexColorCode']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
@@ -892,6 +907,7 @@ export type Story = {
   expiresAt?: Maybe<Scalars['DateString']['output']>;
   id: Scalars['ID']['output'];
   linkedWishID?: Maybe<Scalars['String']['output']>;
+  location?: Maybe<LocationInfo>;
   outboundLink?: Maybe<Scalars['String']['output']>;
   pinned?: Maybe<Scalars['Boolean']['output']>;
   showcase?: Maybe<Scalars['Boolean']['output']>;
@@ -1021,6 +1037,7 @@ export type User = {
   avatar: Scalars['String']['output'];
   bio: Scalars['String']['output'];
   createdAt: Scalars['DateString']['output'];
+  currency?: Maybe<Scalars['String']['output']>;
   defaultPaymentMethodID?: Maybe<Scalars['String']['output']>;
   disabled: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
@@ -1033,7 +1050,11 @@ export type User = {
   isPaidChat: Scalars['Boolean']['output'];
   language: LanguageEnum;
   link: Scalars['String']['output'];
+  location?: Maybe<LocationInfo>;
   phone?: Maybe<Scalars['String']['output']>;
+  prefAboutMe?: Maybe<Scalars['String']['output']>;
+  prefGeoBias?: Maybe<Scalars['Boolean']['output']>;
+  prefLookingFor?: Maybe<Scalars['String']['output']>;
   privacyMode: PrivacyModeEnum;
   sendBirdAccessToken?: Maybe<Scalars['String']['output']>;
   stories: Array<Story>;
@@ -1284,6 +1305,7 @@ export type ResolversTypes = {
   FetchSwipeFeedInput: FetchSwipeFeedInput;
   FetchSwipeFeedResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FetchSwipeFeedResponse']>;
   FetchSwipeFeedResponseSuccess: ResolverTypeWrapper<FetchSwipeFeedResponseSuccess>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   FriendshipAction: FriendshipAction;
   FriendshipStatus: FriendshipStatus;
   GenderEnum: GenderEnum;
@@ -1314,6 +1336,7 @@ export type ResolversTypes = {
   ListWishlistInput: ListWishlistInput;
   ListWishlistResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ListWishlistResponse']>;
   ListWishlistResponseSuccess: ResolverTypeWrapper<ListWishlistResponseSuccess>;
+  LocationInfo: ResolverTypeWrapper<LocationInfo>;
   ManageFriendshipInput: ManageFriendshipInput;
   ManageFriendshipResponse: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ManageFriendshipResponse']>;
   ManageFriendshipResponseSuccess: ResolverTypeWrapper<ManageFriendshipResponseSuccess>;
@@ -1462,6 +1485,7 @@ export type ResolversParentTypes = {
   FetchSwipeFeedInput: FetchSwipeFeedInput;
   FetchSwipeFeedResponse: ResolversUnionTypes<ResolversParentTypes>['FetchSwipeFeedResponse'];
   FetchSwipeFeedResponseSuccess: FetchSwipeFeedResponseSuccess;
+  Float: Scalars['Float']['output'];
   GetMyProfileResponse: ResolversUnionTypes<ResolversParentTypes>['GetMyProfileResponse'];
   GetMyProfileResponseSuccess: GetMyProfileResponseSuccess;
   GetStoryInput: GetStoryInput;
@@ -1488,6 +1512,7 @@ export type ResolversParentTypes = {
   ListWishlistInput: ListWishlistInput;
   ListWishlistResponse: ResolversUnionTypes<ResolversParentTypes>['ListWishlistResponse'];
   ListWishlistResponseSuccess: ListWishlistResponseSuccess;
+  LocationInfo: LocationInfo;
   ManageFriendshipInput: ManageFriendshipInput;
   ManageFriendshipResponse: ResolversUnionTypes<ResolversParentTypes>['ManageFriendshipResponse'];
   ManageFriendshipResponseSuccess: ManageFriendshipResponseSuccess;
@@ -1836,6 +1861,14 @@ export type ListWishlistResponseSuccessResolvers<ContextType = any, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type LocationInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['LocationInfo'] = ResolversParentTypes['LocationInfo']> = {
+  geoHash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  latitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  longitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ManageFriendshipResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ManageFriendshipResponse'] = ResolversParentTypes['ManageFriendshipResponse']> = {
   __resolveType: TypeResolveFn<'ManageFriendshipResponseSuccess' | 'ResponseError', ParentType, ContextType>;
 };
@@ -2094,6 +2127,7 @@ export type StoryResolvers<ContextType = any, ParentType extends ResolversParent
   expiresAt?: Resolver<Maybe<ResolversTypes['DateString']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   linkedWishID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['LocationInfo']>, ParentType, ContextType>;
   outboundLink?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   pinned?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   showcase?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -2183,6 +2217,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateString'], ParentType, ContextType>;
+  currency?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultPaymentMethodID?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   disabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -2195,7 +2230,11 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   isPaidChat?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   language?: Resolver<ResolversTypes['LanguageEnum'], ParentType, ContextType>;
   link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['LocationInfo']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  prefAboutMe?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  prefGeoBias?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  prefLookingFor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   privacyMode?: Resolver<ResolversTypes['PrivacyModeEnum'], ParentType, ContextType>;
   sendBirdAccessToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stories?: Resolver<Array<ResolversTypes['Story']>, ParentType, ContextType>;
@@ -2313,6 +2352,7 @@ export type Resolvers<ContextType = any> = {
   ListContactsResponseSuccess?: ListContactsResponseSuccessResolvers<ContextType>;
   ListWishlistResponse?: ListWishlistResponseResolvers<ContextType>;
   ListWishlistResponseSuccess?: ListWishlistResponseSuccessResolvers<ContextType>;
+  LocationInfo?: LocationInfoResolvers<ContextType>;
   ManageFriendshipResponse?: ManageFriendshipResponseResolvers<ContextType>;
   ManageFriendshipResponseSuccess?: ManageFriendshipResponseSuccessResolvers<ContextType>;
   MarkNotificationsAsReadResponse?: MarkNotificationsAsReadResponseResolvers<ContextType>;

@@ -43,7 +43,7 @@ export const isLaterThanNow_FirestoreTimestamp = (
 };
 
 // creation
-interface FirestoreDocument {
+export interface FirestoreDocument {
   id: string;
 }
 interface TCreateFirestoreProps<
