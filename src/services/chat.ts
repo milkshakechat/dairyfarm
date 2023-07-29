@@ -603,11 +603,21 @@ export const sendFreeChatMessage = async (
     readers: chatRoom.members,
     createdAt: createFirestoreTimestamp(),
   };
-  await createFirestoreDoc<ChatLogID, ChatLog_Firestore>({
-    id: chatLogID,
-    data: payload,
-    collection: FirestoreCollection.CHAT_LOGS,
-  });
+  await Promise.all([
+    createFirestoreDoc<ChatLogID, ChatLog_Firestore>({
+      id: chatLogID,
+      data: payload,
+      collection: FirestoreCollection.CHAT_LOGS,
+    }),
+    updateFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
+      id: chatRoomID as ChatRoomID,
+      payload: {
+        freeChatPreview: message,
+      },
+      collection: FirestoreCollection.CHAT_ROOMS,
+    }),
+  ]);
+
   return "success";
 };
 

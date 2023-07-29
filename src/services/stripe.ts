@@ -151,14 +151,10 @@ export const createPaymentIntentForWish = async ({
         collection: FirestoreCollection.WISH,
       }),
     ]);
-    const [seller, chatRoom] = await Promise.all([
+    const [seller] = await Promise.all([
       getFirestoreDoc<UserID, User_Firestore>({
         id: wish.creatorID,
         collection: FirestoreCollection.USERS,
-      }),
-      retrieveChatRoom({
-        userID: userID,
-        participants: [userID, wish.creatorID],
       }),
     ]);
 
@@ -182,25 +178,33 @@ export const createPaymentIntentForWish = async ({
     } bought "${wish.wishTitle}" from @${seller.username}`;
     console.log(desc);
 
+    let chatRoom: ChatRoom_Firestore | undefined;
     let assumedChatRoomID: ChatRoomID | undefined = chatRoomID;
     if (chatRoomID) {
       // check that they are indeed part of this chatroom
-      const chatRoom = await getFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
+      const _chatRoom = await getFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
         id: chatRoomID,
         collection: FirestoreCollection.CHAT_ROOMS,
       });
-      if (!chatRoom.members.includes(userID)) {
+      if (!_chatRoom.members.includes(userID)) {
         throw new Error(
           `User ${userID} is not a member of chatroom ${chatRoomID}`
         );
       }
+      chatRoom = _chatRoom;
+      assumedChatRoomID = _chatRoom.id;
     } else {
       // enter chat room using participants
-      const chatRoom = await retrieveChatRoom({
-        userID: userID,
-        participants: [userID, seller.id],
-      });
-      assumedChatRoomID = chatRoom.chatRoom.id;
+      try {
+        const { chatRoom: _chatRoom } = await retrieveChatRoom({
+          userID: userID,
+          participants: [userID, wish.creatorID],
+        });
+        chatRoom = _chatRoom;
+        assumedChatRoomID = _chatRoom.id;
+      } catch (e) {
+        console.log(e);
+      }
     }
 
     const { purchaseManifest, stripePrice } = await createPurchaseManifest({
@@ -280,7 +284,7 @@ export const createPaymentIntentForWish = async ({
         },
         referenceID,
         sendPushNotif: true,
-        chatRoomID: chatRoom.chatRoom.id,
+        chatRoomID: chatRoom ? chatRoom.id : undefined,
       };
       try {
         _postTransaction(transaction);
