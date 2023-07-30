@@ -108,12 +108,21 @@ export const getStripeSecret = async () => {
 };
 
 export const getRapidAPISecret = async () => {
-  const stripeSecret = await accessSecretVersionGCP({
+  const rapidAPISecret = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,
     secretId: config.SECRETS.RAPID_API.secretId,
     versionId: config.SECRETS.RAPID_API.versionId,
   });
-  return stripeSecret;
+  return rapidAPISecret;
+};
+
+export const getGoogleTranslateSecret = async () => {
+  const googleTranslateSecret = await accessSecretVersionGCP({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.GOOGLE_TRANSLATE.secretId,
+    versionId: config.SECRETS.GOOGLE_TRANSLATE.versionId,
+  });
+  return googleTranslateSecret;
 };
 
 export const getGeoPlacesSecret = async () => {

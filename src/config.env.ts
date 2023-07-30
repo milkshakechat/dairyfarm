@@ -47,6 +47,10 @@ const devConfig: ConfigEnv = {
       secretId: "geoplaces-map-api",
       versionId: "latest",
     },
+    GOOGLE_TRANSLATE: {
+      secretId: "google-translate-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -147,6 +151,10 @@ const stagingConfig: ConfigEnv = {
     },
     GEO_PLACES: {
       secretId: "geoplaces-map-api",
+      versionId: "latest",
+    },
+    GOOGLE_TRANSLATE: {
+      secretId: "google-translate-api",
       versionId: "latest",
     },
   },
@@ -256,6 +264,10 @@ const prodConfig: ConfigEnv = {
       secretId: "geoplaces-map-api",
       versionId: "latest",
     },
+    GOOGLE_TRANSLATE: {
+      secretId: "google-translate-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -335,6 +347,7 @@ interface ConfigEnv {
     XCLOUD_WALLET: SecretConfig;
     RAPID_API: SecretConfig;
     GEO_PLACES: SecretConfig;
+    GOOGLE_TRANSLATE: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;
