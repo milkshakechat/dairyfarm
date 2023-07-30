@@ -47,6 +47,10 @@ const devConfig: ConfigEnv = {
       secretId: "geoplaces-map-api",
       versionId: "latest",
     },
+    RECURLY_TOKEN: {
+      secretId: "recurly-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -71,6 +75,9 @@ const devConfig: ConfigEnv = {
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
     webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
+  },
+  RECURLY: {
+    mainBillingCyclePlanID: "tb6q99oi5274",
   },
   LEDGER: {
     region: "ap-northeast-1",
@@ -149,6 +156,10 @@ const stagingConfig: ConfigEnv = {
       secretId: "geoplaces-map-api",
       versionId: "latest",
     },
+    RECURLY_TOKEN: {
+      secretId: "recurly-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -176,6 +187,9 @@ const stagingConfig: ConfigEnv = {
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
     webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
+  },
+  RECURLY: {
+    mainBillingCyclePlanID: "tb6q99oi5274",
   },
   LEDGER: {
     region: "ap-northeast-1",
@@ -244,6 +258,10 @@ const prodConfig: ConfigEnv = {
       secretId: "stripe-private-key",
       versionId: "latest",
     },
+    RECURLY_TOKEN: {
+      secretId: "recurly-api",
+      versionId: "latest",
+    },
     XCLOUD_WALLET: {
       secretId: "xcloud-wallet-gateway-gcp-to-aws",
       versionId: "latest",
@@ -304,6 +322,9 @@ const prodConfig: ConfigEnv = {
     },
     recallGracePeriodDays: 90,
   },
+  RECURLY: {
+    mainBillingCyclePlanID: "tb6q99oi5274",
+  },
   WALLET_GATEWAY: {
     postTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
@@ -335,6 +356,7 @@ interface ConfigEnv {
     XCLOUD_WALLET: SecretConfig;
     RAPID_API: SecretConfig;
     GEO_PLACES: SecretConfig;
+    RECURLY_TOKEN: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;
@@ -357,6 +379,9 @@ interface ConfigEnv {
     merchantOnboardingSuccessUrl: string;
     merchantOnboardingFailureUrl: string;
     webhookEndpoint: string;
+  };
+  RECURLY: {
+    mainBillingCyclePlanID: string;
   };
   LEDGER: {
     region: string;

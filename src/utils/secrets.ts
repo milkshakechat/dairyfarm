@@ -107,6 +107,15 @@ export const getStripeSecret = async () => {
   return stripeSecret;
 };
 
+export const getRecurlySecret = async () => {
+  const stripeSecret = await accessSecretVersionGCP({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.RECURLY_TOKEN.secretId,
+    versionId: config.SECRETS.RECURLY_TOKEN.versionId,
+  });
+  return stripeSecret;
+};
+
 export const getRapidAPISecret = async () => {
   const stripeSecret = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,

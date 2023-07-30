@@ -10,10 +10,12 @@ import { schema } from "@/graphql";
 import { initFirebase } from "@/services/firebase";
 import config from "@/config.env";
 import { initStripe } from "./services/stripe";
+import { initRecurly } from "./services/recurly";
 
 const init = async () => {
   await initFirebase();
   await initStripe();
+  await initRecurly();
 
   const SOCKETS_PORT = process.env.PORT || 8080;
 
