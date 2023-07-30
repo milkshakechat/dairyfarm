@@ -324,12 +324,26 @@ export type InteractStoryResponseSuccess = {
 
 export enum LanguageEnum {
   Arabic = 'arabic',
+  Bengali = 'bengali',
   Chinese = 'chinese',
   English = 'english',
+  French = 'french',
+  German = 'german',
+  Hindi = 'hindi',
+  Indonesian = 'indonesian',
+  Italian = 'italian',
   Japanese = 'japanese',
   Korean = 'korean',
+  Malaysian = 'malaysian',
+  Polish = 'polish',
+  Portuguese = 'portuguese',
+  Russian = 'russian',
   Spanish = 'spanish',
+  Tagalog = 'tagalog',
   Thai = 'thai',
+  Turkish = 'turkish',
+  Ukrainian = 'ukrainian',
+  Urdu = 'urdu',
   Vietnamese = 'vietnamese'
 }
 

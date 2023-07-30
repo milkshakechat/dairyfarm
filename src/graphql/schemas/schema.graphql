@@ -11,9 +11,27 @@ enum LanguageEnum {
   chinese
   arabic
   thai
+
   vietnamese
   japanese
   korean
+  french
+  german
+
+  italian
+  hindi
+  polish
+  turkish
+  russian
+
+  portuguese
+  tagalog
+  indonesian
+  ukrainian
+  bengali
+  
+  malaysian
+  urdu
 }
 
 enum GenderEnum {
