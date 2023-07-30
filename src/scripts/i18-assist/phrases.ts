@@ -1,12 +1,16 @@
-import { PhraseSet, TranslatePageProps } from "@/services/i18-assist";
+export interface TranslatePageProps {
+  componentName: string;
+  phrases: PhraseSet[];
+}
+export interface PhraseSet {
+  key: string;
+  text: string;
+}
 
-const componentName = "ProfileSettingsPage";
+const componentName = "ChatsPage";
 const phrases: PhraseSet[] = [
-  { key: "title", text: "Settings" },
-  { key: "languageLabel", text: "Language" },
-  { key: "themeLabel", text: "Theme" },
-  { key: "privacyLabel", text: "Privacy" },
-  { key: "logout", text: "Log Out" },
+  { key: "explainEnablePush", text: "Please enable push notifications" },
+  { key: "labelSettings", text: "Settings" },
 ];
 
 const translationConfig: TranslatePageProps = {
