@@ -7,10 +7,13 @@ export interface PhraseSet {
   text: string;
 }
 
-const componentName = "ChatsPage";
+const componentName = "_______";
 const phrases: PhraseSet[] = [
-  { key: "explainEnablePush", text: "Please enable push notifications" },
-  { key: "labelSettings", text: "Settings" },
+  { key: "____", text: "______" },
+  { key: "____", text: "______" },
+  { key: "____", text: "______" },
+  { key: "____", text: "______" },
+  { key: "____", text: "______" },
 ];
 
 const translationConfig: TranslatePageProps = {

@@ -1,9 +1,10 @@
-// npx ts-node --project tsconfig.scripts.json -r tsconfig-paths/register ./src/scripts/i18-assist/i18n-sandbox.ts
+// npx ts-node --project tsconfig.scripts.json -r tsconfig-paths/register ./src/scripts/i18-assist/i18n-sandbox-2.ts
 
 import { initFirebase } from "@/services/firebase";
 import {
   TranslatePageProps,
   autoGenIDsPlaceholderPrint,
+  generatePlaceholderPrintVariables,
   translate,
   translatePage,
 } from "@/services/i18-assist";
@@ -33,14 +34,12 @@ import translationConfig23 from "./phrases/phrases.WatchStoryPage";
 import translationConfig24 from "./phrases/phrases.WishlistGallery";
 import translationConfig25 from "./phrases/phrases.WishPage";
 import translationConfig26 from "./phrases/phrases.WalletPanel";
-import translationConfig27 from "./phrases/phrases.LoginPage";
-import translationConfig28 from "./phrases/phrases.OnboardingPage";
+import translationConfig27 from "./empty-phrases/phrases.LoginPage";
+import translationConfig28 from "./empty-phrases/phrases.OnboardingPage";
 
 const run = async () => {
   console.log(`Running script i18n-sandbox...`);
   await initFirebase();
-
-  // ------ batch page translate ------
   const targets: TranslatePageProps[] = [
     // translationConfig1,
     // translationConfig2,
@@ -68,27 +67,22 @@ const run = async () => {
     // translationConfig24,
     // translationConfig25,
     // translationConfig26,
-    translationConfig27,
-    translationConfig28,
+    // translationConfig27,
+    // translationConfig28,
   ];
-  async function runSequentially() {
-    for (let i = 0; i < targets.length; i++) {
-      const translationConfig = targets[i];
-      await translatePage(translationConfig);
-    }
-  }
-  await runSequentially();
-
-  // ------ single page translate ------
-  await translatePage(translationConfig10);
-
-  // ------ single word translate ------
+  // async function runSequentially() {
+  //   for (let i = 0; i < targets.length; i++) {
+  //     const translationConfig = targets[i];
+  //     await generatePlaceholderPrintVariables(translationConfig);
+  //   }
+  // }
+  // await runSequentially();
   // await translate({
   //   lang: "zh",
   //   text: "hello",
   // });
-
-  // ------ auto generate IDs ------
-  // await autoGenIDsPlaceholderPrint(translationConfig);
+  // await autoGenIDsPlaceholderPrint(translationConfig27);
+  // await autoGenIDsPlaceholderPrint(translationConfig28);
+  // await generatePlaceholderPrintVariables(translationConfig26);
 };
 run();
