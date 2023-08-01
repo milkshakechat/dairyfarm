@@ -35,6 +35,7 @@ import translationConfig25 from "./phrases/phrases.WishPage";
 import translationConfig26 from "./phrases/phrases.WalletPanel";
 import translationConfig27 from "./phrases/phrases.LoginPage";
 import translationConfig28 from "./phrases/phrases.OnboardingPage";
+import translationConfig29 from "./phrases/phrases.QuickLanguage";
 
 const run = async () => {
   console.log(`Running script i18n-sandbox...`);
@@ -68,8 +69,9 @@ const run = async () => {
     // translationConfig24,
     // translationConfig25,
     // translationConfig26,
-    translationConfig27,
-    translationConfig28,
+    // translationConfig27,
+    // translationConfig28,
+    translationConfig29,
   ];
   async function runSequentially() {
     for (let i = 0; i < targets.length; i++) {
@@ -80,7 +82,7 @@ const run = async () => {
   await runSequentially();
 
   // ------ single page translate ------
-  await translatePage(translationConfig10);
+  // await translatePage(translationConfig10);
 
   // ------ single word translate ------
   // await translate({

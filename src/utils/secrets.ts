@@ -125,6 +125,15 @@ export const getGoogleTranslateSecret = async () => {
   return googleTranslateSecret;
 };
 
+export const getExchangeRateAPISecret = async () => {
+  const fxAPISecret = await accessSecretVersionGCP({
+    projectId: config.GCLOUD.projectId,
+    secretId: config.SECRETS.EXCHANGE_RATE.secretId,
+    versionId: config.SECRETS.EXCHANGE_RATE.versionId,
+  });
+  return fxAPISecret;
+};
+
 export const getGeoPlacesSecret = async () => {
   const stripeSecret = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,

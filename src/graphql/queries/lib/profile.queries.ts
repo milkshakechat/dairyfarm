@@ -14,6 +14,7 @@ import {
 } from "@/services/firestore";
 import { checkIfUsernameAvailable } from "@/utils/username";
 import {
+  CurrencyEnum,
   FirestoreCollection,
   Friendship_Firestore,
   Notification_Firestore,
@@ -29,6 +30,7 @@ import { convertStoryToGraphQL } from "@/services/story";
 import * as admin from "firebase-admin";
 import { firestore } from "@/services/firebase";
 import { Query, QueryDocumentSnapshot } from "firebase-admin/firestore";
+import { getFxRates } from "@/services/fx";
 
 export const getMyProfile = async (
   _parent: any,
@@ -53,6 +55,15 @@ export const getMyProfile = async (
       //   userID,
       // }),
     ]);
+    const fxRate =
+      user.currency === CurrencyEnum.USD
+        ? 1.0
+        : (
+            await getFxRates({
+              from: CurrencyEnum.USD,
+              to: user.currency || CurrencyEnum.USD,
+            })
+          ).toRate;
 
     return {
       user: {
@@ -69,10 +80,11 @@ export const getMyProfile = async (
               longitude: user.geoInfo.lng || 0,
             }
           : undefined,
-        currency: user.currency || undefined,
         prefGeoBias: user.prefGeoBias || undefined,
         prefAboutMe: user.prefAboutMe || undefined,
         prefLookingFor: user.prefLookingFor || undefined,
+        currency: user.currency || CurrencyEnum.USD,
+        fxRateFromUSD: fxRate,
       },
     };
   } catch (e) {
