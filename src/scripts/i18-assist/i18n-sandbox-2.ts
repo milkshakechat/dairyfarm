@@ -36,40 +36,42 @@ import translationConfig25 from "./phrases/phrases.WishPage";
 import translationConfig26 from "./phrases/phrases.WalletPanel";
 import translationConfig27 from "./empty-phrases/phrases.LoginPage";
 import translationConfig28 from "./empty-phrases/phrases.OnboardingPage";
+import { changeFxBase, getFxRates } from "@/services/fx";
+import { CurrencyEnum } from "@milkshakechat/helpers";
 
 const run = async () => {
   console.log(`Running script i18n-sandbox...`);
   await initFirebase();
-  const targets: TranslatePageProps[] = [
-    // translationConfig1,
-    // translationConfig2,
-    // translationConfig3,
-    // translationConfig4,
-    // translationConfig5,
-    // translationConfig6,
-    // translationConfig7,
-    // translationConfig8,
-    // translationConfig9,
-    // translationConfig10,
-    // translationConfig11,
-    // translationConfig12,
-    // translationConfig13,
-    // translationConfig14,
-    // translationConfig15,
-    // translationConfig16,
-    // translationConfig17,
-    // translationConfig18,
-    // translationConfig19,
-    // translationConfig20,
-    // translationConfig21,
-    // translationConfig22,
-    // translationConfig23,
-    // translationConfig24,
-    // translationConfig25,
-    // translationConfig26,
-    // translationConfig27,
-    // translationConfig28,
-  ];
+  // const targets: TranslatePageProps[] = [
+  //   // translationConfig1,
+  //   // translationConfig2,
+  //   // translationConfig3,
+  //   // translationConfig4,
+  //   // translationConfig5,
+  //   // translationConfig6,
+  //   // translationConfig7,
+  //   // translationConfig8,
+  //   // translationConfig9,
+  //   // translationConfig10,
+  //   // translationConfig11,
+  //   // translationConfig12,
+  //   // translationConfig13,
+  //   // translationConfig14,
+  //   // translationConfig15,
+  //   // translationConfig16,
+  //   // translationConfig17,
+  //   // translationConfig18,
+  //   // translationConfig19,
+  //   // translationConfig20,
+  //   // translationConfig21,
+  //   // translationConfig22,
+  //   // translationConfig23,
+  //   // translationConfig24,
+  //   // translationConfig25,
+  //   // translationConfig26,
+  //   // translationConfig27,
+  //   // translationConfig28,
+  // ];
   // async function runSequentially() {
   //   for (let i = 0; i < targets.length; i++) {
   //     const translationConfig = targets[i];
@@ -84,5 +86,13 @@ const run = async () => {
   // await autoGenIDsPlaceholderPrint(translationConfig27);
   // await autoGenIDsPlaceholderPrint(translationConfig28);
   // await generatePlaceholderPrintVariables(translationConfig26);
+  // await changeFxBase({
+  //   base: CurrencyEnum.USD,
+  // });
+  const fx = await getFxRates({
+    from: CurrencyEnum.USD,
+    to: CurrencyEnum.VND,
+  });
+  console.log(fx);
 };
 run();

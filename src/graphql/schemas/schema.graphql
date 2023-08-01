@@ -65,10 +65,11 @@ type User {
   escrowWallet: WalletAliasID
   defaultPaymentMethodID: String
   location: LocationInfo
-  currency: String
   prefGeoBias: Boolean
   prefAboutMe: String
   prefLookingFor: String
+  currency: String!
+  fxRateFromUSD: Float!
 }
 
 type LocationInfo {

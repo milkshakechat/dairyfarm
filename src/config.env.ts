@@ -51,6 +51,10 @@ const devConfig: ConfigEnv = {
       secretId: "google-translate-api",
       versionId: "latest",
     },
+    EXCHANGE_RATE: {
+      secretId: "exchange-rate-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -155,6 +159,10 @@ const stagingConfig: ConfigEnv = {
     },
     GOOGLE_TRANSLATE: {
       secretId: "google-translate-api",
+      versionId: "latest",
+    },
+    EXCHANGE_RATE: {
+      secretId: "exchange-rate-api",
       versionId: "latest",
     },
   },
@@ -268,6 +276,10 @@ const prodConfig: ConfigEnv = {
       secretId: "google-translate-api",
       versionId: "latest",
     },
+    EXCHANGE_RATE: {
+      secretId: "exchange-rate-api",
+      versionId: "latest",
+    },
   },
   SENDBIRD: {
     SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
@@ -348,6 +360,7 @@ interface ConfigEnv {
     RAPID_API: SecretConfig;
     GEO_PLACES: SecretConfig;
     GOOGLE_TRANSLATE: SecretConfig;
+    EXCHANGE_RATE: SecretConfig;
   };
   SENDBIRD: {
     SENDBIRD_APP_ID: string;

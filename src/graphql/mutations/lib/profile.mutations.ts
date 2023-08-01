@@ -9,6 +9,7 @@ import {
   UpdatePushTokenResponse,
 } from "@/graphql/types/resolvers-types";
 import { updateFirestoreDoc } from "@/services/firestore";
+import { getFxRates } from "@/services/fx";
 import { getPlaceDetails, updateGeoField } from "@/services/geolocation";
 
 import { markNotifications } from "@/services/notification";
@@ -19,6 +20,7 @@ import {
 } from "@/services/push";
 import { updateSendbirdUser } from "@/services/sendbird";
 import {
+  CurrencyEnum,
   FirestoreCollection,
   GeoInfo,
   GoogleMapsPlaceID,
@@ -39,6 +41,9 @@ export const modifyProfile = async (
   const { userID } = await authGuardHTTP({ _context, enforceAuth: true });
   if (!userID) {
     throw Error("No user ID found");
+  }
+  if (args.input.currency && !(args.input.currency in CurrencyEnum)) {
+    throw Error("Invalid currency");
   }
   // @ts-ignore
   const payload: Partial<User_Firestore> = {
@@ -81,10 +86,18 @@ export const modifyProfile = async (
       throw Error("No user mirror found");
     }
   }
+  const fxRate =
+    user.currency === CurrencyEnum.USD
+      ? 1.0
+      : (
+          await getFxRates({
+            from: CurrencyEnum.USD,
+            to: user.currency || CurrencyEnum.USD,
+          })
+        ).toRate;
   return {
     user: {
       ...user,
-      currency: user.currency || undefined,
       prefGeoBias: user.prefGeoBias || undefined,
       prefAboutMe: user.prefAboutMe || undefined,
       prefLookingFor: user.prefLookingFor || undefined,
@@ -96,6 +109,8 @@ export const modifyProfile = async (
             longitude: user.geoInfo.lng || 0,
           }
         : undefined,
+      currency: user.currency || CurrencyEnum.USD,
+      fxRateFromUSD: fxRate,
     },
   };
 };
