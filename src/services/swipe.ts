@@ -151,9 +151,9 @@ export const fetchSwipeFeedAlgorithm = async ({
   const onlyNewStories = storiesWithWish
     .filter((s) => {
       const { viewed, swipeDislike, swipeLike } = s.interaction || {};
-      if (viewed || swipeDislike || swipeLike) {
-        return false;
-      }
+      // if (viewed || swipeDislike || swipeLike) {
+      //   return false;
+      // }
       return true;
     })
     .filter((s) => {
