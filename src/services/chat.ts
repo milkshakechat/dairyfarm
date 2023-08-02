@@ -24,6 +24,7 @@ import {
   WishBuyFrequency,
   cookieToUSD,
   milkshakeLogoCookie,
+  placeholderImageThumbnail,
 } from "@milkshakechat/helpers";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -114,7 +115,7 @@ export const extendChatPrivileges = async ({
     const newSendbirdUser = await createSendbirdUser({
       userID,
       displayName: user.displayName || user.username,
-      profileUrl: user.avatar,
+      profileUrl: user.avatar || placeholderImageThumbnail,
     });
     if (newSendbirdUser) {
       // update the user
@@ -414,6 +415,7 @@ export const enterChatRoom = async ({
               },
             };
           }, {}),
+        lastUpdated: createFirestoreTimestamp(),
       },
       collection: FirestoreCollection.CHAT_ROOMS,
     });
@@ -612,7 +614,8 @@ export const sendFreeChatMessage = async (
     updateFirestoreDoc<ChatRoomID, ChatRoom_Firestore>({
       id: chatRoomID as ChatRoomID,
       payload: {
-        freeChatPreview: message,
+        chatPreview: message,
+        lastUpdated: createFirestoreTimestamp(),
       },
       collection: FirestoreCollection.CHAT_ROOMS,
     }),
