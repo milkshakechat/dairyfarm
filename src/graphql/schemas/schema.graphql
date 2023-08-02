@@ -658,6 +658,7 @@ input SendTransferInput {
   recipientID: UserID!
   amount: Int!
   note: String
+  isPermaTransfer: Boolean
 }
 type SendTransferResponseSuccess {
   referenceID: String!

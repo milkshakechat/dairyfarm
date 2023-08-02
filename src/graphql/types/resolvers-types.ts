@@ -871,6 +871,7 @@ export type SendFriendRequestResponseSuccess = {
 
 export type SendTransferInput = {
   amount: Scalars['Int']['input'];
+  isPermaTransfer?: InputMaybe<Scalars['Boolean']['input']>;
   note?: InputMaybe<Scalars['String']['input']>;
   recipientID: Scalars['UserID']['input'];
 };
