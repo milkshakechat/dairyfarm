@@ -59,7 +59,7 @@ const run = async () => {
     // translationConfig13,
     // translationConfig14,
     // translationConfig15,
-    // translationConfig16,
+    translationConfig16,
     // translationConfig17,
     // translationConfig18,
     // translationConfig19,
@@ -73,7 +73,7 @@ const run = async () => {
     // translationConfig27,
     // translationConfig28,
     // translationConfig29,
-    translationConfig30,
+    // translationConfig30,
   ];
   async function runSequentially() {
     for (let i = 0; i < targets.length; i++) {
