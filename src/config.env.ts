@@ -107,6 +107,9 @@ const devConfig: ConfigEnv = {
     postTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
     },
+    permaTransfer: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/permatransfer",
+    },
     recallTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/recall",
     },
@@ -221,6 +224,9 @@ const stagingConfig: ConfigEnv = {
     postTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
     },
+    permaTransfer: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/permatransfer",
+    },
     recallTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/recall",
     },
@@ -332,6 +338,9 @@ const prodConfig: ConfigEnv = {
     postTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
     },
+    permaTransfer: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/permatransfer",
+    },
     recallTransaction: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/recall",
     },
@@ -406,6 +415,9 @@ interface ConfigEnv {
   };
   WALLET_GATEWAY: {
     postTransaction: {
+      url: string;
+    };
+    permaTransfer: {
       url: string;
     };
     recallTransaction: {

@@ -92,53 +92,100 @@ export const sendTransfer = async (
   if (!selfUser || !recipientUser) {
     throw Error("No user found");
   }
-
-  const xcloudSecret = await getXCloudAWSSecret();
-  const transaction: PostTransactionXCloudRequestBody = {
-    title: `@${selfUser.username} sent ${args.input.amount} cookies to @${recipientUser.username}`,
-    note: args.input.note || "",
-    thumbnail: selfUser.avatar,
-    purchaseManifestID: undefined,
-    attribution: undefined,
-    type: TransactionType.TRANSFER,
-    amount: args.input.amount,
-    senderWallet: selfUser.tradingWallet,
-    receiverWallet: recipientUser.escrowWallet,
-    senderUserID: selfUser.id,
-    receiverUserID: recipientUser.id,
-    explanations: [
-      {
-        walletAliasID: selfUser.tradingWallet,
-        explanation: `Sent ${args.input.amount} cookies to @${recipientUser.username}`,
-        amount: args.input.amount * -1,
+  console.log(`isPermaTransfer = ${args.input.isPermaTransfer}`);
+  if (args.input.isPermaTransfer) {
+    const xcloudSecret = await getXCloudAWSSecret();
+    const transaction: PostTransactionXCloudRequestBody = {
+      title: `@${selfUser.username} perma-transferred ${args.input.amount} cookies to @${recipientUser.username}`,
+      note: args.input.note || "",
+      thumbnail: selfUser.avatar,
+      purchaseManifestID: undefined,
+      attribution: undefined,
+      type: TransactionType.TRANSFER,
+      amount: args.input.amount,
+      senderWallet: selfUser.tradingWallet,
+      receiverWallet: recipientUser.tradingWallet,
+      senderUserID: selfUser.id,
+      receiverUserID: recipientUser.id,
+      explanations: [
+        {
+          walletAliasID: selfUser.tradingWallet,
+          explanation: `Perma-transferred ${args.input.amount} cookies to @${recipientUser.username}`,
+          amount: args.input.amount * -1,
+        },
+        {
+          walletAliasID: recipientUser.tradingWallet,
+          explanation: `@${selfUser.username} perma-transferred you ${args.input.amount} cookies`,
+          amount: args.input.amount,
+        },
+      ],
+      gotRecalled: false,
+      transferMetadata: {
+        senderNote: args.input.note || "",
+        isPermaTransfer: true,
       },
-      {
-        walletAliasID: recipientUser.escrowWallet,
-        explanation: `@${selfUser.username} sent you ${args.input.amount} cookies`,
-        amount: args.input.amount,
+      referenceID,
+      sendPushNotif: true,
+      chatRoomID: chatRoom ? chatRoom.id : undefined,
+    };
+    axios
+      .post(config.WALLET_GATEWAY.permaTransfer.url, transaction, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: xcloudSecret,
+        },
+      })
+      .then(async (data) => {
+        // console.log(data);
+      })
+      .catch((err) => console.log(err));
+  } else {
+    const xcloudSecret = await getXCloudAWSSecret();
+    const transaction: PostTransactionXCloudRequestBody = {
+      title: `@${selfUser.username} sent ${args.input.amount} cookies to @${recipientUser.username}`,
+      note: args.input.note || "",
+      thumbnail: selfUser.avatar,
+      purchaseManifestID: undefined,
+      attribution: undefined,
+      type: TransactionType.TRANSFER,
+      amount: args.input.amount,
+      senderWallet: selfUser.tradingWallet,
+      receiverWallet: recipientUser.escrowWallet,
+      senderUserID: selfUser.id,
+      receiverUserID: recipientUser.id,
+      explanations: [
+        {
+          walletAliasID: selfUser.tradingWallet,
+          explanation: `Sent ${args.input.amount} cookies to @${recipientUser.username}`,
+          amount: args.input.amount * -1,
+        },
+        {
+          walletAliasID: recipientUser.escrowWallet,
+          explanation: `@${selfUser.username} sent you ${args.input.amount} cookies`,
+          amount: args.input.amount,
+        },
+      ],
+      gotRecalled: false,
+      transferMetadata: {
+        senderNote: args.input.note || "",
       },
-    ],
-    gotRecalled: false,
-    transferMetadata: {
-      senderNote: args.input.note || "",
-    },
-    referenceID,
-    sendPushNotif: true,
-    chatRoomID: chatRoom ? chatRoom.id : undefined,
-  };
+      referenceID,
+      sendPushNotif: true,
+      chatRoomID: chatRoom ? chatRoom.id : undefined,
+    };
 
-  axios
-    .post(config.WALLET_GATEWAY.postTransaction.url, transaction, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: xcloudSecret,
-      },
-    })
-    .then(async (data) => {
-      // console.log(data);
-    })
-    .catch((err) => console.log(err));
-
+    axios
+      .post(config.WALLET_GATEWAY.postTransaction.url, transaction, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: xcloudSecret,
+        },
+      })
+      .then(async (data) => {
+        // console.log(data);
+      })
+      .catch((err) => console.log(err));
+  }
   return {
     referenceID,
   };
