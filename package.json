@@ -11,7 +11,8 @@
     "build": "NODE_ENV=development && npm run clean && npm run generate && tsc && tsc-alias",
     "generate": "graphql-codegen",
     "start": "NODE_ENV=development && nodemon  -r tsconfig-paths/register build/index.js",
-    "deploy:staging": "NODE_ENV=development && npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-dev-faf77 --update-env-vars NODE_ENV=development --region=us-west3"
+    "deploy:staging": "NODE_ENV=development && npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-dev-faf77 --update-env-vars NODE_ENV=development --region=us-west3",
+    "deploy:production": "NODE_ENV=production && npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-club --update-env-vars NODE_ENV=production --region=us-west3"
   },
   "_moduleAliases": {
     "@": "build/src"

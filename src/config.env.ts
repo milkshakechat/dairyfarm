@@ -194,7 +194,7 @@ const stagingConfig: ConfigEnv = {
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
     merchantOnboardingFailureUrl:
       "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
-    webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
+    webhookEndpoint: "/",
   },
   LEDGER: {
     region: "ap-northeast-1",
@@ -241,12 +241,12 @@ const stagingConfig: ConfigEnv = {
 
 const prodConfig: ConfigEnv = {
   GCLOUD: {
-    projectId: "milkshake-dev-faf77",
+    projectId: "milkshake-club",
   },
   BUCKETS: {
     UserStories: {
-      name: "user-stories-social",
-      location: "asia-northeast1",
+      name: "user-stories-social-prod",
+      location: "us-multi-region",
     },
   },
   SECRETS: {
@@ -288,31 +288,31 @@ const prodConfig: ConfigEnv = {
     },
   },
   SENDBIRD: {
-    SENDBIRD_APP_ID: "D24F8D62-B601-4978-8DFB-F17DB6CD741F",
-    API_URL: "https://api-D24F8D62-B601-4978-8DFB-F17DB6CD741F.sendbird.com",
+    SENDBIRD_APP_ID: "AE88AAA6-1206-4FEF-B384-052B14A3C6B6",
+    API_URL: "https://api-AE88AAA6-1206-4FEF-B384-052B14A3C6B6.sendbird.com",
     WEBHOOK_URL: "https://sendbirdpushnotifications-hcdyzvq35a-uc.a.run.app/",
   },
   FIREBASE: {
-    apiKey: "AIzaSyAqVL1P4PsE40Bd-Mu8CnqwczpC-hSTaz0",
-    authDomain: "milkshake-dev-faf77.firebaseapp.com",
-    projectId: "milkshake-dev-faf77",
-    storageBucket: "milkshake-dev-faf77.appspot.com",
-    messagingSenderId: "642004369083",
-    appId: "1:642004369083:web:74b7c685be091ce6b4f39e",
-    measurementId: "G-N0YXCSQJ89",
+    apiKey: "AIzaSyDDl7fwpaw2jq0e4P9HXLVRBiHgPUlvNX4",
+    authDomain: "milkshake-club.firebaseapp.com",
+    projectId: "milkshake-club",
+    storageBucket: "milkshake-club.appspot.com",
+    messagingSenderId: "373735760752",
+    appId: "1:373735760752:web:692571f8870097b27625b5",
+    measurementId: "G-Z8YF9KBJ8F",
   },
   GRAPHQL: {
-    CORS_ORIGINS: ["https://milkshake.chat"],
+    CORS_ORIGINS: ["https://milkshake.club"],
   },
   STRIPE: {
     merchantOnboardingSuccessUrl:
-      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-init",
+      "https://milkshake.club/app/profile/settings/merchant/banking-registration-init",
     merchantOnboardingFailureUrl:
-      "https://milkshake-dev-faf77.web.app/app/profile/settings/merchant/banking-registration-refresh",
+      "https://milkshake.club/app/profile/settings/merchant/banking-registration-refresh",
     webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
   },
   LEDGER: {
-    region: "ap-northeast-1",
+    region: "us-east-2",
     name: "inapp-wallet-prod",
     tables: {
       WALLET: "wallets",
@@ -321,15 +321,15 @@ const prodConfig: ConfigEnv = {
     globalCookieStore: {
       userID: "global-cookie-store-owner" as UserID,
       walletAliasID:
-        "milkshake-v0.1_global-cookie-store-wallet" as WalletAliasID,
-      topUpWalletProductID: "prod_OK0vYwKnYTh69b" as StripeProductID,
-      topUpWalletPriceID: "price_1NXMu7BbKljWimkIaY3ZWJMk" as StripePriceID,
+        "milkshake-v1.0_global-cookie-store-wallet" as WalletAliasID,
+      topUpWalletProductID: "prod_ONQtZxQzixZ4vc" as StripeProductID,
+      topUpWalletPriceID: "price_1Nag1iBbKljWimkIvHrgLtB4" as StripePriceID,
       topUpWalletWishID: "TOP_UP_WALLET_WISH_ID" as WishID,
     },
     premiumChatStore: {
       userID: "premium-chat-store-owner" as UserID,
       walletAliasID:
-        "milkshake-v0.1_premium-chat-store-wallet" as WalletAliasID,
+        "milkshake-v1.0_premium-chat-store-wallet" as WalletAliasID,
       premiumChatWishID: "PREMIUM_CHAT_WISH_ID" as WishID,
     },
     recallGracePeriodDays: 90,
