@@ -36,7 +36,9 @@ import translationConfig25 from "./phrases/phrases.WishPage";
 import translationConfig26 from "./phrases/phrases.WalletPanel";
 import translationConfig27 from "./empty-phrases/phrases.LoginPage";
 import translationConfig28 from "./empty-phrases/phrases.OnboardingPage";
+import translationConfig29 from "./empty-phrases/phrases.MobileScreen";
 import { changeFxBase, getFxRates } from "@/services/fx";
+
 import { CurrencyEnum } from "@milkshakechat/helpers";
 
 const run = async () => {
@@ -83,16 +85,16 @@ const run = async () => {
   //   lang: "zh",
   //   text: "hello",
   // });
-  // await autoGenIDsPlaceholderPrint(translationConfig27);
+  await autoGenIDsPlaceholderPrint(translationConfig29);
   // await autoGenIDsPlaceholderPrint(translationConfig28);
   // await generatePlaceholderPrintVariables(translationConfig26);
   // await changeFxBase({
   //   base: CurrencyEnum.USD,
   // });
-  const fx = await getFxRates({
-    from: CurrencyEnum.USD,
-    to: CurrencyEnum.VND,
-  });
-  console.log(fx);
+  // const fx = await getFxRates({
+  //   from: CurrencyEnum.USD,
+  //   to: CurrencyEnum.VND,
+  // });
+  // console.log(fx);
 };
 run();

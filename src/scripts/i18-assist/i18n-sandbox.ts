@@ -36,6 +36,7 @@ import translationConfig26 from "./phrases/phrases.WalletPanel";
 import translationConfig27 from "./phrases/phrases.LoginPage";
 import translationConfig28 from "./phrases/phrases.OnboardingPage";
 import translationConfig29 from "./phrases/phrases.QuickLanguage";
+import translationConfig30 from "./phrases/phrases.MobileScreen";
 
 const run = async () => {
   console.log(`Running script i18n-sandbox...`);
@@ -71,7 +72,8 @@ const run = async () => {
     // translationConfig26,
     // translationConfig27,
     // translationConfig28,
-    translationConfig29,
+    // translationConfig29,
+    translationConfig30,
   ];
   async function runSequentially() {
     for (let i = 0; i < targets.length; i++) {
