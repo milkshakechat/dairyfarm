@@ -41,19 +41,19 @@ const run = async () => {
   await initFirebase();
   await initRecurly();
   // await createRecurlyPlan({
-  //   userID: "iF9ZcmR4ZdWcWrH3ChICwFhYVqX2" as UserID,
-  //   username: "johnnymacro" as Username,
+  //   userID: "ufnVDTIJRYQkjChiBs2oJoEX3St2" as UserID,
+  //   username: "savinnababy" as Username,
   // });
   // await getRecurlyPlan({
-  //   // planId: "tb7ay9d0zoxp" as RecurlyPlanID,
-  //   planCode: "if9zcmr4zdwcwrh3chicwfhyvqx2",
+  //   // planId: "tc01wfw36pwl" as RecurlyPlanID,
+  //   planCode: "ufnVDTIJRYQkjChiBs2oJoEX3St2",
   // });
   // const userID = "iF9ZcmR4ZdWcWrH3ChICwFhYVqX2" as UserID;
   // await createRecurlyCustomer(userID);
   // await getRecurlyCustomer({
   //   accountCode: "iF9ZcmR4ZdWcWrH3ChICwFhYVqX2",
   // });
-  // const planID = "tb7ay9d0zoxp" as RecurlyPlanID;
+  // const planID = "tc01wfw36pwl" as RecurlyPlanID;
   // const accountCode =
   //   "iF9ZcmR4ZdWcWrH3ChICwFhYVqX2" as RecurlyCustomerAccountCode;
   // await createRecurlySubscription({ planID, accountCode });
@@ -79,7 +79,7 @@ const run = async () => {
   // const recurlyItemID = "tb7lszapk0p2"
   // const planAddOnID = "tb7u3lynqg60"
   // await createRecurlyPlanAddOn({
-  //   planID: "tb7ay9d0zoxp" as RecurlyPlanID,
+  //   planID: "tc01wfw36pwl" as RecurlyPlanID,
   //   customTitle: "Speed Dating Night",
   //   customBilledAmount: 240,
   //   purchaseManifestID: uuidv4() as PurchaseMainfestID,
@@ -90,9 +90,9 @@ const run = async () => {
   // });
 
   await appendRecurlySubscriptionAddOn({
-    subscriptionID: "tb6tu11317rr" as RecurlySubscriptionID,
+    subscriptionID: "tc029jkw599g" as RecurlySubscriptionID,
     planAddOnCode:
-      "PM_c66d937d-ef36-4595-9383-1a7c26142340" as RecurlyPlanAddOnID,
+      "PM_ec968b90-32d0-4222-b1c8-13a936f1d4d0" as RecurlyPlanAddOnID,
   });
 };
 run();

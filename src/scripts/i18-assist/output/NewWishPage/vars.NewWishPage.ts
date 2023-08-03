@@ -1,0 +1,55 @@
+
+// import { useIntl } from "react-intl";
+// const intl = useIntl();
+// const _txt_wishCreated_cbc = intl.formatMessage({ id: "_txt_wishCreated_cbc.___NewWishPage", defaultMessage: "Wish created!" });
+// const _txt_wishUpdated_b02 = intl.formatMessage({ id: "_txt_wishUpdated_b02.___NewWishPage", defaultMessage: "Wish updated!" });
+// const _txt_isNotAnImageFile_67c = intl.formatMessage({ id: "_txt_isNotAnImageFile_67c.___NewWishPage", defaultMessage: "is not an image file" });
+// const _txt_updateWish_c8a = intl.formatMessage({ id: "_txt_updateWish_c8a.___NewWishPage", defaultMessage: "Update Wish" });
+// const _txt_createWish_bd8 = intl.formatMessage({ id: "_txt_createWish_bd8.___NewWishPage", defaultMessage: "Create Wish" });
+// const _txt_wishNameMustBeLessThan_ef8 = intl.formatMessage({ id: "_txt_wishNameMustBeLessThan_ef8.___NewWishPage", defaultMessage: "Wish name must be less than " });
+// const _txt_charactersLength_c6d = intl.formatMessage({ id: "_txt_charactersLength_c6d.___NewWishPage", defaultMessage: "characters length" });
+// const _txt_wishDescriptionMustBeLessThan_982 = intl.formatMessage({ id: "_txt_wishDescriptionMustBeLessThan_982.___NewWishPage", defaultMessage: "Wish description must be less than " });
+// const _txt_mustBeAValidUrl_e12 = intl.formatMessage({ id: "_txt_mustBeAValidUrl_e12.___NewWishPage", defaultMessage: "Must be a valid URL" });
+// const _txt_createdWish_619 = intl.formatMessage({ id: "_txt_createdWish_619.___NewWishPage", defaultMessage: "Created Wish" });
+// const _txt_createAnother_e15 = intl.formatMessage({ id: "_txt_createAnother_e15.___NewWishPage", defaultMessage: "Create Another" });
+// const _txt_viewWish_6a8 = intl.formatMessage({ id: "_txt_viewWish_6a8.___NewWishPage", defaultMessage: "View Wish" });
+// const _txt_uploading_586 = intl.formatMessage({ id: "_txt_uploading_586.___NewWishPage", defaultMessage: "Uploading.." });
+// const _txt_images_330 = intl.formatMessage({ id: "_txt_images_330.___NewWishPage", defaultMessage: "images" });
+// const _txt_event_31e = intl.formatMessage({ id: "_txt_event_31e.___NewWishPage", defaultMessage: "Event" });
+// const _txt_gift_b3b = intl.formatMessage({ id: "_txt_gift_b3b.___NewWishPage", defaultMessage: "Gift" });
+// const _txt_removeGraphic_b15 = intl.formatMessage({ id: "_txt_removeGraphic_b15.___NewWishPage", defaultMessage: "Remove graphic?" });
+// const _txt_areYouSureToRemoveImage_395 = intl.formatMessage({ id: "_txt_areYouSureToRemoveImage_395.___NewWishPage", defaultMessage: "Are you sure to remove image #" });
+// const _txt_yes_361 = intl.formatMessage({ id: "_txt_yes_361.___NewWishPage", defaultMessage: "Yes" });
+// const _txt_no_574 = intl.formatMessage({ id: "_txt_no_574.___NewWishPage", defaultMessage: "No" });
+// const _txt_wishName_556 = intl.formatMessage({ id: "_txt_wishName_556.___NewWishPage", defaultMessage: "Wish Name" });
+// const _txt_whatDoYouWishFor_ad7 = intl.formatMessage({ id: "_txt_whatDoYouWishFor_ad7.___NewWishPage", defaultMessage: "What do you wish for?" });
+// const _txt_about_692 = intl.formatMessage({ id: "_txt_about_692.___NewWishPage", defaultMessage: "About" });
+// const _txt_whyYouLikeThisWishOptional_b7f = intl.formatMessage({ id: "_txt_whyYouLikeThisWishOptional_b7f.___NewWishPage", defaultMessage: "Why you like this wish (optional)" });
+// const _txt_externalLink_ceb = intl.formatMessage({ id: "_txt_externalLink_ceb.___NewWishPage", defaultMessage: "External link" });
+// const _txt_linkToEventOrShoppingPage_716 = intl.formatMessage({ id: "_txt_linkToEventOrShoppingPage_716.___NewWishPage", defaultMessage: "Link to event or shopping page" });
+// const _txt_priceInCookies_ea9 = intl.formatMessage({ id: "_txt_priceInCookies_ea9.___NewWishPage", defaultMessage: "Price in Cookies" });
+// const _txt_wishlistsArePurchasedWithCookiesTheInappCurrencyOfMilkshakeChatYouCanRedeemCookiesForCash_7b1 = intl.formatMessage({ id: "_txt_wishlistsArePurchasedWithCookiesTheInappCurrencyOfMilkshakeChatYouCanRedeemCookiesForCash_7b1.___NewWishPage", defaultMessage: "Wishlists are purchased with COOKIES, the in-app currency of Milkshake Chat. You can redeem COOKIES for cash." });
+// const _txt_howOftenThisWishPriceWillBeChargedToTheCustomerFan_3f2 = intl.formatMessage({ id: "_txt_howOftenThisWishPriceWillBeChargedToTheCustomerFan_3f2.___NewWishPage", defaultMessage: "How often this wish price will be charged to the customer fan." });
+// const _txt_frequency_fa1 = intl.formatMessage({ id: "_txt_frequency_fa1.___NewWishPage", defaultMessage: "Frequency" });
+// const _txt_onceTimePayment_7f8 = intl.formatMessage({ id: "_txt_onceTimePayment_7f8.___NewWishPage", defaultMessage: "Once Time Payment" });
+// const _txt_dailyRecurring_dd1 = intl.formatMessage({ id: "_txt_dailyRecurring_dd1.___NewWishPage", defaultMessage: "Daily Recurring" });
+// const _txt_weeklyRecurring_d51 = intl.formatMessage({ id: "_txt_weeklyRecurring_d51.___NewWishPage", defaultMessage: "Weekly Recurring" });
+// const _txt_monthlyRecurring_5da = intl.formatMessage({ id: "_txt_monthlyRecurring_5da.___NewWishPage", defaultMessage: "Monthly Recurring" });
+// const _txt_doYouWantToAllowAnyoneToBuyThisWishOrFriendsOnly_a9e = intl.formatMessage({ id: "_txt_doYouWantToAllowAnyoneToBuyThisWishOrFriendsOnly_a9e.___NewWishPage", defaultMessage: "Do you want to allow anyone to buy this wish, or friends only?" });
+// const _txt_friendsOnly_6c8 = intl.formatMessage({ id: "_txt_friendsOnly_6c8.___NewWishPage", defaultMessage: "Friends Only" });
+// const _txt_publicMarketplace_433 = intl.formatMessage({ id: "_txt_publicMarketplace_433.___NewWishPage", defaultMessage: "Public Marketplace" });
+// const _txt_optionalCountdownTimerForYourEventOrWish_5cc = intl.formatMessage({ id: "_txt_optionalCountdownTimerForYourEventOrWish_5cc.___NewWishPage", defaultMessage: "Optional countdown timer for your event or wish." });
+// const _txt_countdown_fae = intl.formatMessage({ id: "_txt_countdown_fae.___NewWishPage", defaultMessage: "Countdown" });
+// const _txt_favorite_317 = intl.formatMessage({ id: "_txt_favorite_317.___NewWishPage", defaultMessage: "Favorite" });
+// const _txt_isThisAFavoritedWishlistItem_cc3 = intl.formatMessage({ id: "_txt_isThisAFavoritedWishlistItem_cc3.___NewWishPage", defaultMessage: "Is this a favorited wishlist item?" });
+// const _txt_regular_a2d = intl.formatMessage({ id: "_txt_regular_a2d.___NewWishPage", defaultMessage: "Regular" });
+// const _txt_stickerGraphic_30e = intl.formatMessage({ id: "_txt_stickerGraphic_30e.___NewWishPage", defaultMessage: "Sticker Graphic" });
+// const _txt_anyoneWhoBuysYourWishlistItemWillGetAnExclusiveStickerForChat_502 = intl.formatMessage({ id: "_txt_anyoneWhoBuysYourWishlistItemWillGetAnExclusiveStickerForChat_502.___NewWishPage", defaultMessage: "Anyone who buys your wishlist item will get an exclusive sticker for chat" });
+// const _txt_uploading_eb6 = intl.formatMessage({ id: "_txt_uploading_eb6.___NewWishPage", defaultMessage: "Uploading..." });
+// const _txt_changeSticker_a62 = intl.formatMessage({ id: "_txt_changeSticker_a62.___NewWishPage", defaultMessage: "Change Sticker" });
+// const _txt_stickerName_265 = intl.formatMessage({ id: "_txt_stickerName_265.___NewWishPage", defaultMessage: "Sticker Name" });
+// const _txt_theNameOfTheStickerThatBuyersWillSeeInTheirChats_9bc = intl.formatMessage({ id: "_txt_theNameOfTheStickerThatBuyersWillSeeInTheirChats_9bc.___NewWishPage", defaultMessage: "The name of the sticker that buyers will see in their chats." });
+// const _txt_stickerNameOptional_24e = intl.formatMessage({ id: "_txt_stickerNameOptional_24e.___NewWishPage", defaultMessage: "Sticker Name (optional)" });
+
+export const varsComponentName = "NewWishPage"
+  

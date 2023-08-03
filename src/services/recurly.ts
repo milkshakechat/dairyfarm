@@ -90,6 +90,7 @@ export const createRecurlyPlan = async ({
     trialRequiresBillingInfo: false,
     intervalUnit: "months",
     intervalLength: 1,
+    allowAnyItemOnSubscriptions: true,
     currencies: [
       {
         currency: "USD",
