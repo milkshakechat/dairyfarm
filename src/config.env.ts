@@ -119,6 +119,9 @@ const devConfig: ConfigEnv = {
     getWallet: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
     },
+    createWallet: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+    },
   },
 };
 const stagingConfig: ConfigEnv = {
@@ -236,6 +239,9 @@ const stagingConfig: ConfigEnv = {
     getWallet: {
       url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
     },
+    createWallet: {
+      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+    },
   },
 };
 
@@ -290,7 +296,7 @@ const prodConfig: ConfigEnv = {
   SENDBIRD: {
     SENDBIRD_APP_ID: "AE88AAA6-1206-4FEF-B384-052B14A3C6B6",
     API_URL: "https://api-AE88AAA6-1206-4FEF-B384-052B14A3C6B6.sendbird.com",
-    WEBHOOK_URL: "https://sendbirdpushnotifications-hcdyzvq35a-uc.a.run.app/",
+    WEBHOOK_URL: "https://sendbirdpushnotifications-qagjtluvcq-uc.a.run.app/",
   },
   FIREBASE: {
     apiKey: "AIzaSyDDl7fwpaw2jq0e4P9HXLVRBiHgPUlvNX4",
@@ -302,14 +308,14 @@ const prodConfig: ConfigEnv = {
     measurementId: "G-Z8YF9KBJ8F",
   },
   GRAPHQL: {
-    CORS_ORIGINS: ["https://milkshake.club"],
+    CORS_ORIGINS: ["https://milkshake.club", "https://milkshake-club.web.app"],
   },
   STRIPE: {
     merchantOnboardingSuccessUrl:
       "https://milkshake.club/app/profile/settings/merchant/banking-registration-init",
     merchantOnboardingFailureUrl:
       "https://milkshake.club/app/profile/settings/merchant/banking-registration-refresh",
-    webhookEndpoint: "https://onpurchaseintentsuccess-hcdyzvq35a-uc.a.run.app/",
+    webhookEndpoint: "https://onpurchaseintentsuccess-qagjtluvcq-uc.a.run.app/",
   },
   LEDGER: {
     region: "us-east-2",
@@ -336,19 +342,22 @@ const prodConfig: ConfigEnv = {
   },
   WALLET_GATEWAY: {
     postTransaction: {
-      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction",
+      url: "https://5chl6vcl2c.execute-api.us-east-2.amazonaws.com/Production/transaction",
     },
     permaTransfer: {
-      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/permatransfer",
+      url: "https://5chl6vcl2c.execute-api.us-east-2.amazonaws.com/Production/permatransfer",
     },
     recallTransaction: {
-      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/recall",
+      url: "https://5chl6vcl2c.execute-api.us-east-2.amazonaws.com/Production/transaction/recall",
     },
     cashoutTransaction: {
-      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/transaction/cashout",
+      url: "https://5chl6vcl2c.execute-api.us-east-2.amazonaws.com/Production/transaction/cashout",
     },
     getWallet: {
-      url: "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+      url: "https://5chl6vcl2c.execute-api.us-east-2.amazonaws.com/Production/wallet",
+    },
+    createWallet: {
+      url: "https://5chl6vcl2c.execute-api.us-east-2.amazonaws.com/Production/wallet",
     },
   },
 };
@@ -429,6 +438,9 @@ interface ConfigEnv {
     getWallet: {
       url: string;
     };
+    createWallet: {
+      url: string;
+    };
   };
 }
 
@@ -442,9 +454,10 @@ export default (() => {
   // console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
   if (process.env.NODE_ENV === "production") {
     return prodConfig;
-    // @ts-ignore
   } else if (process.env.NODE_ENV === "staging") {
     return stagingConfig;
+  } else if (process.env.NODE_ENV === "development") {
+    return devConfig;
   }
-  return devConfig;
+  return prodConfig;
 })();

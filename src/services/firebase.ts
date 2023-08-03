@@ -12,14 +12,15 @@ export let auth: admin.auth.Auth;
 export let messaging: admin.messaging.Messaging;
 export let GeoFireX: geofirex.GeoFireClient;
 export const initFirebase = async () => {
-  console.log(`Init Firebase...`);
+  console.log("Init Firebase...");
   const firebaseConfig = await getFirebaseConfig();
-
+  console.log("--- got config");
   // load firebase app credentials using secretmanager
   // https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments
   // app = admin.initializeApp(firebaseConfig);
-
+  console.log("getting creds...");
   const credentials = await accessLocalGCPKeyFile();
+  console.log("got creds...");
   const credential = admin.credential.cert(credentials as admin.ServiceAccount);
   app = admin.initializeApp({ ...firebaseConfig, credential });
 

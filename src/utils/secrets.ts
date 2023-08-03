@@ -14,27 +14,36 @@ async function accessSecretVersionGCP({
   secretId: string;
   versionId: string;
 }): Promise<string> {
+  console.log(`accessSecretVersionGCP --> ${secretId}...`);
   // path to repo working directory
   const base64KeyFile = Buffer.from(
     process.env.GCP_KEYFILE_BASE64 || "",
     "base64"
   ).toString("utf-8");
+  console.log(`base64KeyFile --> ${base64KeyFile.slice(0, 100)}`);
   const credentials = JSON.parse(base64KeyFile);
+  console.log(`credentials --> ${Object.keys(credentials)}`);
   // Create a GoogleAuth instance with the credentials
   const auth = new GoogleAuth({
     credentials,
   });
+  console.log("--- auth");
   const client = new SecretManagerServiceClient({
     // Option 1: path to service account keyfile
     // keyFilename: pathToKeyFile,
     // Option 2: stringified service account as .ENV variable
     auth,
   });
+  console.log("--- client");
   const name = `projects/${projectId}/secrets/${secretId}/versions/${versionId}`;
 
+  console.log("--- name", name);
   const [response] = await client.accessSecretVersion({ name });
 
+  console.log("--- response");
   const secretValue = response.payload?.data?.toString();
+
+  console.log(`secretValue = ${secretValue?.slice(0, 100)}`);
   if (!secretValue) {
     throw Error("No secret value found");
   }
@@ -42,12 +51,20 @@ async function accessSecretVersionGCP({
 }
 
 export const accessLocalGCPKeyFile = async () => {
+  console.log(
+    "here we go...",
+    (process.env.GCP_KEYFILE_BASE64 || "").slice(0, 100)
+  );
   // path to repo working directory
   const base64KeyFile = Buffer.from(
     process.env.GCP_KEYFILE_BASE64 || "",
     "base64"
   ).toString("utf-8");
+  console.log("Got the base64");
+  console.log("base64KeyFile", base64KeyFile.slice(0, 100));
+  console.log("typeof base64KeyFile", typeof base64KeyFile);
   const credentials = JSON.parse(base64KeyFile);
+  console.log("got credentials", Object.keys(credentials));
   return credentials;
 };
 
@@ -71,11 +88,14 @@ export interface FirebaseConfig {
   measurementId: string;
 }
 export const getFirebaseConfig = async () => {
+  console.log("getFirebaseConfig...");
   const firebaseConfig = await accessSecretVersionGCP({
     projectId: config.GCLOUD.projectId,
     secretId: config.SECRETS.FIREBASE_CONFIG.secretId,
     versionId: config.SECRETS.FIREBASE_CONFIG.versionId,
   });
+  console.log("firebaseConfig", firebaseConfig.slice(0, 100));
+  console.log("typeof firebaseConfig", typeof firebaseConfig);
   // return firebaseConfig as unknown as FirebaseConfig;
   return JSON.parse(firebaseConfig) as FirebaseConfig;
 };

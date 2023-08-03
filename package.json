@@ -7,12 +7,15 @@
     "clean": "rimraf build",
     "type-check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_ENV=development && npx ts-node --project tsconfig.json -r tsconfig-paths/register ./src/index.ts",
-    "build": "NODE_ENV=development && npm run clean && npm run generate && tsc && tsc-alias",
+    "dev": "NODE_ENV=development npx ts-node --project tsconfig.json -r tsconfig-paths/register ./src/index.ts",
+    "dev:prod": "NODE_ENV=production npx ts-node --project tsconfig.json -r tsconfig-paths/register ./src/index.ts",
+    "build": "npm run clean && npm run generate && tsc && tsc-alias",
     "generate": "graphql-codegen",
-    "start": "NODE_ENV=development && nodemon  -r tsconfig-paths/register build/index.js",
-    "deploy:staging": "NODE_ENV=development && npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-dev-faf77 --update-env-vars NODE_ENV=development --region=us-west3",
-    "deploy:production": "NODE_ENV=production && npm install && npm run build && gcloud run deploy milkshake-sockets --memory 1024Mi --project=milkshake-club --update-env-vars NODE_ENV=production --region=us-west3"
+    "start": "nodemon -r tsconfig-paths/register build/index.js",
+    "start:staging": "NODE_ENV=staging nodemon -r tsconfig-paths/register build/index.js",
+    "start:production": "NODE_ENV=production nodemon -r tsconfig-paths/register build/index.js",
+    "deploy:staging": "firebase use milkshake-dev-faf77 && npm install && NODE_ENV=staging npm run build && NODE_ENV=staging gcloud run deploy milkshake-sockets --memory 1024Mi --project milkshake-dev-faf77 --update-env-vars NODE_ENV=staging --region us-west3  --port 8080",
+    "deploy:production": "npm install && NODE_ENV=production npm run build && NODE_ENV=production gcloud run deploy milkshake-sockets --memory 1024Mi --project milkshake-club --update-env-vars NODE_ENV=production --region us-west3 --port 8080"
   },
   "_moduleAliases": {
     "@": "build/src"

@@ -1,4 +1,10 @@
 // npx ts-node --project tsconfig.scripts.json -r tsconfig-paths/register ./src/scripts/quantum-sandbox.ts
+// NODE_ENV=production npx ts-node --project tsconfig.scripts.json -r tsconfig-paths/register ./src/scripts/quantum-sandbox.ts
+
+import dotenv from "dotenv";
+dotenv.config({
+  path: process.env.NODE_ENV === "production" ? ".env.production" : ".env",
+});
 
 import { initFirebase } from "@/services/firebase";
 import config from "@/config.env";
@@ -31,12 +37,11 @@ const run = async () => {
 
   // create indexes
   await initQuantumLedger_Drivers();
-  await createGlobalStore_QuantumLedger({
-    note: "Created from developer computer",
-    balance: 10000,
-  });
+
   // await createTables_QuantumLedger();
   // await generate256BitKey(); // for cross-cloud api communication
+
+  await createGlobalStore_QuantumLedger();
 
   // create wallets locally
   // await createWallet_QuantumLedger({

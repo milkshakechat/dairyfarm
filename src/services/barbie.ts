@@ -133,7 +133,7 @@ export const seedPopulation = async (
       Username: ${user.username}
       `);
       const unix = Date.now();
-      const email = `milkshake.assist+${unix}@gmail.com`;
+      const email = `assist.milkshake+${unix}@gmail.com`;
       const password = uuidv4();
       const genesisID = user.genesisID as MockUserGenesisID;
       const res = await getAuth().createUser({
