@@ -95,11 +95,13 @@ export const createLedger_startupScript = async () => {
 };
 
 export const createTables_QuantumLedger = async () => {
+  console.log("createTables_QuantumLedger...");
   // https://chat.openai.com/c/0c39b4c2-f321-40d3-946c-2de5d0294f98
   await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
     await txn.execute("CREATE TABLE Wallets");
     await txn.execute("CREATE TABLE Transactions");
   });
+  console.log("Created tables");
 
   await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
     await txn.execute(`CREATE INDEX ON Wallets (id)`);
@@ -107,6 +109,7 @@ export const createTables_QuantumLedger = async () => {
     await txn.execute(`CREATE INDEX ON Wallets (walletAliasID)`);
     await txn.execute(`CREATE INDEX ON Transactions (id)`);
   });
+  console.log("Created table indexes");
 };
 
 /**
@@ -148,18 +151,22 @@ export const initQuantumLedger_Drivers = async () => {
   return qldbDriver;
 };
 
-export const createGlobalStore_QuantumLedger = async ({
-  note = "",
-  balance,
-}: {
-  note?: string;
-  balance: number;
-}) => {
-  const walletAliasID = config.LEDGER.premiumChatStore.walletAliasID;
+export const createGlobalStore_QuantumLedger = async () => {
   // const walletAliasID = config.LEDGER.globalCookieStore.walletAliasID;
+  // const ownerID = config.LEDGER.globalCookieStore.userID;
+  // const title = `Global Cookie Store - ${walletAliasID}`;
+  // const note = "Genesis Store - Created by Developer";
+  // const balance = 10000; // this is updated manually
 
+  const walletAliasID = config.LEDGER.premiumChatStore.walletAliasID;
   const ownerID = config.LEDGER.premiumChatStore.userID;
+  const title = `Premium Chat Store - ${walletAliasID}`;
+  const note = "Genesis Store - Created by Developer";
+  const balance = 10000; // this is updated manually
+
   console.log(`Creating global store with walletAliasID=${walletAliasID}`);
+  console.log("ownerID", ownerID);
+  console.log("process.env.NODE_ENV", process.env.NODE_ENV);
   // if (qldbDriver) {
   //   await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
   //     // Check if doc with match condition exists
@@ -192,14 +199,14 @@ export const createGlobalStore_QuantumLedger = async ({
   // }
   const xcloudSecret = await getXCloudAWSSecret();
   const wallet = {
-    title: `Upgrade Premium Chat - ${walletAliasID}`,
+    title,
     note,
     userID: ownerID,
     type: WalletType.STORE,
     walletAliasID,
   };
   const data = await axios.post(
-    "https://ukywzxz9dc.execute-api.ap-northeast-1.amazonaws.com/Staging/wallet",
+    config.WALLET_GATEWAY.createWallet.url,
     wallet,
     {
       headers: {
@@ -211,6 +218,8 @@ export const createGlobalStore_QuantumLedger = async ({
   console.log(data);
 };
 
+// !be careful using this
+// make sure config.LEDGER.globalCookieStore.walletAliasID exists
 export const seedCookiesFromStore_Tx = async ({
   title = "Seed cookies from global store",
   receivingWallet,

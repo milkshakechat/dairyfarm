@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({
+  path: process.env.NODE_ENV === "production" ? ".env.production" : ".env",
+});
 
 import { createServer } from "http";
 import { createYoga, Plugin } from "graphql-yoga";
@@ -8,13 +10,17 @@ import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { schema } from "@/graphql";
 import { initFirebase } from "@/services/firebase";
-import config from "@/config.env";
 import { initStripe } from "./services/stripe";
+import config from "@/config.env";
+
+console.log(" ========= DAIRYFARM ========= ");
 
 const init = async () => {
+  console.log("Initializing..");
   await initFirebase();
+  console.log("whoa");
   await initStripe();
-
+  console.log("------ confirmed working -------");
   const SOCKETS_PORT = process.env.PORT || 8080;
 
   const yogaPlugins = [];
