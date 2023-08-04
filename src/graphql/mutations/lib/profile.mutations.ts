@@ -72,7 +72,7 @@ export const modifyProfile = async (
   if (args.input.username || args.input.avatar) {
     let p: Partial<MirrorPublicUser_Firestore> = {};
     if (args.input.username) {
-      p.username = args.input.username as Username;
+      p.username = args.input.username.toLowerCase() as Username;
     }
     if (args.input.avatar) {
       p.avatar = args.input.avatar;

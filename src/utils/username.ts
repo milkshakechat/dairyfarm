@@ -8,7 +8,7 @@ export const checkIfUsernameAvailable = async (
     where: {
       field: "username",
       operator: "==",
-      value: username,
+      value: username.toLowerCase(),
     },
     collection: FirestoreCollection.USERS,
   });
