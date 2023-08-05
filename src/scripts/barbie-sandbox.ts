@@ -118,7 +118,7 @@ const seedStories = [
   },
 ] as SeedStory[];
 
-const run = async () => {
+const run_dev = async () => {
   console.log(`Running script Barbie World...`);
   await initFirebase();
 
@@ -526,4 +526,18 @@ const run = async () => {
   //   prefGeoBias: false,
   // });
 };
-run();
+const run_prod = async () => {
+  console.log(`Running script Barbie World...`);
+  await initFirebase();
+
+  const women = ["ruby84187", "savinnababy", "amyeatsdrinks"] as Username[];
+  await seedUniverse({
+    usernames: women,
+    gender: genderEnum.female,
+    interestedIn: [genderEnum.male],
+    saveLocal: true,
+  });
+};
+
+// run_dev();
+run_prod();
