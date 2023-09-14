@@ -4,7 +4,9 @@ The backend server for Milkshake Chat
 
 
 
-https://github.com/milkshakechat/dairyfarm/assets/96885027/87c8a67a-a736-4218-8cb1-07f4d862ab97
+https://www.youtube.com/shorts/GJWhyiDRjOk
+
+[video](https://github.com/milkshakechat/milkshake/assets/96885027/6a80b351-9409-49ca-a729-2d9bc3dddefd)
 
 
 
